@@ -1,0 +1,112 @@
+import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "wouter";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Shield, AlertTriangle, Loader2 } from "lucide-react";
+
+const ADMIN_EMAIL = "fusionforgepc@gmail.com";
+
+interface AdminAuthGuardProps {
+  children: React.ReactNode;
+}
+
+export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
+  const { user, loading, logout } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setLocation('/admin/login');
+    }
+  }, [user, loading, setLocation]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-light-grey flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-400" />
+              <p className="text-gray-600">Verifying admin access...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+    return (
+      <div className="min-h-screen bg-light-grey flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+            <CardTitle className="text-xl font-bold text-red-700">
+              Access Denied
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <Alert className="border-red-200 bg-red-50">
+              <AlertDescription className="text-red-700">
+                You are not authorized to access the admin panel. Only the designated admin account can access this area.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 mb-2">
+                <strong>Your Account:</strong> {user.email}
+              </p>
+              <p className="text-sm text-gray-600">
+                <strong>Required Admin Account:</strong> {ADMIN_EMAIL}
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => logout()} 
+                variant="outline" 
+                className="flex-1"
+              >
+                Logout
+              </Button>
+              <Button 
+                onClick={() => setLocation('/')} 
+                className="flex-1"
+              >
+                Go Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-light-grey">
+      <div className="bg-white shadow-sm border-b">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-green-600" />
+              <span className="font-medium text-gray-900">Admin Panel</span>
+              <span className="text-sm text-gray-500">• {user.email}</span>
+            </div>
+            <Button onClick={() => logout()} variant="outline" size="sm">
+              Logout
+            </Button>
+          </div>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#000000"/>
+  
+  <!-- High-End PC Case -->
+  <rect x="120" y="50" width="160" height="200" rx="12" fill="#0f172a" stroke="#dc2626" stroke-width="4"/>
+  
+  <!-- Tempered Glass Panel -->
+  <rect x="130" y="60" width="140" height="180" rx="8" fill="#1e293b" stroke="#475569" stroke-width="2" opacity="0.8"/>
+  
+  <!-- Premium RGB System -->
+  <rect x="135" y="65" width="130" height="8" rx="4" fill="#dc2626"/>
+  <rect x="135" y="75" width="130" height="8" rx="4" fill="#f59e0b"/>
+  <rect x="135" y="85" width="130" height="8" rx="4" fill="#10b981"/>
+  <rect x="135" y="95" width="130" height="8" rx="4" fill="#3b82f6"/>
+  <rect x="135" y="105" width="130" height="8" rx="4" fill="#8b5cf6"/>
+  
+  <!-- Premium Power Button -->
+  <circle cx="200" cy="130" r="15" fill="#dc2626" stroke="#991b1b" stroke-width="3"/>
+  <circle cx="200" cy="130" r="8" fill="#ffffff" opacity="0.8"/>
+  
+  <!-- High-Performance Fans -->
+  <circle cx="160" cy="170" r="30" fill="#1e293b" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="240" cy="170" r="30" fill="#1e293b" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="160" cy="220" r="30" fill="#1e293b" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="240" cy="220" r="30" fill="#1e293b" stroke="#dc2626" stroke-width="3"/>
+  
+  <!-- Fan RGB Rings -->
+  <circle cx="160" cy="170" r="22" fill="none" stroke="#dc2626" stroke-width="2" opacity="0.7"/>
+  <circle cx="240" cy="170" r="22" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.7"/>
+  <circle cx="160" cy="220" r="22" fill="none" stroke="#10b981" stroke-width="2" opacity="0.7"/>
+  <circle cx="240" cy="220" r="22" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Fan Blades -->
+  <path d="M 150 160 L 170 180 M 170 160 L 150 180" stroke="#dc2626" stroke-width="3"/>
+  <path d="M 230 160 L 250 180 M 250 160 L 230 180" stroke="#f59e0b" stroke-width="3"/>
+  <path d="M 150 210 L 170 230 M 170 210 L 150 230" stroke="#10b981" stroke-width="3"/>
+  <path d="M 230 210 L 250 230 M 250 210 L 230 230" stroke="#3b82f6" stroke-width="3"/>
+  
+  <!-- High-End Gaming Monitor -->
+  <rect x="290" y="30" width="120" height="80" rx="6" fill="#000000" stroke="#dc2626" stroke-width="3"/>
+  <rect x="295" y="35" width="110" height="65" fill="#0f172a"/>
+  
+  <!-- Gaming Scene -->
+  <rect x="300" y="40" width="100" height="55" fill="#1a1a2e"/>
+  <rect x="305" y="45" width="30" height="45" fill="#16213e"/>
+  <rect x="340" y="50" width="55" height="35" fill="#0f3460"/>
+  <text x="360" y="70" font-family="Arial" font-size="10" fill="#dc2626" font-weight="bold">165 FPS</text>
+  <text x="360" y="80" font-family="Arial" font-size="8" fill="#10b981">RTX ON</text>
+  
+  <!-- Premium Monitor Stand -->
+  <rect x="345" y="110" width="10" height="30" fill="#374151"/>
+  <rect x="330" y="140" width="40" height="10" rx="5" fill="#6b7280"/>
+  
+  <!-- Mechanical Gaming Keyboard -->
+  <rect x="280" y="180" width="150" height="45" rx="6" fill="#0f172a" stroke="#dc2626" stroke-width="2"/>
+  <rect x="285" y="185" width="140" height="35" fill="#1e293b"/>
+  
+  <!-- Premium Keycaps -->
+  <rect x="295" y="195" width="12" height="12" rx="2" fill="#dc2626"/>
+  <rect x="310" y="195" width="12" height="12" rx="2" fill="#f59e0b"/>
+  <rect x="325" y="195" width="12" height="12" rx="2" fill="#10b981"/>
+  <rect x="340" y="195" width="12" height="12" rx="2" fill="#3b82f6"/>
+  <rect x="355" y="195" width="12" height="12" rx="2" fill="#8b5cf6"/>
+  <rect x="370" y="195" width="45" height="12" rx="2" fill="#374151"/>
+  
+  <!-- Gaming Mouse -->
+  <ellipse cx="440" cy="200" rx="25" ry="18" fill="#0f172a" stroke="#dc2626" stroke-width="2"/>
+  <circle cx="440" cy="195" r="5" fill="#dc2626"/>
+  <rect x="430" y="210" width="20" height="4" rx="2" fill="#dc2626"/>
+  <circle cx="425" cy="190" r="2" fill="#10b981"/>
+  <circle cx="455" cy="190" r="2" fill="#f59e0b"/>
+  
+  <!-- Premium Headset -->
+  <path d="M 50 100 Q 70 80 90 100" stroke="#dc2626" stroke-width="6" fill="none"/>
+  <circle cx="50" cy="100" r="15" fill="#0f172a" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="90" cy="100" r="15" fill="#0f172a" stroke="#dc2626" stroke-width="3"/>
+  
+  <!-- Cables -->
+  <path d="M 280 200 Q 300 210 310 180" stroke="#dc2626" stroke-width="4" fill="none"/>
+  <path d="M 290 220 Q 310 230 320 200" stroke="#10b981" stroke-width="3" fill="none"/>
+  <path d="M 290 140 Q 270 150 250 120" stroke="#3b82f6" stroke-width="3" fill="none"/>
+  
+  <!-- Title -->
+  <text x="200" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#dc2626">Gaming Enthusiast</text>
+  <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#94a3b8">Ultimate Performance Beast</text>
+</svg>

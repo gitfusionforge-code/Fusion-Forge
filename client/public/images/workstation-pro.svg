@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#fafafa"/>
+  
+  <!-- Professional Workstation Case -->
+  <rect x="100" y="40" width="200" height="220" rx="15" fill="#18181b" stroke="#71717a" stroke-width="3"/>
+  
+  <!-- Professional Front Panel -->
+  <rect x="110" y="50" width="180" height="200" rx="10" fill="#27272a"/>
+  
+  <!-- Minimalist Design Elements -->
+  <rect x="120" y="60" width="160" height="4" rx="2" fill="#71717a"/>
+  <rect x="120" y="70" width="160" height="4" rx="2" fill="#a1a1aa"/>
+  
+  <!-- Professional Power Button -->
+  <circle cx="200" cy="90" r="12" fill="#3f3f46" stroke="#71717a" stroke-width="2"/>
+  <circle cx="200" cy="90" r="6" fill="#ffffff"/>
+  
+  <!-- Professional Cooling System -->
+  <circle cx="150" cy="130" r="35" fill="#3f3f46" stroke="#71717a" stroke-width="3"/>
+  <circle cx="250" cy="130" r="35" fill="#3f3f46" stroke="#71717a" stroke-width="3"/>
+  <circle cx="150" cy="190" r="35" fill="#3f3f46" stroke="#71717a" stroke-width="3"/>
+  <circle cx="250" cy="190" r="35" fill="#3f3f46" stroke="#71717a" stroke-width="3"/>
+  
+  <!-- Fan Details -->
+  <circle cx="150" cy="130" r="25" fill="none" stroke="#71717a" stroke-width="2"/>
+  <circle cx="250" cy="130" r="25" fill="none" stroke="#71717a" stroke-width="2"/>
+  <circle cx="150" cy="190" r="25" fill="none" stroke="#71717a" stroke-width="2"/>
+  <circle cx="250" cy="190" r="25" fill="none" stroke="#71717a" stroke-width="2"/>
+  
+  <!-- Professional Monitor Setup -->
+  <rect x="320" y="20" width="140" height="90" rx="8" fill="#18181b" stroke="#71717a" stroke-width="2"/>
+  <rect x="325" y="25" width="130" height="75" fill="#27272a"/>
+  
+  <!-- Workstation Display -->
+  <rect x="330" y="30" width="120" height="65" fill="#0c4a6e"/>
+  <rect x="335" y="35" width="25" height="55" fill="#0369a1"/>
+  <rect x="365" y="40" width="80" height="45" fill="#0284c7"/>
+  <text x="380" y="65" font-family="Arial" font-size="8" fill="#ffffff">CAD Model</text>
+  <text x="380" y="75" font-family="Arial" font-size="6" fill="#94a3b8">Rendering...</text>
+  
+  <!-- Professional Monitor Stand -->
+  <rect x="385" y="110" width="12" height="35" fill="#71717a"/>
+  <rect x="370" y="145" width="42" height="12" rx="6" fill="#a1a1aa"/>
+  
+  <!-- Professional Keyboard -->
+  <rect x="310" y="180" width="160" height="50" rx="6" fill="#27272a" stroke="#3f3f46" stroke-width="2"/>
+  <rect x="315" y="185" width="150" height="40" fill="#18181b"/>
+  
+  <!-- Minimalist Keys -->
+  <rect x="325" y="195" width="12" height="12" rx="2" fill="#3f3f46"/>
+  <rect x="340" y="195" width="12" height="12" rx="2" fill="#3f3f46"/>
+  <rect x="355" y="195" width="12" height="12" rx="2" fill="#3f3f46"/>
+  <rect x="370" y="195" width="12" height="12" rx="2" fill="#3f3f46"/>
+  <rect x="385" y="195" width="12" height="12" rx="2" fill="#3f3f46"/>
+  <rect x="400" y="195" width="50" height="12" rx="2" fill="#52525b"/>
+  
+  <!-- Professional Mouse -->
+  <ellipse cx="480" cy="200" rx="22" ry="16" fill="#27272a" stroke="#3f3f46" stroke-width="2"/>
+  <circle cx="480" cy="195" r="4" fill="#71717a"/>
+  <rect x="470" y="210" width="20" height="3" rx="1" fill="#52525b"/>
+  
+  <!-- Precision Drawing Tablet -->
+  <rect x="40" y="120" width="80" height="60" rx="4" fill="#27272a" stroke="#3f3f46" stroke-width="2"/>
+  <rect x="45" y="125" width="70" height="50" fill="#18181b"/>
+  <circle cx="80" cy="150" r="2" fill="#71717a"/>
+  <rect x="75" y="160" width="10" height="2" fill="#a1a1aa"/>
+  
+  <!-- Professional Stylus -->
+  <rect x="20" y="140" width="2" height="20" fill="#71717a"/>
+  <circle cx="21" cy="138" r="2" fill="#3f3f46"/>
+  
+  <!-- Cables - Clean Management -->
+  <path d="M 310 200 Q 320 210 325 185" stroke="#52525b" stroke-width="3" fill="none"/>
+  <path d="M 320 230 Q 305 235 300 210" stroke="#71717a" stroke-width="2" fill="none"/>
+  <path d="M 320 130 Q 300 140 290 120" stroke="#71717a" stroke-width="2" fill="none"/>
+  
+  <!-- Professional Indicators -->
+  <circle cx="120" cy="240" r="3" fill="#22c55e"/>
+  <circle cx="130" cy="240" r="3" fill="#eab308"/>
+  <circle cx="140" cy="240" r="3" fill="#3b82f6"/>
+  <text x="150" y="245" font-family="Arial" font-size="8" fill="#71717a">READY</text>
+  
+  <!-- Title -->
+  <text x="200" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#18181b">Workstation Pro</text>
+  <text x="200" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#71717a">Professional Computing Power</text>
+</svg>

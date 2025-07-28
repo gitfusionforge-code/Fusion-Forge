@@ -1,0 +1,343 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
+
+/* Reduce layout shifts */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Optimize animations */
+.transition-transform {
+  will-change: transform;
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(217, 33%, 17%);
+  --muted: hsl(210, 29%, 97%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(217, 33%, 17%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(217, 33%, 17%);
+  --border: hsl(214, 13%, 90%);
+  --input: hsl(214, 13%, 90%);
+  --primary: hsl(14, 100%, 60%);
+  --primary-foreground: hsl(210, 29%, 97%);
+  --secondary: hsl(210, 29%, 97%);
+  --secondary-foreground: hsl(217, 33%, 17%);
+  --accent: hsl(210, 29%, 97%);
+  --accent-foreground: hsl(217, 33%, 17%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 29%, 97%);
+  --ring: hsl(217, 33%, 17%);
+  --radius: 0.5rem;
+  --tech-orange: hsl(25, 100%, 55%);
+  --deep-blue: hsl(225, 80%, 25%);
+  --light-grey: hsl(217, 33%, 97%);
+  --dark-slate: hsl(225, 35%, 15%);
+  --bright-blue: hsl(210, 100%, 50%);
+  --fusion-orange: hsl(25, 100%, 55%);
+  --fusion-blue: hsl(210, 100%, 50%);
+  --fusion-purple: hsl(270, 80%, 40%);
+  --success-green: hsl(145, 63%, 42%);
+}
+
+/* Custom gradient utilities for Fusion Forge branding */
+.fusion-gradient {
+  background: linear-gradient(135deg, 
+    hsl(210, 100%, 50%) 0%, 
+    hsl(270, 80%, 40%) 50%, 
+    hsl(25, 100%, 55%) 100%);
+}
+
+.fusion-text-gradient {
+  background: linear-gradient(135deg, 
+    hsl(210, 100%, 50%) 0%, 
+    hsl(25, 100%, 55%) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.fusion-border-gradient {
+  border-image: linear-gradient(135deg, 
+    hsl(210, 100%, 50%) 0%, 
+    hsl(25, 100%, 55%) 100%) 1;
+}
+
+.dark {
+  --background: hsl(217, 33%, 17%);
+  --foreground: hsl(210, 29%, 97%);
+  --muted: hsl(217, 19%, 27%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(217, 33%, 17%);
+  --popover-foreground: hsl(210, 29%, 97%);
+  --card: hsl(217, 33%, 17%);
+  --card-foreground: hsl(210, 29%, 97%);
+  --border: hsl(217, 19%, 27%);
+  --input: hsl(217, 19%, 27%);
+  --primary: hsl(14, 100%, 60%);
+  --primary-foreground: hsl(210, 29%, 97%);
+  --secondary: hsl(217, 19%, 27%);
+  --secondary-foreground: hsl(210, 29%, 97%);
+  --accent: hsl(217, 19%, 27%);
+  --accent-foreground: hsl(210, 29%, 97%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 29%, 97%);
+  --ring: hsl(215, 20%, 65%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-light-grey text-dark-slate font-sans antialiased;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    color: hsl(217, 33%, 17%) !important;
+    scroll-behavior: smooth;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: hsl(217, 33%, 17%) !important;
+  }
+  
+  p {
+    color: hsl(217, 19%, 35%) !important;
+  }
+  
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer components {
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  /* Loading skeleton */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Button enhancements */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 transform hover:scale-105 active:scale-95;
+  }
+
+  /* Card enhancements */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  /* Custom utilities for PC Build specific styles */
+  .build-card {
+    @apply bg-card text-card-foreground rounded-lg border shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  .performance-bar {
+    @apply h-2 bg-muted rounded-full overflow-hidden;
+  }
+
+  .performance-fill {
+    @apply h-full bg-gradient-to-r from-green-500 to-blue-500 rounded-full transition-all duration-500;
+  }
+}
+
+@layer utilities {
+  .text-tech-orange {
+    color: hsl(14, 100%, 60%) !important;
+  }
+  
+  .bg-tech-orange {
+    background-color: hsl(14, 100%, 60%) !important;
+  }
+  
+  .text-deep-blue {
+    color: hsl(207, 100%, 27%) !important;
+  }
+  
+  .bg-deep-blue {
+    background-color: hsl(207, 100%, 27%) !important;
+  }
+  
+  .text-bright-blue {
+    color: hsl(199, 100%, 46%) !important;
+  }
+  
+  .bg-light-grey {
+    background-color: hsl(217, 33%, 97%) !important;
+  }
+  
+  .text-dark-slate {
+    color: hsl(217, 33%, 17%) !important;
+  }
+  
+  .text-success-green {
+    color: hsl(145, 63%, 42%) !important;
+  }
+  
+  .bg-bright-blue {
+    background-color: hsl(199, 100%, 46%) !important;
+  }
+  
+  .bg-success-green {
+    background-color: hsl(145, 63%, 42%) !important;
+  }
+  
+  .bg-dark-slate {
+    background-color: hsl(217, 33%, 17%) !important;
+  }
+  
+  /* Additional contrast helpers */
+  .text-gray-600 {
+    color: hsl(217, 19%, 35%) !important;
+  }
+  
+  .text-gray-700 {
+    color: hsl(217, 19%, 27%) !important;
+  }
+  
+  .text-white {
+    color: white !important;
+  }
+
+  /* Responsive text sizing */
+  .text-responsive-xs { font-size: clamp(0.75rem, 2vw, 0.875rem); }
+  .text-responsive-sm { font-size: clamp(0.875rem, 2.5vw, 1rem); }
+  .text-responsive-base { font-size: clamp(1rem, 3vw, 1.125rem); }
+  .text-responsive-lg { font-size: clamp(1.125rem, 3.5vw, 1.25rem); }
+  .text-responsive-xl { font-size: clamp(1.25rem, 4vw, 1.5rem); }
+  .text-responsive-2xl { font-size: clamp(1.5rem, 5vw, 2rem); }
+  .text-responsive-3xl { font-size: clamp(2rem, 6vw, 3rem); }
+
+  /* Container utilities */
+  .container-responsive {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  /* Spacing utilities */
+  .section-padding {
+    @apply py-16 lg:py-24;
+  }
+
+  .content-padding {
+    @apply py-8 lg:py-12;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

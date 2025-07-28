@@ -1,0 +1,78 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Mid-Range Gaming PC -->
+  <rect width="400" height="300" fill="#1a1a1a"/>
+  
+  <!-- PC Case - Gaming Style -->
+  <rect x="100" y="60" width="200" height="200" fill="#2a2a2a" stroke="#444" stroke-width="2" rx="12"/>
+  
+  <!-- Tempered Glass Side Panel -->
+  <rect x="110" y="70" width="180" height="180" fill="rgba(0,0,0,0.7)" stroke="#666" stroke-width="1" rx="8"/>
+  
+  <!-- RGB LED Strips -->
+  <rect x="115" y="75" width="170" height="4" fill="url(#rgbGradient)" rx="2"/>
+  <rect x="115" y="240" width="170" height="4" fill="url(#rgbGradient)" rx="2"/>
+  <rect x="115" y="75" width="4" height="170" fill="url(#rgbGradient2)" rx="2"/>
+  <rect x="281" y="75" width="4" height="170" fill="url(#rgbGradient2)" rx="2"/>
+  
+  <!-- RGB Gradients -->
+  <defs>
+    <linearGradient id="rgbGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff0080;stop-opacity:1" />
+      <stop offset="33%" style="stop-color:#0080ff;stop-opacity:1" />
+      <stop offset="66%" style="stop-color:#80ff00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff0080;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rgbGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8000;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8000ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff8000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Motherboard -->
+  <rect x="130" y="90" width="140" height="100" fill="#0a4d0a" stroke="#0d5d0d" stroke-width="1" rx="4"/>
+  
+  <!-- CPU Cooler -->
+  <circle cx="160" cy="120" r="20" fill="#333" stroke="#555" stroke-width="2"/>
+  <circle cx="160" cy="120" r="15" fill="#666"/>
+  <circle cx="160" cy="120" r="8" fill="#888"/>
+  
+  <!-- RAM Sticks -->
+  <rect x="190" y="95" width="8" height="40" fill="#1a1a1a" stroke="#333" stroke-width="1" rx="1"/>
+  <rect x="200" y="95" width="8" height="40" fill="#1a1a1a" stroke="#333" stroke-width="1" rx="1"/>
+  <rect x="190" y="100" width="8" height="4" fill="#00ff00"/>
+  <rect x="200" y="100" width="8" height="4" fill="#00ff00"/>
+  
+  <!-- Graphics Card -->
+  <rect x="130" y="150" width="120" height="30" fill="#222" stroke="#444" stroke-width="1" rx="2"/>
+  <rect x="135" y="155" width="110" height="20" fill="#333" rx="1"/>
+  <rect x="140" y="158" width="20" height="14" fill="#666"/>
+  <rect x="165" y="158" width="20" height="14" fill="#666"/>
+  <text x="200" y="168" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#aaa">RTX</text>
+  
+  <!-- Power Supply -->
+  <rect x="130" y="200" width="80" height="40" fill="#1a1a1a" stroke="#333" stroke-width="1" rx="4"/>
+  <circle cx="160" cy="220" r="12" fill="#333"/>
+  <circle cx="160" cy="220" r="8" fill="#666"/>
+  
+  <!-- Front Panel -->
+  <rect x="105" y="65" width="10" height="190" fill="#444" rx="2"/>
+  
+  <!-- Power Button with RGB -->
+  <circle cx="110" cy="90" r="6" fill="#333" stroke="#ff0080" stroke-width="2"/>
+  <circle cx="110" cy="90" r="3" fill="#ff0080"/>
+  
+  <!-- USB Ports -->
+  <rect x="107" y="105" width="6" height="4" fill="#1a1a1a" rx="1"/>
+  <rect x="107" y="112" width="6" height="4" fill="#1a1a1a" rx="1"/>
+  
+  <!-- Gaming Logo -->
+  <text x="200" y="45" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#ff0080" font-weight="bold">GAMING RIG</text>
+  
+  <!-- Base -->
+  <rect x="90" y="260" width="220" height="10" fill="#333" rx="5"/>
+  
+  <!-- Cables with RGB -->
+  <path d="M300 180 Q330 200 350 230" stroke="#ff0080" stroke-width="4" fill="none"/>
+  <circle cx="350" cy="230" r="5" fill="#ff0080"/>
+</svg>

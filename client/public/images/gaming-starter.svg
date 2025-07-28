@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#0f172a"/>
+  
+  <!-- PC Case with RGB -->
+  <rect x="140" y="70" width="120" height="160" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  
+  <!-- Front Panel -->
+  <rect x="150" y="80" width="100" height="140" rx="4" fill="#334155"/>
+  
+  <!-- RGB Strip -->
+  <rect x="155" y="85" width="90" height="4" rx="2" fill="#3b82f6"/>
+  <rect x="155" y="92" width="90" height="4" rx="2" fill="#8b5cf6"/>
+  <rect x="155" y="99" width="90" height="4" rx="2" fill="#f59e0b"/>
+  
+  <!-- Power Button -->
+  <circle cx="200" cy="120" r="10" fill="#ef4444" stroke="#dc2626" stroke-width="2"/>
+  
+  <!-- Front Fans -->
+  <circle cx="180" cy="150" r="20" fill="#374151" stroke="#4b5563" stroke-width="2"/>
+  <circle cx="220" cy="150" r="20" fill="#374151" stroke="#4b5563" stroke-width="2"/>
+  <circle cx="180" cy="190" r="20" fill="#374151" stroke="#4b5563" stroke-width="2"/>
+  <circle cx="220" cy="190" r="20" fill="#374151" stroke="#4b5563" stroke-width="2"/>
+  
+  <!-- Fan Blades -->
+  <path d="M 175 145 L 185 155 M 185 145 L 175 155" stroke="#6b7280" stroke-width="2"/>
+  <path d="M 215 145 L 225 155 M 225 145 L 215 155" stroke="#6b7280" stroke-width="2"/>
+  <path d="M 175 185 L 185 195 M 185 185 L 175 195" stroke="#6b7280" stroke-width="2"/>
+  <path d="M 215 185 L 225 195 M 225 185 L 215 195" stroke="#6b7280" stroke-width="2"/>
+  
+  <!-- Gaming Monitor -->
+  <rect x="280" y="50" width="100" height="70" rx="4" fill="#111827" stroke="#374151" stroke-width="2"/>
+  <rect x="285" y="55" width="90" height="55" fill="#1f2937"/>
+  
+  <!-- Game Screen -->
+  <rect x="290" y="60" width="80" height="45" fill="#059669"/>
+  <rect x="295" y="65" width="25" height="35" fill="#34d399"/>
+  <rect x="325" y="70" width="40" height="30" fill="#10b981"/>
+  <text x="330" y="90" font-family="Arial" font-size="8" fill="#ffffff">FPS: 144</text>
+  
+  <!-- Monitor Stand -->
+  <rect x="325" y="120" width="10" height="25" fill="#6b7280"/>
+  <rect x="315" y="145" width="30" height="8" rx="4" fill="#9ca3af"/>
+  
+  <!-- Gaming Keyboard -->
+  <rect x="270" y="180" width="120" height="35" rx="4" fill="#1f2937" stroke="#374151" stroke-width="1"/>
+  <rect x="275" y="185" width="110" height="25" fill="#111827"/>
+  
+  <!-- RGB Keys -->
+  <rect x="280" y="190" width="8" height="8" rx="1" fill="#3b82f6"/>
+  <rect x="290" y="190" width="8" height="8" rx="1" fill="#8b5cf6"/>
+  <rect x="300" y="190" width="8" height="8" rx="1" fill="#f59e0b"/>
+  <rect x="310" y="190" width="8" height="8" rx="1" fill="#ef4444"/>
+  
+  <!-- Gaming Mouse -->
+  <ellipse cx="405" cy="195" rx="18" ry="12" fill="#1f2937" stroke="#374151" stroke-width="1"/>
+  <circle cx="405" cy="190" r="3" fill="#ef4444"/>
+  
+  <!-- Cables -->
+  <path d="M 260 180 Q 280 190 285 160" stroke="#6b7280" stroke-width="3" fill="none"/>
+  <path d="M 260 200 Q 275 205 280 185" stroke="#3b82f6" stroke-width="2" fill="none"/>
+  
+  <!-- Title -->
+  <text x="200" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#ffffff">Gaming Starter</text>
+  <text x="200" y="280" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#94a3b8">Ready for Esports</text>
+</svg>

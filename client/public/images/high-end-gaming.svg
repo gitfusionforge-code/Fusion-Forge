@@ -1,0 +1,69 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="highEndGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#991b1b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="premiumRGB" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="20%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="80%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Premium Full Tower Case -->
+  <rect x="30" y="30" width="240" height="200" rx="15" fill="url(#highEndGradient)" stroke="#991b1b" stroke-width="3"/>
+  
+  <!-- Tempered Glass Panel -->
+  <rect x="40" y="40" width="220" height="180" rx="10" fill="#111827" fill-opacity="0.1" stroke="#374151" stroke-width="2"/>
+  
+  <!-- Premium RGB Lighting -->
+  <rect x="45" y="45" width="210" height="8" rx="4" fill="url(#premiumRGB)"/>
+  <rect x="45" y="205" width="210" height="8" rx="4" fill="url(#premiumRGB)"/>
+  <rect x="45" y="45" width="8" height="168" rx="4" fill="url(#premiumRGB)"/>
+  <rect x="247" y="45" width="8" height="168" rx="4" fill="url(#premiumRGB)"/>
+  
+  <!-- High-End GPU (RTX 4070 Super) -->
+  <rect x="60" y="140" width="180" height="40" rx="5" fill="#059669" stroke="#065f46" stroke-width="3"/>
+  <rect x="65" y="145" width="40" height="30" rx="4" fill="#10b981"/>
+  <text x="140" y="165" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="white" font-weight="bold">RTX 4070 Super</text>
+  
+  <!-- Premium AIO Liquid Cooler -->
+  <circle cx="150" cy="95" r="30" fill="#1f2937" stroke="#374151" stroke-width="4"/>
+  <circle cx="150" cy="95" r="22" fill="#4b5563"/>
+  <circle cx="150" cy="95" r="15" fill="#6b7280"/>
+  <circle cx="150" cy="95" r="8" fill="#9ca3af"/>
+  
+  <!-- High-Speed RAM (32GB) -->
+  <rect x="90" y="65" width="12" height="45" rx="4" fill="#dc2626"/>
+  <rect x="108" y="65" width="12" height="45" rx="4" fill="#dc2626"/>
+  <rect x="126" y="65" width="12" height="45" rx="4" fill="#dc2626"/>
+  <rect x="144" y="65" width="12" height="45" rx="4" fill="#dc2626"/>
+  
+  <!-- High-End Modular PSU -->
+  <rect x="50" y="185" width="100" height="30" rx="5" fill="#374151" stroke="#1f2937" stroke-width="3"/>
+  <text x="100" y="205" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white" font-weight="bold">750W Gold</text>
+  
+  <!-- Premium Case Fans -->
+  <circle cx="230" cy="80" r="20" fill="url(#premiumRGB)" fill-opacity="0.8" stroke="#374151" stroke-width="2"/>
+  <circle cx="230" cy="120" r="20" fill="url(#premiumRGB)" fill-opacity="0.8" stroke="#374151" stroke-width="2"/>
+  <circle cx="230" cy="160" r="20" fill="url(#premiumRGB)" fill-opacity="0.8" stroke="#374151" stroke-width="2"/>
+  
+  <!-- 1440p Gaming Monitor -->
+  <rect x="290" y="60" width="100" height="85" rx="8" fill="#111827" stroke="#374151" stroke-width="3"/>
+  <rect x="300" y="70" width="80" height="65" rx="5" fill="#000000"/>
+  
+  <!-- Premium Monitor Stand -->
+  <rect x="330" y="145" width="20" height="40" fill="#6b7280"/>
+  <rect x="320" y="185" width="40" height="15" rx="7" fill="#6b7280"/>
+  
+  <!-- Title -->
+  <text x="200" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1f2937">High-End Gaming</text>
+  
+  <!-- Labels -->
+  <text x="150" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">Full Tower Glass</text>
+  <text x="340" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">1440p High</text>
+</svg>

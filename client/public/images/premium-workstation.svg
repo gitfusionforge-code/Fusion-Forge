@@ -1,0 +1,74 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="premiumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="ultimateRGB" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="16%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="32%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="48%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="64%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="80%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Ultimate Premium Case -->
+  <rect x="20" y="25" width="260" height="210" rx="18" fill="url(#premiumGradient)" stroke="#d97706" stroke-width="4"/>
+  
+  <!-- Dual Tempered Glass Panels -->
+  <rect x="30" y="35" width="240" height="190" rx="12" fill="#111827" fill-opacity="0.05" stroke="#374151" stroke-width="3"/>
+  
+  <!-- Ultimate RGB System -->
+  <rect x="35" y="40" width="230" height="10" rx="5" fill="url(#ultimateRGB)"/>
+  <rect x="35" y="210" width="230" height="10" rx="5" fill="url(#ultimateRGB)"/>
+  <rect x="35" y="40" width="10" height="180" rx="5" fill="url(#ultimateRGB)"/>
+  <rect x="255" y="40" width="10" height="180" rx="5" fill="url(#ultimateRGB)"/>
+  
+  <!-- Flagship GPU (RTX 4080 Super) -->
+  <rect x="50" y="135" width="200" height="45" rx="6" fill="#059669" stroke="#065f46" stroke-width="4"/>
+  <rect x="55" y="140" width="50" height="35" rx="5" fill="#10b981"/>
+  <text x="140" y="162" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="white" font-weight="bold">RTX 4080 Super</text>
+  
+  <!-- Custom Loop Liquid Cooling -->
+  <circle cx="150" cy="90" r="35" fill="#1f2937" stroke="#374151" stroke-width="5"/>
+  <circle cx="150" cy="90" r="25" fill="#4b5563"/>
+  <circle cx="150" cy="90" r="18" fill="#6b7280"/>
+  <circle cx="150" cy="90" r="12" fill="#9ca3af"/>
+  <circle cx="150" cy="90" r="6" fill="#e5e7eb"/>
+  
+  <!-- Premium RAM (64GB DDR5) -->
+  <rect x="80" y="60" width="15" height="50" rx="5" fill="#dc2626"/>
+  <rect x="100" y="60" width="15" height="50" rx="5" fill="#dc2626"/>
+  <rect x="120" y="60" width="15" height="50" rx="5" fill="#dc2626"/>
+  <rect x="140" y="60" width="15" height="50" rx="5" fill="#dc2626"/>
+  <rect x="160" y="60" width="15" height="50" rx="5" fill="#dc2626"/>
+  <rect x="180" y="60" width="15" height="50" rx="5" fill="#dc2626"/>
+  
+  <!-- Ultimate PSU -->
+  <rect x="40" y="185" width="120" height="35" rx="6" fill="#374151" stroke="#1f2937" stroke-width="4"/>
+  <text x="100" y="207" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="white" font-weight="bold">1000W Platinum</text>
+  
+  <!-- Premium Fans Array -->
+  <circle cx="240" cy="70" r="22" fill="url(#ultimateRGB)" fill-opacity="0.9" stroke="#374151" stroke-width="3"/>
+  <circle cx="240" cy="110" r="22" fill="url(#ultimateRGB)" fill-opacity="0.9" stroke="#374151" stroke-width="3"/>
+  <circle cx="240" cy="150" r="22" fill="url(#ultimateRGB)" fill-opacity="0.9" stroke="#374151" stroke-width="3"/>
+  
+  <!-- 4K Content Creation Monitor -->
+  <rect x="300" y="55" width="85" height="90" rx="10" fill="#111827" stroke="#374151" stroke-width="4"/>
+  <rect x="310" y="65" width="65" height="70" rx="6" fill="#000000"/>
+  
+  <!-- Professional Monitor Stand -->
+  <rect x="335" y="145" width="15" height="45" fill="#6b7280"/>
+  <rect x="325" y="190" width="35" height="18" rx="9" fill="#6b7280"/>
+  
+  <!-- Title -->
+  <text x="200" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1f2937">Enthusiast Workstation</text>
+  
+  <!-- Labels -->
+  <text x="150" y="265" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">Premium Case</text>
+  <text x="342" y="225" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">4K Pro</text>
+</svg>
