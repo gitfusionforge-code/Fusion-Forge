@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,8 @@ interface AdminAuthGuardProps {
 export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   const { user, loading, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const [adminSessionLoading, setAdminSessionLoading] = useState(false);
+  const [adminSessionCreated, setAdminSessionCreated] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -22,14 +24,47 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     }
   }, [user, loading, setLocation]);
 
-  if (loading) {
+  // Auto-create admin session when user is authenticated
+  useEffect(() => {
+    const createAdminSession = async () => {
+      if (user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && !adminSessionCreated) {
+        setAdminSessionLoading(true);
+        try {
+          const response = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: user.email }),
+            credentials: 'include'
+          });
+          
+          if (response.ok) {
+            setAdminSessionCreated(true);
+          } else {
+            console.error('Failed to create admin session');
+          }
+        } catch (error) {
+          console.error('Error creating admin session:', error);
+        } finally {
+          setAdminSessionLoading(false);
+        }
+      }
+    };
+
+    createAdminSession();
+  }, [user, adminSessionCreated]);
+
+  if (loading || adminSessionLoading) {
     return (
       <div className="min-h-screen bg-light-grey flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="flex items-center justify-center p-8">
             <div className="text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-600">Verifying admin access...</p>
+              <p className="text-gray-600">
+                {loading ? "Verifying admin access..." : "Setting up admin session..."}
+              </p>
             </div>
           </CardContent>
         </Card>

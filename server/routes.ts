@@ -173,8 +173,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all inquiries
-  app.get("/api/inquiries", async (req, res) => {
+  // Get all inquiries (admin only)
+  app.get("/api/inquiries", requireAdminAuth, async (req, res) => {
     try {
       const inquiries = await storage.getInquiries();
       res.json(inquiries);
@@ -285,12 +285,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all orders for admin
-  app.get("/api/orders", async (req, res) => {
+  app.get("/api/orders", requireAdminAuth, async (req, res) => {
     try {
       const orders = await storage.getAllOrders();
       res.json(orders);
     } catch (error) {
-
+      console.error('Error fetching orders from Firebase:', error);
       res.status(500).json({ error: "Failed to fetch orders" });
     }
   });
