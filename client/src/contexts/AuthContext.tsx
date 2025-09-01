@@ -93,6 +93,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
           displayName: displayName
         });
       }
+      
+      // Create user profile in database after successful signup
+      if (result.user) {
+        try {
+          await fetch(`/api/user/${result.user.uid}/profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: result.user.email,
+              displayName: displayName || result.user.displayName || '',
+              uid: result.user.uid
+            })
+          });
+        } catch (profileError) {
+          console.error('Failed to create user profile:', profileError);
+          // Don't fail the signup if profile creation fails
+        }
+      }
     } catch (error: any) {
       throw new Error(getErrorMessage(error.code));
     }
@@ -162,8 +180,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await fetch(`/api/auth/check-user-profile?email=${encodeURIComponent(email)}`);
       if (response.ok) {
         const profileData = await response.json();
+        
+        // If user has no existing data, create a new profile
+        if (!profileData.hasExistingData) {
+          try {
+            await fetch(`/api/user/${auth.currentUser.uid}/profile`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: auth.currentUser.email,
+                displayName: auth.currentUser.displayName || '',
+                uid: auth.currentUser.uid
+              })
+            });
+          } catch (profileError) {
+            console.error('Failed to create user profile:', profileError);
+          }
+        }
         // Merge user data if profiles exist from different auth methods
-        if (profileData.needsLinking) {
+        else if (profileData.needsLinking) {
           // User has data from both auth methods - merge them
           await fetch('/api/auth/merge-user-accounts', {
             method: 'POST',
