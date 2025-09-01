@@ -328,10 +328,17 @@ export class FirebaseRealtimeStorage implements IStorage {
   }
 
   async getAllUserProfiles(): Promise<UserProfile[]> {
+    console.log('Fetching all user profiles from Firebase...');
     const snapshot = await get(ref(database, 'userProfiles'));
-    if (!snapshot.exists()) return [];
+    
+    if (!snapshot.exists()) {
+      console.log('No user profiles found in Firebase database');
+      return [];
+    }
     
     const data = snapshot.val();
+    console.log('Raw Firebase user data:', Object.keys(data).length, 'user records found');
+    
     const profiles: UserProfile[] = [];
     
     for (const uid in data) {
@@ -341,12 +348,18 @@ export class FirebaseRealtimeStorage implements IStorage {
       }
     }
     
+    console.log('Valid user profiles after filtering:', profiles.length);
+    console.log('User UIDs found:', Object.keys(data));
+    
     // Sort by creation date (newest first)
-    return profiles.sort((a, b) => {
+    const sortedProfiles = profiles.sort((a, b) => {
       const dateA = new Date(a.createdAt || 0);
       const dateB = new Date(b.createdAt || 0);
       return dateB.getTime() - dateA.getTime();
     });
+    
+    console.log('Returning', sortedProfiles.length, 'sorted user profiles');
+    return sortedProfiles;
   }
 
   async updateUserProfile(uid: string, profileUpdates: Partial<InsertUserProfile>): Promise<UserProfile> {
