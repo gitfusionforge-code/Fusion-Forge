@@ -1166,23 +1166,9 @@ FusionForge PCs Team`);
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <Input
-                                type="number"
-                                min="0"
-                                value={build.stockQuantity}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  // Only update if the value is valid
-                                  if (value === '' || value === '0' || /^[1-9]\d*$/.test(value)) {
-                                    const numValue = value === '' ? 0 : parseInt(value);
-                                    if (!isNaN(numValue) && numValue >= 0) {
-                                      handleStockUpdate(build.id, numValue);
-                                    }
-                                  }
-                                }}
-                                className={`w-20 ${build.stockQuantity < 5 ? 'border-red-500' : ''}`}
-                                data-testid={`input-stock-${build.id}`}
-                              />
+                              <span className={`text-sm font-medium ${build.stockQuantity < 5 ? 'text-red-600' : 'text-gray-900'}`}>
+                                {build.stockQuantity}
+                              </span>
                               {build.stockQuantity < 5 && (
                                 <AlertTriangle className="h-4 w-4 text-red-500" />
                               )}
