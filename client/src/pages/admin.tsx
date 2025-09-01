@@ -888,6 +888,11 @@ FusionForge PCs Team`);
                                     Processing
                                   </span>
                                 </SelectItem>
+                                <SelectItem value="paid" className="hover:bg-emerald-50 focus:bg-emerald-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                    Paid
+                                  </span>
+                                </SelectItem>
                                 <SelectItem value="completed" className="hover:bg-green-50 focus:bg-green-50">
                                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                     Completed
