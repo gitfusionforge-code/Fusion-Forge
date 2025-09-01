@@ -871,15 +871,15 @@ FusionForge PCs Team`);
                                       ? "bg-emerald-100 text-emerald-800"
                                       : order.status === "cancelled"
                                       ? "bg-red-100 text-red-800"
-                                      : "bg-orange-100 text-orange-800"
+                                      : "bg-yellow-100 text-yellow-800"
                                   }`}>
                                     {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Pending'}
                                   </span>
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                                <SelectItem value="pending" className="hover:bg-orange-50 focus:bg-orange-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                <SelectItem value="pending" className="hover:bg-yellow-50 focus:bg-yellow-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                     Pending
                                   </span>
                                 </SelectItem>
