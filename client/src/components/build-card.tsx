@@ -117,7 +117,7 @@ export default function BuildCard({
   };
 
   return (
-    <Card className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-105 flex flex-col h-full group min-h-[500px]">
+    <Card className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ease-in-out hover:-translate-y-1 flex flex-col h-full group min-h-[500px]">
       <div className="relative overflow-hidden">
         <img 
           src={build.imageUrl || '/api/placeholder/400/300'} 
