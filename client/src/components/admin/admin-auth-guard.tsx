@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Shield, AlertTriangle, Loader2 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "admin@company.com";
+
+interface AdminSessionContextType {
+  adminSessionReady: boolean;
+}
+
+const AdminSessionContext = createContext<AdminSessionContextType | undefined>(undefined);
+
+export function useAdminSession() {
+  const context = useContext(AdminSessionContext);
+  if (context === undefined) {
+    throw new Error("useAdminSession must be used within an AdminAuthGuard");
+  }
+  return context;
+}
 
 interface AdminAuthGuardProps {
   children: React.ReactNode;
@@ -128,22 +142,24 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-light-grey">
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-gray-900">Admin Panel</span>
-              <span className="text-sm text-gray-500">• {user.email}</span>
+    <AdminSessionContext.Provider value={{ adminSessionReady: adminSessionCreated }}>
+      <div className="min-h-screen bg-light-grey">
+        <div className="bg-white shadow-sm border-b">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-green-600" />
+                <span className="font-medium text-gray-900">Admin Panel</span>
+                <span className="text-sm text-gray-500">• {user.email}</span>
+              </div>
+              <Button onClick={() => logout()} variant="outline" size="sm">
+                Logout
+              </Button>
             </div>
-            <Button onClick={() => logout()} variant="outline" size="sm">
-              Logout
-            </Button>
           </div>
         </div>
+        {children}
       </div>
-      {children}
-    </div>
+    </AdminSessionContext.Provider>
   );
 }

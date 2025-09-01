@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminAuthGuard } from "@/components/admin/admin-auth-guard";
+import { AdminAuthGuard, useAdminSession } from "@/components/admin/admin-auth-guard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ import {
 import type { Inquiry, PcBuild, Order } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
 
-export default function Admin() {
+function AdminContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [budgetFilter, setBudgetFilter] = useState("all");
@@ -42,21 +42,26 @@ export default function Admin() {
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { adminSessionReady } = useAdminSession();
 
   const { data: inquiries = [], isLoading: inquiriesLoading, error: inquiriesError } = useQuery<Inquiry[]>({
     queryKey: ["/api/inquiries"],
+    enabled: adminSessionReady,
   });
 
   const { data: pcBuilds = [], isLoading: buildsLoading, error: buildsError } = useQuery<PcBuild[]>({
     queryKey: ["/api/builds"],
+    enabled: adminSessionReady,
   });
 
   const { data: orders = [], isLoading: ordersLoading, error: ordersError } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
+    enabled: adminSessionReady,
   });
 
   const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery<any[]>({
     queryKey: ["/api/users"],
+    enabled: adminSessionReady,
   });
 
   // Mutation to update inquiry status
@@ -314,7 +319,7 @@ FusionForge PCs Team`);
   };
 
   return (
-    <AdminAuthGuard>
+    <>
       <EnhancedSEOHead 
         title="Admin Dashboard - FusionForge PCs"
         description="Admin dashboard for managing FusionForge PCs orders and inquiries"
@@ -1406,6 +1411,14 @@ FusionForge PCs Team`);
           </TabsContent>
         </Tabs>
       </div>
+    </>
+  );
+}
+
+export default function Admin() {
+  return (
+    <AdminAuthGuard>
+      <AdminContent />
     </AdminAuthGuard>
   );
 }
