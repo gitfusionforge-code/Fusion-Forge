@@ -10,13 +10,20 @@ interface EmailData {
 
 export async function sendEmailViaBrevo(emailData: EmailData): Promise<boolean> {
   try {
+    const brevoUser = process.env.BREVO_SMTP_USER;
+    const brevoPass = process.env.BREVO_SMTP_PASS;
+    
+    if (!brevoUser || !brevoPass) {
+      throw new Error('Missing Brevo SMTP credentials. Please set BREVO_SMTP_USER and BREVO_SMTP_PASS environment variables.');
+    }
+    
     const transporter = nodemailer.createTransport({
       host: 'smtp-relay.brevo.com',
       port: 587,
       secure: false,
       auth: {
-        user: '906395001@smtp-brevo.com',
-        pass: 'UzymRE8rh3MnOD0j'
+        user: brevoUser,
+        pass: brevoPass
       }
     });
 

@@ -82,15 +82,20 @@ export interface IStorage {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyA35QIZWyTakO65DPnZjxZKOvYz3BppGHI",
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "fusion-forge-28cae.firebaseapp.com",
-  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL || "https://fusion-forge-28cae-default-rtdb.firebaseio.com",
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "fusion-forge-28cae",
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "fusion-forge-28cae.firebasestorage.app",
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "410308832496",
-  appId: process.env.VITE_FIREBASE_APP_ID || "1:410308832496:web:91bb68c90c2b3ab0c40035",
-  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || "G-D4FZSZLJ63"
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID,
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate required Firebase configuration for server-side
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId || !firebaseConfig.databaseURL) {
+  throw new Error('Missing required Firebase environment variables. Please set VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_APP_ID, and VITE_FIREBASE_DATABASE_URL.');
+}
 
 // Initialize Firebase
 let app;

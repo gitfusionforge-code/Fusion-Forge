@@ -1,10 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 
-// Admin configuration
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "fusionforgepc@gmail.com";
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || "$2b$10$3Kly2n6zXLNTH7YcqgyBTuQt0Fg6wURRMKcyBNEbJpFl68n.dT.s."; // Default: "admin123"
+// Admin configuration validation
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminUsername = process.env.ADMIN_USERNAME;
+const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+
+if (!adminEmail || !adminUsername || !adminPasswordHash) {
+  throw new Error('Missing required admin credentials. Please set ADMIN_EMAIL, ADMIN_USERNAME, and ADMIN_PASSWORD_HASH environment variables.');
+}
+
+// Type-safe admin configuration after validation
+const ADMIN_EMAIL: string = adminEmail;
+const ADMIN_USERNAME: string = adminUsername;
+const ADMIN_PASSWORD_HASH: string = adminPasswordHash;
 
 // Simple session store (in production, use Redis or database)
 const adminSessions = new Set<string>();

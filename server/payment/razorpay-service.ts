@@ -18,16 +18,18 @@ class RazorpayService {
   private razorpay: Razorpay | null = null;
 
   constructor() {
-    // Use the test credentials for now
-    const keyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_uKo2E3dcFizVIW';
-    const keySecret = process.env.RAZORPAY_KEY_SECRET || 'tXrkAFAjbGzLj5w8LCy8EzLg';
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
     
-    if (keyId && keySecret) {
-      this.razorpay = new Razorpay({
-        key_id: keyId,
-        key_secret: keySecret,
-      });
+    if (!keyId || !keySecret) {
+      console.warn('Razorpay not configured: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET environment variables.');
+      return;
     }
+    
+    this.razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
   }
 
   isConfigured(): boolean {
@@ -60,7 +62,11 @@ class RazorpayService {
     }
 
     try {
-      const keySecret = process.env.RAZORPAY_KEY_SECRET || 'tXrkAFAjbGzLj5w8LCy8EzLg';
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+      
+      if (!keySecret) {
+        throw new Error('RAZORPAY_KEY_SECRET environment variable is not set');
+      }
       
       console.log('Payment verification details:');
       console.log('Order ID:', verification.razorpay_order_id);

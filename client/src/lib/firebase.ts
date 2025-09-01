@@ -2,16 +2,21 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Firebase configuration using environment variables with fallback
+// Firebase configuration using environment variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA35QIZWyTakO65DPnZjxZKOvYz3BppGHI",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "fusion-forge-28cae.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "fusion-forge-28cae",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "fusion-forge-28cae.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "410308832496",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:410308832496:web:91bb68c90c2b3ab0c40035",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-D4FZSZLJ63"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate required Firebase configuration
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
+  throw new Error('Missing required Firebase environment variables. Please set VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, and VITE_FIREBASE_APP_ID.');
+}
 
 // Only log in development
 if (import.meta.env.DEV) {
