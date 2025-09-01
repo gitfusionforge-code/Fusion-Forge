@@ -864,42 +864,42 @@ FusionForge PCs Team`);
                                 <SelectValue>
                                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                     order.status === "completed" 
-                                      ? "bg-green-100 text-green-800" 
+                                      ? "bg-lime-200 text-lime-900" 
                                       : order.status === "processing"
-                                      ? "bg-blue-100 text-blue-800"
+                                      ? "bg-indigo-200 text-indigo-900"
                                       : order.status === "paid"
-                                      ? "bg-emerald-100 text-emerald-800"
+                                      ? "bg-teal-200 text-teal-900"
                                       : order.status === "cancelled"
-                                      ? "bg-red-100 text-red-800"
-                                      : "bg-yellow-100 text-yellow-800"
+                                      ? "bg-rose-200 text-rose-900"
+                                      : "bg-amber-200 text-amber-900"
                                   }`}>
                                     {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Pending'}
                                   </span>
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                                <SelectItem value="pending" className="hover:bg-yellow-50 focus:bg-yellow-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <SelectItem value="pending" className="hover:bg-amber-50 focus:bg-amber-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-900">
                                     Pending
                                   </span>
                                 </SelectItem>
-                                <SelectItem value="processing" className="hover:bg-blue-50 focus:bg-blue-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <SelectItem value="processing" className="hover:bg-indigo-50 focus:bg-indigo-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-200 text-indigo-900">
                                     Processing
                                   </span>
                                 </SelectItem>
-                                <SelectItem value="paid" className="hover:bg-emerald-50 focus:bg-emerald-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                <SelectItem value="paid" className="hover:bg-teal-50 focus:bg-teal-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-teal-200 text-teal-900">
                                     Paid
                                   </span>
                                 </SelectItem>
-                                <SelectItem value="completed" className="hover:bg-green-50 focus:bg-green-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <SelectItem value="completed" className="hover:bg-lime-50 focus:bg-lime-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-lime-200 text-lime-900">
                                     Completed
                                   </span>
                                 </SelectItem>
-                                <SelectItem value="cancelled" className="hover:bg-red-50 focus:bg-red-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <SelectItem value="cancelled" className="hover:bg-rose-50 focus:bg-rose-50">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-200 text-rose-900">
                                     Cancelled
                                   </span>
                                 </SelectItem>
