@@ -38,7 +38,7 @@ export default function Admin() {
   const [budgetFilter, setBudgetFilter] = useState("all");
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [selectedBuild, setSelectedBuild] = useState<PcBuild | null>(null);
-  const [activeTab, setActiveTab] = useState("inquiries");
+  const [activeTab, setActiveTab] = useState("dashboard");
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -53,6 +53,10 @@ export default function Admin() {
 
   const { data: orders = [], isLoading: ordersLoading, error: ordersError } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
+  });
+
+  const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery<any[]>({
+    queryKey: ["/api/users"],
   });
 
   // Mutation to update inquiry status
@@ -299,7 +303,14 @@ FusionForge PCs Team`);
       const today = new Date().toDateString();
       const orderDate = new Date(o.createdAt).toDateString();
       return orderDate === today;
-    }).length
+    }).length,
+    totalUsers: users.length,
+    newUsersToday: users.filter(user => {
+      const today = new Date().toDateString();
+      const userDate = new Date(user.createdAt).toDateString();
+      return userDate === today;
+    }).length,
+    usersWithOrders: Array.from(new Set(orders.map(order => order.customerEmail))).length
   };
 
   return (
@@ -321,10 +332,14 @@ FusionForge PCs Team`);
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="inquiries" className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              Customer Inquiries
+              Inquiries
             </TabsTrigger>
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
@@ -332,17 +347,210 @@ FusionForge PCs Team`);
             </TabsTrigger>
             <TabsTrigger value="inventory" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
-              PC Builds Inventory
+              Inventory
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Analytics
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Users
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
+
+          {/* Dashboard Overview Tab */}
+          <TabsContent value="dashboard" className="space-y-6">
+            {/* Key Metrics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-600 text-sm font-medium">Total Revenue</p>
+                      <p className="text-2xl font-bold text-blue-900">₹{analytics.totalRevenue.toLocaleString('en-IN')}</p>
+                    </div>
+                    <DollarSign className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <p className="text-xs text-blue-600 mt-2">From completed orders</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-600 text-sm font-medium">Total Orders</p>
+                      <p className="text-2xl font-bold text-green-900">{analytics.totalOrders}</p>
+                    </div>
+                    <ShoppingCart className="h-8 w-8 text-green-600" />
+                  </div>
+                  <p className="text-xs text-green-600 mt-2">{analytics.completedOrders} completed, {analytics.pendingOrders} pending</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-600 text-sm font-medium">Active Inquiries</p>
+                      <p className="text-2xl font-bold text-orange-900">{analytics.totalInquiries}</p>
+                    </div>
+                    <Mail className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <p className="text-xs text-orange-600 mt-2">{analytics.newInquiriesToday} new today</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-600 text-sm font-medium">PC Builds</p>
+                      <p className="text-2xl font-bold text-purple-900">{analytics.totalBuilds}</p>
+                    </div>
+                    <Package className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <p className="text-xs text-purple-600 mt-2">Avg. ₹{analytics.averagePrice.toLocaleString('en-IN')}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Quick Actions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button 
+                    onClick={() => setActiveTab('inquiries')}
+                    className="h-auto p-4 bg-blue-600 hover:bg-blue-700"
+                    data-testid="button-view-inquiries"
+                  >
+                    <div className="text-center">
+                      <Mail className="h-6 w-6 mx-auto mb-2" />
+                      <div className="text-sm font-medium">Review Inquiries</div>
+                      <div className="text-xs opacity-80">{analytics.totalInquiries - analytics.completedInquiries} pending</div>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab('orders')}
+                    className="h-auto p-4 bg-green-600 hover:bg-green-700"
+                    data-testid="button-view-orders"
+                  >
+                    <div className="text-center">
+                      <ShoppingCart className="h-6 w-6 mx-auto mb-2" />
+                      <div className="text-sm font-medium">Manage Orders</div>
+                      <div className="text-xs opacity-80">{analytics.pendingOrders} pending</div>
+                    </div>
+                  </Button>
+                  <Button 
+                    onClick={() => setActiveTab('inventory')}
+                    className="h-auto p-4 bg-orange-600 hover:bg-orange-700"
+                    data-testid="button-view-inventory"
+                  >
+                    <div className="text-center">
+                      <Package className="h-6 w-6 mx-auto mb-2" />
+                      <div className="text-sm font-medium">Check Inventory</div>
+                      <div className="text-xs opacity-80">{analytics.lowStockBuilds} low stock alerts</div>
+                    </div>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Recent Orders
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {orders.slice(0, 5).map((order) => (
+                      <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium">{order.customerName}</p>
+                          <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">{order.total}</p>
+                          <Badge className={`text-xs ${
+                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {order.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                    {orders.length === 0 && (
+                      <p className="text-center text-gray-500 py-4">No recent orders</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5" />
+                    System Alerts
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {analytics.lowStockBuilds > 0 && (
+                      <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <AlertTriangle className="h-5 w-5 text-red-600" />
+                        <div>
+                          <p className="text-sm font-medium text-red-800">Low Stock Alert</p>
+                          <p className="text-xs text-red-600">{analytics.lowStockBuilds} PC builds running low on stock</p>
+                        </div>
+                      </div>
+                    )}
+                    {analytics.totalInquiries - analytics.completedInquiries > 5 && (
+                      <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                        <Mail className="h-5 w-5 text-orange-600" />
+                        <div>
+                          <p className="text-sm font-medium text-orange-800">Pending Inquiries</p>
+                          <p className="text-xs text-orange-600">{analytics.totalInquiries - analytics.completedInquiries} inquiries need attention</p>
+                        </div>
+                      </div>
+                    )}
+                    {analytics.pendingOrders > 10 && (
+                      <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                        <ShoppingCart className="h-5 w-5 text-yellow-600" />
+                        <div>
+                          <p className="text-sm font-medium text-yellow-800">Order Backlog</p>
+                          <p className="text-xs text-yellow-600">{analytics.pendingOrders} orders pending processing</p>
+                        </div>
+                      </div>
+                    )}
+                    {analytics.lowStockBuilds === 0 && analytics.totalInquiries - analytics.completedInquiries <= 5 && analytics.pendingOrders <= 10 && (
+                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="h-5 w-5 bg-green-600 rounded-full flex items-center justify-center">
+                          <div className="h-2 w-2 bg-white rounded-full"></div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-green-800">All Systems Normal</p>
+                          <p className="text-xs text-green-600">No critical alerts at this time</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           {/* Customer Inquiries Tab */}
           <TabsContent value="inquiries" className="space-y-6">
@@ -1018,6 +1226,142 @@ FusionForge PCs Team`);
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Users Management Tab */}
+          <TabsContent value="users" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  User Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Users Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <Users className="h-8 w-8 text-blue-600" />
+                        <div>
+                          <p className="text-sm text-blue-600 font-medium">Total Users</p>
+                          <p className="text-2xl font-bold text-blue-900">{users.length}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="h-8 w-8 text-green-600" />
+                        <div>
+                          <p className="text-sm text-green-600 font-medium">New Users Today</p>
+                          <p className="text-2xl font-bold text-green-900">
+                            {users.filter(user => {
+                              const today = new Date().toDateString();
+                              const userDate = new Date(user.createdAt).toDateString();
+                              return userDate === today;
+                            }).length}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <ShoppingCart className="h-8 w-8 text-orange-600" />
+                        <div>
+                          <p className="text-sm text-orange-600 font-medium">Users with Orders</p>
+                          <p className="text-2xl font-bold text-orange-900">
+                            {Array.from(new Set(orders.map(order => order.customerEmail))).length}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Users Table */}
+                  <div className="bg-white rounded-lg border border-gray-200">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold">Registered Users</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      {usersLoading ? (
+                        <div className="p-8 text-center">Loading users...</div>
+                      ) : usersError ? (
+                        <div className="p-8 text-center text-red-600">Failed to load users</div>
+                      ) : users.length === 0 ? (
+                        <div className="p-8 text-center text-gray-600">No users found</div>
+                      ) : (
+                        <table className="min-w-full">
+                          <thead>
+                            <tr className="border-b border-gray-200">
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USER</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CONTACT</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ORDERS</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">REGISTERED</th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            {users.map((user, index) => {
+                              const userOrders = orders.filter(order => 
+                                order.customerEmail === user.email || order.userId === user.uid
+                              );
+                              const totalSpent = userOrders
+                                .filter(o => o.status === 'completed')
+                                .reduce((sum, order) => {
+                                  const total = typeof order.total === 'string' ? order.total : String(order.total || 0);
+                                  return sum + parseFloat(total.replace(/[^\d.]/g, '') || '0');
+                                }, 0);
+                              
+                              return (
+                                <tr key={user.uid || index} className="hover:bg-gray-50">
+                                  <td className="px-6 py-4">
+                                    <div>
+                                      <div className="text-sm font-medium text-gray-900">
+                                        {user.displayName || 'No Name'}
+                                      </div>
+                                      <div className="text-sm text-gray-500">{user.email}</div>
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <div className="text-sm text-gray-900">
+                                      {user.phone || 'No phone'}
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {user.city ? `${user.city}${user.zipCode ? `, ${user.zipCode}` : ''}` : 'No location'}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <div className="text-sm text-gray-900">{userOrders.length} orders</div>
+                                    <div className="text-sm text-gray-500">
+                                      {totalSpent > 0 ? `₹${totalSpent.toLocaleString('en-IN')} spent` : 'No purchases'}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <div className="text-sm text-gray-500">
+                                      {formatDate(user.createdAt)}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <Badge className={`text-xs ${
+                                      userOrders.length > 0 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {userOrders.length > 0 ? 'Customer' : 'Registered'}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Settings Tab */}

@@ -327,6 +327,28 @@ export class FirebaseRealtimeStorage implements IStorage {
     return newProfile;
   }
 
+  async getAllUserProfiles(): Promise<UserProfile[]> {
+    const snapshot = await get(ref(database, 'userProfiles'));
+    if (!snapshot.exists()) return [];
+    
+    const data = snapshot.val();
+    const profiles: UserProfile[] = [];
+    
+    for (const uid in data) {
+      const profile = data[uid];
+      if (profile) {
+        profiles.push(profile);
+      }
+    }
+    
+    // Sort by creation date (newest first)
+    return profiles.sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0);
+      const dateB = new Date(b.createdAt || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+  }
+
   async updateUserProfile(uid: string, profileUpdates: Partial<InsertUserProfile>): Promise<UserProfile> {
     const profileRef = ref(database, `userProfiles/${uid}`);
     const snapshot = await get(profileRef);

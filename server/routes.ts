@@ -603,6 +603,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Users Management for Admin
+  app.get("/api/users", requireAdminAuth, async (req, res) => {
+    try {
+      // Get all user profiles from Firebase realtime database
+      const allProfiles = await storage.getAllUserProfiles();
+      res.json(allProfiles);
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
   // Authentication and Account Linking API endpoints
   app.get("/api/auth/check-user-profile", async (req, res) => {
     try {

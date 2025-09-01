@@ -53,6 +53,7 @@ export interface IStorage {
 
   // User Management
   getUserProfile(uid: string): Promise<UserProfile | undefined>;
+  getAllUserProfiles(): Promise<UserProfile[]>;
   createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
   updateUserProfile(uid: string, profile: Partial<InsertUserProfile>): Promise<UserProfile>;
   
@@ -201,6 +202,10 @@ export class DatabaseStorage implements IStorage {
   async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
     const result = await db.insert(userProfiles).values(profile).returning();
     return result[0];
+  }
+
+  async getAllUserProfiles(): Promise<UserProfile[]> {
+    return await db.select().from(userProfiles).orderBy(desc(userProfiles.createdAt));
   }
 
   async updateUserProfile(uid: string, profile: Partial<InsertUserProfile>): Promise<UserProfile> {
