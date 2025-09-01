@@ -353,7 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/builds/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { name, basePrice, budgetRange, stockQuantity, description } = req.body;
+      const { name, basePrice, budgetRange, stockQuantity, description, processor, motherboard, ram, storage, gpu, casePsu, monitor, keyboardMouse, mousePad } = req.body;
       
       if (isNaN(id) || id <= 0) {
         return res.status(400).json({ error: "Invalid build ID" });
@@ -377,7 +377,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         basePrice,
         budgetRange: budgetRange || '',
         stockQuantity,
-        description: description || ''
+        description: description || '',
+        // PC Components
+        processor: processor || '',
+        motherboard: motherboard || '',
+        ram: ram || '',
+        storage: storage || '',
+        gpu: gpu || '',
+        casePsu: casePsu || '',
+        // Peripherals
+        monitor: monitor || '',
+        keyboardMouse: keyboardMouse || '',
+        mousePad: mousePad || ''
       };
 
       const updatedBuild = await storage.updatePcBuild(id, buildData);

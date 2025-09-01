@@ -835,6 +835,41 @@ export class FirebaseRealtimeStorage implements IStorage {
       throw error;
     }
   }
+
+  // Admin Settings Methods
+  async getAdminSetting(key: string): Promise<any> {
+    const snapshot = await get(ref(database, `adminSettings/${key}`));
+    if (!snapshot.exists()) return null;
+    
+    return {
+      key,
+      value: snapshot.val(),
+      updatedAt: new Date()
+    };
+  }
+
+  async setAdminSetting(key: string, value: string): Promise<any> {
+    const setting = {
+      key,
+      value,
+      updatedAt: new Date()
+    };
+    
+    await set(ref(database, `adminSettings/${key}`), value);
+    return setting;
+  }
+
+  async getAllAdminSettings(): Promise<any[]> {
+    const snapshot = await get(ref(database, 'adminSettings'));
+    if (!snapshot.exists()) return [];
+    
+    const data = snapshot.val();
+    return Object.entries(data).map(([key, value]) => ({
+      key,
+      value,
+      updatedAt: new Date()
+    }));
+  }
 }
 
 export const firebaseRealtimeStorage = new FirebaseRealtimeStorage();
