@@ -329,6 +329,20 @@ export class FirebaseRealtimeStorage implements IStorage {
 
   async getAllUserProfiles(): Promise<UserProfile[]> {
     console.log('Fetching all user profiles from Firebase...');
+    
+    // Check what collections exist in the database root
+    const rootSnapshot = await get(ref(database, '/'));
+    if (rootSnapshot.exists()) {
+      const rootData = rootSnapshot.val();
+      console.log('Firebase root collections:', Object.keys(rootData));
+      
+      // Check if there's a "users" collection as well
+      if (rootData.users) {
+        console.log('Found "users" collection with', Object.keys(rootData.users).length, 'entries');
+        console.log('Users collection UIDs:', Object.keys(rootData.users));
+      }
+    }
+    
     const snapshot = await get(ref(database, 'userProfiles'));
     
     if (!snapshot.exists()) {
@@ -337,13 +351,18 @@ export class FirebaseRealtimeStorage implements IStorage {
     }
     
     const data = snapshot.val();
-    console.log('Raw Firebase user data:', Object.keys(data).length, 'user records found');
+    console.log('Raw Firebase userProfiles data:', Object.keys(data).length, 'user records found');
     
     const profiles: UserProfile[] = [];
     
     for (const uid in data) {
       const profile = data[uid];
       if (profile) {
+        // Check if profile was merged (might be hiding users)
+        if (profile.mergedInto) {
+          console.log(`Profile ${uid} was merged into ${profile.mergedInto}, skipping...`);
+          continue;
+        }
         profiles.push(profile);
       }
     }
