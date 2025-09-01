@@ -288,9 +288,9 @@ FusionForge PCs Team`);
     totalInquiries: inquiries.length,
     completedInquiries: inquiries.filter(i => i.status === "completed").length,
     totalOrders: orders.length,
-    pendingOrders: orders.filter(o => o.status === "pending").length,
-    completedOrders: orders.filter(o => o.status === "completed").length,
-    totalRevenue: orders.filter(o => o.status === "completed").reduce((sum, order) => {
+    pendingOrders: orders.filter(o => o.status === "pending" || o.status === "processing" || !o.status).length,
+    completedOrders: orders.filter(o => o.status === "completed" || o.status === "paid").length,
+    totalRevenue: orders.filter(o => o.status === "completed" || o.status === "paid").reduce((sum, order) => {
       const total = typeof order.total === 'string' ? order.total : String(order.total || 0);
       return sum + parseFloat(total.replace(/[^\d.]/g, '') || '0');
     }, 0),
