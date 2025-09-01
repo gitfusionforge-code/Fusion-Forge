@@ -349,6 +349,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update PC build details
+  app.patch("/api/builds/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { name, basePrice, budgetRange, stockQuantity, description } = req.body;
+      
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ error: "Invalid build ID" });
+      }
+      
+      // Validate required fields
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ error: "Build name is required and must be a string" });
+      }
+      
+      if (typeof basePrice !== 'number' || basePrice <= 0) {
+        return res.status(400).json({ error: "Base price must be a positive number" });
+      }
+      
+      if (typeof stockQuantity !== 'number' || stockQuantity < 0) {
+        return res.status(400).json({ error: "Stock quantity must be a non-negative number" });
+      }
+
+      const buildData = {
+        name: name.trim(),
+        basePrice,
+        budgetRange: budgetRange || '',
+        stockQuantity,
+        description: description || ''
+      };
+
+      const updatedBuild = await storage.updatePcBuild(id, buildData);
+      res.json(updatedBuild);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update PC build" });
+    }
+  });
+
   // Update PC build stock
   app.patch("/api/builds/:id/stock", async (req, res) => {
     try {

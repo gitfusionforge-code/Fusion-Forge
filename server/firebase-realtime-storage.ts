@@ -169,6 +169,23 @@ export class FirebaseRealtimeStorage implements IStorage {
     return newBuild;
   }
 
+  async updatePcBuild(id: number, buildData: Partial<InsertPcBuild>): Promise<PcBuild> {
+    const buildRef = ref(database, `pcBuilds/${id}`);
+    const snapshot = await get(buildRef);
+    
+    if (!snapshot.exists()) throw new Error("Build not found");
+    
+    const updatedData = {
+      ...buildData,
+      updatedAt: new Date()
+    };
+    
+    await update(buildRef, updatedData);
+    
+    const updatedSnapshot = await get(buildRef);
+    return updatedSnapshot.val();
+  }
+
   async updatePcBuildStock(id: number, stockQuantity: number): Promise<PcBuild> {
     const buildRef = ref(database, `pcBuilds/${id}`);
     const snapshot = await get(buildRef);

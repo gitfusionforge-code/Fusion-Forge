@@ -30,6 +30,7 @@ export interface IStorage {
   getPcBuildById(id: number): Promise<PcBuild | undefined>;
   getPcBuildsByCategory(category: string): Promise<PcBuild[]>;
   createPcBuild(build: InsertPcBuild): Promise<PcBuild>;
+  updatePcBuild(id: number, buildData: Partial<InsertPcBuild>): Promise<PcBuild>;
   updatePcBuildStock(id: number, stockQuantity: number): Promise<PcBuild>;
 
   // Components
@@ -105,6 +106,19 @@ export class DatabaseStorage implements IStorage {
 
   async createPcBuild(build: InsertPcBuild): Promise<PcBuild> {
     const result = await db.insert(pcBuilds).values(build).returning();
+    return result[0];
+  }
+
+  async updatePcBuild(id: number, buildData: Partial<InsertPcBuild>): Promise<PcBuild> {
+    const result = await db.update(pcBuilds)
+      .set({ ...buildData, updatedAt: new Date() })
+      .where(eq(pcBuilds.id, id))
+      .returning();
+    
+    if (result.length === 0) {
+      throw new Error("PC build not found");
+    }
+    
     return result[0];
   }
 

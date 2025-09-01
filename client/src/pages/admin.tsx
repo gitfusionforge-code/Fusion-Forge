@@ -39,6 +39,14 @@ function AdminContent() {
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [selectedBuild, setSelectedBuild] = useState<PcBuild | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [editingBuild, setEditingBuild] = useState<PcBuild | null>(null);
+  const [buildEditForm, setBuildEditForm] = useState({
+    name: '',
+    basePrice: 0,
+    budgetRange: '',
+    stockQuantity: 0,
+    description: ''
+  });
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -219,6 +227,54 @@ FusionForge PCs Team`);
     }
     
     updateStockMutation.mutate({ id: buildId, stockQuantity: newStock });
+  };
+
+  // Mutation to update PC build details
+  const updateBuildMutation = useMutation({
+    mutationFn: async ({ id, buildData }: { id: number; buildData: any }) => {
+      const response = await fetch(`/api/builds/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(buildData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update build');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/builds'] });
+      toast({
+        title: "Build Updated",
+        description: "PC build has been updated successfully.",
+      });
+      setEditingBuild(null);
+    },
+    onError: () => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update PC build. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleBuildUpdate = () => {
+    if (!editingBuild) return;
+    
+    const buildData = {
+      name: buildEditForm.name,
+      basePrice: buildEditForm.basePrice,
+      budgetRange: buildEditForm.budgetRange,
+      stockQuantity: buildEditForm.stockQuantity,
+      description: buildEditForm.description
+    };
+    
+    updateBuildMutation.mutate({ id: editingBuild.id, buildData });
   };
 
   const formatDate = (dateInput: any) => {
@@ -1137,6 +1193,17 @@ FusionForge PCs Team`);
                               variant="outline" 
                               size="sm"
                               className="flex items-center gap-2 text-sm"
+                              onClick={() => {
+                                setEditingBuild(build);
+                                setBuildEditForm({
+                                  name: build.name,
+                                  basePrice: build.basePrice,
+                                  budgetRange: build.budgetRange,
+                                  stockQuantity: build.stockQuantity,
+                                  description: build.description || ''
+                                });
+                              }}
+                              data-testid={`button-edit-build-${build.id}`}
                             >
                               <Edit className="h-4 w-4" />
                               Edit Build
@@ -1464,6 +1531,103 @@ FusionForge PCs Team`);
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Build Modal */}
+      {editingBuild && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Edit className="h-5 w-5" />
+                Edit PC Build: {editingBuild.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Build Name</label>
+                  <Input
+                    value={buildEditForm.name}
+                    onChange={(e) => setBuildEditForm(prev => ({...prev, name: e.target.value}))}
+                    placeholder="Enter build name"
+                    data-testid="input-edit-build-name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Base Price (₹)</label>
+                  <Input
+                    type="number"
+                    value={buildEditForm.basePrice}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      setBuildEditForm(prev => ({...prev, basePrice: value}));
+                    }}
+                    placeholder="Enter base price"
+                    data-testid="input-edit-build-price"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Budget Range</label>
+                  <Input
+                    value={buildEditForm.budgetRange}
+                    onChange={(e) => setBuildEditForm(prev => ({...prev, budgetRange: e.target.value}))}
+                    placeholder="e.g., ₹10,000 - ₹15,000"
+                    data-testid="input-edit-build-budget"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={buildEditForm.stockQuantity}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      setBuildEditForm(prev => ({...prev, stockQuantity: value}));
+                    }}
+                    placeholder="Enter stock quantity"
+                    data-testid="input-edit-build-stock"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  className="w-full p-2 border border-gray-300 rounded-md resize-none"
+                  rows={3}
+                  value={buildEditForm.description}
+                  onChange={(e) => setBuildEditForm(prev => ({...prev, description: e.target.value}))}
+                  placeholder="Enter build description"
+                  data-testid="textarea-edit-build-description"
+                />
+              </div>
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  onClick={handleBuildUpdate}
+                  disabled={!buildEditForm.name || buildEditForm.basePrice <= 0 || updateBuildMutation.isPending}
+                  className="flex-1"
+                  data-testid="button-save-build-changes"
+                >
+                  {updateBuildMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setEditingBuild(null)}
+                  className="flex-1"
+                  data-testid="button-cancel-build-edit"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </>
   );
 }
