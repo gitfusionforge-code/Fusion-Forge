@@ -394,6 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedBuild = await storage.updatePcBuild(id, buildData);
       res.json(updatedBuild);
     } catch (error) {
+      console.error('Error updating PC build:', error);
       res.status(500).json({ error: "Failed to update PC build" });
     }
   });
