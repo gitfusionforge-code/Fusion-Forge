@@ -316,11 +316,21 @@ export default function InventoryDashboard() {
                 <Input
                   type="number"
                   value={stockAdjustment.quantity}
-                  onChange={(e) => setStockAdjustment(prev => ({
-                    ...prev, 
-                    quantity: parseInt(e.target.value) || 0
-                  }))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow empty, zero, or positive integers
+                    if (value === '' || /^-?\d+$/.test(value)) {
+                      const numValue = value === '' ? 0 : parseInt(value);
+                      if (!isNaN(numValue)) {
+                        setStockAdjustment(prev => ({
+                          ...prev, 
+                          quantity: numValue
+                        }));
+                      }
+                    }
+                  }}
                   placeholder="Enter adjustment amount"
+                  data-testid="input-stock-adjustment"
                 />
               </div>
 

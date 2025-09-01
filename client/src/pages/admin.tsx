@@ -208,6 +208,16 @@ FusionForge PCs Team`);
   };
 
   const handleStockUpdate = async (buildId: number, newStock: number) => {
+    // Validate the stock value before sending to server
+    if (isNaN(newStock) || newStock < 0) {
+      toast({
+        title: "Invalid Stock Quantity",
+        description: "Please enter a valid number (0 or greater).",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     updateStockMutation.mutate({ id: buildId, stockQuantity: newStock });
   };
 
@@ -1104,8 +1114,18 @@ FusionForge PCs Team`);
                                 type="number"
                                 min="0"
                                 value={build.stockQuantity}
-                                onChange={(e) => handleStockUpdate(build.id, parseInt(e.target.value))}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  // Only update if the value is valid
+                                  if (value === '' || value === '0' || /^[1-9]\d*$/.test(value)) {
+                                    const numValue = value === '' ? 0 : parseInt(value);
+                                    if (!isNaN(numValue) && numValue >= 0) {
+                                      handleStockUpdate(build.id, numValue);
+                                    }
+                                  }
+                                }}
                                 className={`w-20 ${build.stockQuantity < 5 ? 'border-red-500' : ''}`}
+                                data-testid={`input-stock-${build.id}`}
                               />
                               {build.stockQuantity < 5 && (
                                 <AlertTriangle className="h-4 w-4 text-red-500" />
