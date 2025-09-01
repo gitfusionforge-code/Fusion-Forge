@@ -158,8 +158,18 @@ export default function Checkout() {
           `order_${Date.now()}`
         );
 
+        const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
+        console.log('Razorpay Key ID:', razorpayKey);
+        console.log('All environment variables:', import.meta.env);
+        
+        if (!razorpayKey) {
+          alert('Razorpay configuration error: Missing API key. Please contact support.');
+          setIsProcessing(false);
+          return;
+        }
+
         const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || '', // Razorpay key from environment
+          key: razorpayKey, // Razorpay key from environment
           amount: order.amount,
           currency: order.currency,
           name: 'FusionForge PCs',
