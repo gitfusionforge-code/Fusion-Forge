@@ -45,7 +45,18 @@ function AdminContent() {
     basePrice: 0,
     budgetRange: '',
     stockQuantity: 0,
-    description: ''
+    description: '',
+    // PC Components
+    processor: '',
+    motherboard: '',
+    ram: '',
+    storage: '',
+    gpu: '',
+    casePsu: '',
+    // Peripherals (for Full Set builds)
+    monitor: '',
+    keyboardMouse: '',
+    mousePad: ''
   });
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -336,7 +347,18 @@ FusionForge PCs Team`);
       basePrice: buildEditForm.basePrice,
       budgetRange: buildEditForm.budgetRange,
       stockQuantity: buildEditForm.stockQuantity,
-      description: buildEditForm.description
+      description: buildEditForm.description,
+      // PC Components
+      processor: buildEditForm.processor,
+      motherboard: buildEditForm.motherboard,
+      ram: buildEditForm.ram,
+      storage: buildEditForm.storage,
+      gpu: buildEditForm.gpu,
+      casePsu: buildEditForm.casePsu,
+      // Peripherals
+      monitor: buildEditForm.monitor,
+      keyboardMouse: buildEditForm.keyboardMouse,
+      mousePad: buildEditForm.mousePad
     };
     
     updateBuildMutation.mutate({ id: editingBuild.id, buildData });
@@ -1242,7 +1264,18 @@ FusionForge PCs Team`);
                                   basePrice: build.basePrice,
                                   budgetRange: build.budgetRange,
                                   stockQuantity: build.stockQuantity,
-                                  description: build.description || ''
+                                  description: build.description || '',
+                                  // PC Components
+                                  processor: build.processor || '',
+                                  motherboard: build.motherboard || '',
+                                  ram: build.ram || '',
+                                  storage: build.storage || '',
+                                  gpu: build.gpu || '',
+                                  casePsu: build.casePsu || '',
+                                  // Peripherals
+                                  monitor: build.monitor || '',
+                                  keyboardMouse: build.keyboardMouse || '',
+                                  mousePad: build.mousePad || ''
                                 });
                               }}
                               data-testid={`button-edit-build-${build.id}`}
@@ -1598,68 +1631,174 @@ FusionForge PCs Team`);
                 Edit PC Build: {editingBuild.name}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Build Name</label>
-                  <Input
-                    value={buildEditForm.name}
-                    onChange={(e) => setBuildEditForm(prev => ({...prev, name: e.target.value}))}
-                    placeholder="Enter build name"
-                    data-testid="input-edit-build-name"
-                  />
+            <CardContent className="space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-lg font-medium mb-3 text-gray-900">Basic Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Build Name</label>
+                    <Input
+                      value={buildEditForm.name}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, name: e.target.value}))}
+                      placeholder="Enter build name"
+                      data-testid="input-edit-build-name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Base Price (₹)</label>
+                    <Input
+                      type="number"
+                      value={buildEditForm.basePrice}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        setBuildEditForm(prev => ({...prev, basePrice: value}));
+                      }}
+                      placeholder="Enter base price"
+                      data-testid="input-edit-build-price"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Budget Range</label>
+                    <Input
+                      value={buildEditForm.budgetRange}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, budgetRange: e.target.value}))}
+                      placeholder="e.g., ₹10,000 - ₹15,000"
+                      data-testid="input-edit-build-budget"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={buildEditForm.stockQuantity}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        setBuildEditForm(prev => ({...prev, stockQuantity: value}));
+                      }}
+                      placeholder="Enter stock quantity"
+                      data-testid="input-edit-build-stock"
+                    />
+                  </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium mb-1">Base Price (₹)</label>
-                  <Input
-                    type="number"
-                    value={buildEditForm.basePrice}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 0;
-                      setBuildEditForm(prev => ({...prev, basePrice: value}));
-                    }}
-                    placeholder="Enter base price"
-                    data-testid="input-edit-build-price"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Budget Range</label>
-                  <Input
-                    value={buildEditForm.budgetRange}
-                    onChange={(e) => setBuildEditForm(prev => ({...prev, budgetRange: e.target.value}))}
-                    placeholder="e.g., ₹10,000 - ₹15,000"
-                    data-testid="input-edit-build-budget"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Stock Quantity</label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={buildEditForm.stockQuantity}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value) || 0;
-                      setBuildEditForm(prev => ({...prev, stockQuantity: value}));
-                    }}
-                    placeholder="Enter stock quantity"
-                    data-testid="input-edit-build-stock"
+                <div className="mt-4">
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    className="w-full p-2 border border-gray-300 rounded-md resize-none"
+                    rows={3}
+                    value={buildEditForm.description}
+                    onChange={(e) => setBuildEditForm(prev => ({...prev, description: e.target.value}))}
+                    placeholder="Enter build description"
+                    data-testid="textarea-edit-build-description"
                   />
                 </div>
               </div>
-              
+
+              {/* PC Components */}
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
-                <textarea
-                  className="w-full p-2 border border-gray-300 rounded-md resize-none"
-                  rows={3}
-                  value={buildEditForm.description}
-                  onChange={(e) => setBuildEditForm(prev => ({...prev, description: e.target.value}))}
-                  placeholder="Enter build description"
-                  data-testid="textarea-edit-build-description"
-                />
+                <h3 className="text-lg font-medium mb-3 text-gray-900">PC Components</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Processor (CPU)</label>
+                    <Input
+                      value={buildEditForm.processor}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, processor: e.target.value}))}
+                      placeholder="e.g., Intel Core i5-12400F"
+                      data-testid="input-edit-processor"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Motherboard</label>
+                    <Input
+                      value={buildEditForm.motherboard}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, motherboard: e.target.value}))}
+                      placeholder="e.g., MSI B450M PRO-VDH MAX"
+                      data-testid="input-edit-motherboard"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">RAM</label>
+                    <Input
+                      value={buildEditForm.ram}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, ram: e.target.value}))}
+                      placeholder="e.g., 16GB DDR4 3200MHz"
+                      data-testid="input-edit-ram"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Storage</label>
+                    <Input
+                      value={buildEditForm.storage}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, storage: e.target.value}))}
+                      placeholder="e.g., 500GB NVMe SSD"
+                      data-testid="input-edit-storage"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Graphics Card (GPU)</label>
+                    <Input
+                      value={buildEditForm.gpu}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, gpu: e.target.value}))}
+                      placeholder="e.g., NVIDIA RTX 4060 (optional)"
+                      data-testid="input-edit-gpu"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Case & PSU</label>
+                    <Input
+                      value={buildEditForm.casePsu}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, casePsu: e.target.value}))}
+                      placeholder="e.g., Mid Tower + 650W PSU"
+                      data-testid="input-edit-case-psu"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Peripherals (for Full Set builds) */}
+              <div>
+                <h3 className="text-lg font-medium mb-3 text-gray-900">Peripherals (Full Set Only)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Monitor</label>
+                    <Input
+                      value={buildEditForm.monitor}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, monitor: e.target.value}))}
+                      placeholder="e.g., 24 inch 1080p 144Hz (optional)"
+                      data-testid="input-edit-monitor"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Keyboard & Mouse</label>
+                    <Input
+                      value={buildEditForm.keyboardMouse}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, keyboardMouse: e.target.value}))}
+                      placeholder="e.g., Mechanical Keyboard + Gaming Mouse (optional)"
+                      data-testid="input-edit-keyboard-mouse"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Mouse Pad</label>
+                    <Input
+                      value={buildEditForm.mousePad}
+                      onChange={(e) => setBuildEditForm(prev => ({...prev, mousePad: e.target.value}))}
+                      placeholder="e.g., Gaming Mouse Pad (optional)"
+                      data-testid="input-edit-mouse-pad"
+                    />
+                  </div>
+                </div>
               </div>
               
               <div className="flex space-x-2 pt-4">
