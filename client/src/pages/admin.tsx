@@ -59,7 +59,6 @@ function AdminContent() {
     mousePad: ''
   });
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -85,67 +84,11 @@ function AdminContent() {
     enabled: adminSessionReady,
   });
 
-  // Query for low stock threshold setting
-  const { data: lowStockSetting } = useQuery({
-    queryKey: ["/api/admin/settings/low_stock_threshold"],
-    enabled: adminSessionReady,
-  });
-
-  // Auto-save mutation for low stock threshold
-  const saveThresholdMutation = useMutation({
-    mutationFn: async (value: string) => {
-      const response = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'low_stock_threshold', value }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to save setting');
-      return response.json();
-    },
-    onSuccess: () => {
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/settings/low_stock_threshold"] });
-    },
-    onError: () => {
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    }
-  });
-
-  // Initialize low stock threshold from server
-  useEffect(() => {
-    if (lowStockSetting && typeof lowStockSetting === 'object' && 'value' in lowStockSetting) {
-      setLowStockThreshold(parseInt(String(lowStockSetting.value)) || 5);
-    }
-  }, [lowStockSetting]);
-
-  // Simple debounce function
-  const debounce = (func: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
-    };
-  };
-
-  // Auto-save function with debouncing
-  const autoSaveThreshold = useCallback(
-    debounce((value: string) => {
-      if (value && parseInt(value) >= 1 && parseInt(value) <= 50) {
-        setSaveStatus('saving');
-        saveThresholdMutation.mutate(value);
-      }
-    }, 1000),
-    [saveThresholdMutation]
-  );
-
+  // Use simple local state for low stock threshold (no API calls needed)
   // Handle threshold input change
   const handleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLowStockThreshold(parseInt(value) || 5);
-    autoSaveThreshold(value);
   };
 
   // Mutation to update inquiry status
@@ -1584,17 +1527,6 @@ FusionForge PCs Team`);
                           min="1"
                           max="50"
                         />
-                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs">
-                          {saveStatus === 'saving' && (
-                            <span className="text-blue-600 font-medium" data-testid="text-saving-status">Saving...</span>
-                          )}
-                          {saveStatus === 'saved' && (
-                            <span className="text-green-600 font-medium" data-testid="text-saved-status">✓ Saved</span>
-                          )}
-                          {saveStatus === 'error' && (
-                            <span className="text-red-600 font-medium" data-testid="text-error-status">✗ Error</span>
-                          )}
-                        </div>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">Alert when inventory drops below this number</p>
                     </div>
