@@ -42,7 +42,8 @@ export interface ReceiptData {
 
 export function generateReceiptHTML(receiptData: ReceiptData): string {
   const itemsHtml = receiptData.items.map(item => {
-    const itemTotal = parseInt(item.build.price) * item.quantity;
+    const itemPrice = parseInt(item.build.price) || 0;
+    const itemTotal = itemPrice * item.quantity;
     
     // Generate build components HTML if available
     const componentsHtml = item.build.components && item.build.components.length > 0 
@@ -60,7 +61,7 @@ export function generateReceiptHTML(receiptData: ReceiptData): string {
           ${componentsHtml}
         </td>
         <td style="padding: 15px 0; text-align: center; color: #6b7280;">${item.quantity}</td>
-        <td style="padding: 15px 0; text-align: right; color: #374151;">₹${parseInt(item.build.price).toLocaleString('en-IN')}</td>
+        <td style="padding: 15px 0; text-align: right; color: #374151;">₹${itemPrice.toLocaleString('en-IN')}</td>
         <td style="padding: 15px 0; text-align: right; font-weight: 600; color: #1f2937;">₹${itemTotal.toLocaleString('en-IN')}</td>
       </tr>
     `;
@@ -219,7 +220,8 @@ export function generateReceiptHTML(receiptData: ReceiptData): string {
 
 export function generateReceiptText(receiptData: ReceiptData): string {
   const itemsList = receiptData.items.map(item => {
-    const itemTotal = parseInt(item.build.price) * item.quantity;
+    const itemPrice = parseInt(item.build.price) || 0;
+    const itemTotal = itemPrice * item.quantity;
     return `- ${item.build.name} (Qty: ${item.quantity}) - ₹${itemTotal.toLocaleString('en-IN')}`;
   }).join('\n');
 

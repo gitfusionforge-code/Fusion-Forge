@@ -1,9 +1,10 @@
 import { ReceiptData } from './receipt-generator';
 
 export function generateFusionForgeReceiptHTML(receiptData: ReceiptData): string {
-  // Calculate pricing breakdown
-  const subtotal = Math.round(receiptData.amount / 1.18);
-  const gstAmount = receiptData.amount - subtotal;
+  // Calculate pricing breakdown - use proper forward calculation
+  const subtotal = receiptData.amount;
+  const gstAmount = Math.round(subtotal * 0.18);
+  const totalWithGST = subtotal + gstAmount;
 
   return `
 <!DOCTYPE html>
@@ -295,7 +296,7 @@ export function generateFusionForgeReceiptHTML(receiptData: ReceiptData): string
                     <span class="summary-value">₹${gstAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div class="grand-total">
-                    <p class="grand-total-text">Grand Total: ₹${receiptData.amount.toLocaleString('en-IN')}</p>
+                    <p class="grand-total-text">Grand Total: ₹${totalWithGST.toLocaleString('en-IN')}</p>
                 </div>
             </div>
         </div>

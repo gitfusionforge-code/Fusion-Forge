@@ -1101,7 +1101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               return {
                 build: {
                   ...item.build,
-                  price: item.build.price || item.build.totalPrice?.toString() || '0',
+                  price: item.build.basePrice?.toString() || item.build.price || item.build.totalPrice?.toString() || '0',
                   components: components.map(component => ({
                     id: component.id,
                     name: component.name,
