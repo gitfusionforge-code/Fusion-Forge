@@ -32,6 +32,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Manual Firebase seeding endpoint (development only)
+  app.post("/api/seed-firebase", async (_req, res) => {
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(403).json({ error: "This endpoint is only available in development mode" });
+    }
+    
+    try {
+      await (storage as any).seedSampleData();
+      res.json({ 
+        success: true, 
+        message: "Firebase database seeded with sample PC builds data" 
+      });
+    } catch (error) {
+      console.error('Failed to seed Firebase:', error);
+      res.status(500).json({ error: "Failed to seed Firebase database" });
+    }
+  });
+
   // Get all PC builds
   app.get("/api/builds", async (_req, res) => {
     try {

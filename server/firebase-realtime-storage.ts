@@ -82,14 +82,14 @@ export interface IStorage {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA35QIZWyTakO65DPnZjxZKOvYz3BppGHI",
-  authDomain: "fusion-forge-28cae.firebaseapp.com",
-  databaseURL: "https://fusion-forge-28cae-default-rtdb.firebaseio.com",
-  projectId: "fusion-forge-28cae",
-  storageBucket: "fusion-forge-28cae.firebasestorage.app",
-  messagingSenderId: "410308832496",
-  appId: "1:410308832496:web:91bb68c90c2b3ab0c40035",
-  measurementId: "G-D4FZSZLJ63"
+  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyA35QIZWyTakO65DPnZjxZKOvYz3BppGHI",
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "fusion-forge-28cae.firebaseapp.com",
+  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL || "https://fusion-forge-28cae-default-rtdb.firebaseio.com",
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "fusion-forge-28cae",
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "fusion-forge-28cae.firebasestorage.app",
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "410308832496",
+  appId: process.env.VITE_FIREBASE_APP_ID || "1:410308832496:web:91bb68c90c2b3ab0c40035",
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || "G-D4FZSZLJ63"
 };
 
 // Initialize Firebase
@@ -102,18 +102,50 @@ if (!getApps().length) {
 
 const database = getDatabase(app);
 
+// Log Firebase configuration for debugging
+if (process.env.NODE_ENV === 'development') {
+  console.log('Firebase Realtime Database Config:', {
+    databaseURL: firebaseConfig.databaseURL,
+    projectId: firebaseConfig.projectId,
+    hasApiKey: !!firebaseConfig.apiKey
+  });
+}
+
 export class FirebaseRealtimeStorage implements IStorage {
   // PC Builds
   async getPcBuilds(): Promise<PcBuild[]> {
     try {
       const snapshot = await get(ref(database, 'pcBuilds'));
-      if (!snapshot.exists()) return this.getSampleBuilds();
+      if (!snapshot.exists()) {
+        console.log('No data found in Firebase, attempting to seed with sample data...');
+        await this.seedSampleData();
+        return this.getSampleBuilds();
+      }
       
       const data = snapshot.val();
+      console.log('Successfully loaded data from Firebase');
       return Object.values(data).filter(Boolean) as PcBuild[];
     } catch (error) {
       console.warn('Firebase connection failed, using sample data:', error);
       return this.getSampleBuilds();
+    }
+  }
+
+  // Method to seed Firebase with sample data
+  async seedSampleData(): Promise<void> {
+    try {
+      const sampleBuilds = this.getSampleBuilds();
+      const buildsRef = ref(database, 'pcBuilds');
+      
+      const buildsData: { [key: string]: PcBuild } = {};
+      sampleBuilds.forEach(build => {
+        buildsData[build.id.toString()] = build;
+      });
+      
+      await set(buildsRef, buildsData);
+      console.log('Successfully seeded Firebase with sample PC builds data');
+    } catch (error) {
+      console.warn('Failed to seed Firebase data:', error);
     }
   }
 
