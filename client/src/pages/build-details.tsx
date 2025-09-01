@@ -4,15 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ShoppingCart, Heart, Share2, AlertCircle, Phone, Mail } from "lucide-react";
-import SpecificationsTable from "@/components/specifications-table";
-import PerformanceCharts from "@/components/performance-charts";
 import AddToCartButton from "@/components/add-to-cart-button";
 import SEOHead from "@/components/enhanced-seo-head";
 import { BuildDetailSkeleton, SpecificationTableSkeleton } from "@/components/enhanced-loading-states";
 import { trackBuildView, trackPurchaseIntent } from "@/components/analytics-tracker";
 import { formatPrice, formatBenchmarks } from "@/lib/utils";
 import type { PcBuild, Component } from "@shared/schema";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
+import LoadingSpinner from "@/components/loading-spinner";
+
+// Lazy load heavy components
+const SpecificationsTable = lazy(() => import("@/components/specifications-table"));
+const PerformanceCharts = lazy(() => import("@/components/performance-charts"));
 
 export default function BuildDetails() {
   const [match, params] = useRoute("/builds/:id");
@@ -144,11 +147,13 @@ export default function BuildDetails() {
           </div>
 
           {components && components.length > 0 ? (
-            <SpecificationsTable 
-              components={components} 
-              totalPrice={build.totalPrice.toString()}
-              buildName={build.name}
-            />
+            <Suspense fallback={<SpecificationTableSkeleton />}>
+              <SpecificationsTable 
+                components={components} 
+                totalPrice={build.totalPrice.toString()}
+                buildName={build.name}
+              />
+            </Suspense>
           ) : (
             <Card className="bg-gray-50 rounded-xl">
               <CardContent className="p-6">
@@ -220,7 +225,9 @@ export default function BuildDetails() {
         {/* Performance Charts */}
         {build && (
           <div className="mt-12">
-            <PerformanceCharts build={build} />
+            <Suspense fallback={<LoadingSpinner />}>
+              <PerformanceCharts build={build} />
+            </Suspense>
           </div>
         )}
       </div>
