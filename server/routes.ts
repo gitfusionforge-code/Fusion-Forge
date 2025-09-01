@@ -50,6 +50,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug endpoint to check Firebase data access (no auth required for debugging)
+  app.get("/api/debug/firebase-data", async (_req, res) => {
+    try {
+      const results = {
+        pcBuilds: { accessible: false, count: 0, error: null as string | null },
+        inquiries: { accessible: false, count: 0, error: null as string | null },
+        orders: { accessible: false, count: 0, error: null as string | null }
+      };
+
+      // Test pcBuilds access
+      try {
+        const builds = await storage.getPcBuilds();
+        results.pcBuilds = { accessible: true, count: builds.length, error: null };
+      } catch (error: any) {
+        results.pcBuilds = { accessible: false, count: 0, error: error?.message || 'Unknown error' };
+      }
+
+      // Test inquiries access
+      try {
+        const inquiries = await storage.getInquiries();
+        results.inquiries = { accessible: true, count: inquiries.length, error: null };
+      } catch (error: any) {
+        results.inquiries = { accessible: false, count: 0, error: error?.message || 'Unknown error' };
+      }
+
+      // Test orders access
+      try {
+        const orders = await storage.getAllOrders();
+        results.orders = { accessible: true, count: orders.length, error: null };
+      } catch (error: any) {
+        results.orders = { accessible: false, count: 0, error: error?.message || 'Unknown error' };
+      }
+
+      res.json({
+        timestamp: new Date().toISOString(),
+        firebase_project: process.env.VITE_FIREBASE_PROJECT_ID,
+        results
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error?.message || 'Unknown error' });
+    }
+  });
+
   // Seed sample admin data (inquiries and orders) for testing
   app.post("/api/admin/seed-data", requireAdminAuth, async (_req, res) => {
     try {
