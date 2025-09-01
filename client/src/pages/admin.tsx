@@ -1386,13 +1386,22 @@ FusionForge PCs Team`);
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Business Email</label>
-                      <Input placeholder={import.meta.env.VITE_BUSINESS_EMAIL || "business@company.com"} disabled />
+                      <Input 
+                        value={import.meta.env.VITE_BUSINESS_EMAIL || "fusionforgepc@gmail.com"} 
+                        disabled 
+                        className="bg-gray-50"
+                        data-testid="input-business-email"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Email Service Status</label>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span className="text-sm text-gray-600">Simulation Mode (No API Key)</span>
+                        <div className={`w-2 h-2 rounded-full ${
+                          import.meta.env.VITE_BUSINESS_EMAIL ? 'bg-green-500' : 'bg-orange-500'
+                        }`}></div>
+                        <span className="text-sm text-gray-600" data-testid="text-email-status">
+                          {import.meta.env.VITE_BUSINESS_EMAIL ? 'Active - Email Service Ready' : 'Setup Required - Missing Business Email'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1403,11 +1412,30 @@ FusionForge PCs Team`);
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Low Stock Threshold</label>
-                      <Input type="number" defaultValue="5" className="w-32" />
+                      <Input 
+                        type="number" 
+                        defaultValue="5" 
+                        className="w-32" 
+                        data-testid="input-stock-threshold"
+                        min="1"
+                        max="50"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Alert when inventory drops below this number</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" defaultChecked className="rounded" />
+                      <input 
+                        type="checkbox" 
+                        defaultChecked 
+                        className="rounded" 
+                        data-testid="checkbox-email-alerts"
+                      />
                       <label className="text-sm text-gray-600">Send email alerts for low stock</label>
+                    </div>
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-blue-800">
+                        <strong>💡 How it works:</strong> When PC components or builds drop below the threshold, 
+                        automatic email notifications are sent to your business email for quick restocking.
+                      </p>
                     </div>
                   </div>
                 </div>

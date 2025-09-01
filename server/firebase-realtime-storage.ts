@@ -329,17 +329,13 @@ export class FirebaseRealtimeStorage implements IStorage {
 
   async getAllUserProfiles(): Promise<UserProfile[]> {
     try {
-      console.log('Fetching all user profiles from Firebase...');
       const snapshot = await get(ref(database, 'userProfiles'));
       
       if (!snapshot.exists()) {
-        console.log('No user profiles found in Firebase database');
         return [];
       }
       
       const data = snapshot.val();
-      console.log('Raw Firebase userProfiles data:', Object.keys(data).length, 'user records found');
-      
       const profiles: UserProfile[] = [];
       
       for (const uid in data) {
@@ -349,17 +345,12 @@ export class FirebaseRealtimeStorage implements IStorage {
         }
       }
       
-      console.log('Valid user profiles after filtering:', profiles.length);
-      
       // Sort by creation date (newest first)
-      const sortedProfiles = profiles.sort((a, b) => {
+      return profiles.sort((a, b) => {
         const dateA = new Date(a.createdAt || 0);
         const dateB = new Date(b.createdAt || 0);
         return dateB.getTime() - dateA.getTime();
       });
-      
-      console.log('Returning', sortedProfiles.length, 'sorted user profiles');
-      return sortedProfiles;
     } catch (error) {
       console.error('Error fetching user profiles from Firebase:', error);
       return [];
