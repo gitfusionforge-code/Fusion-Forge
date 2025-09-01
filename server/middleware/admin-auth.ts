@@ -1,19 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import bcrypt from "bcrypt";
 
 // Admin configuration validation
 const adminEmail = process.env.ADMIN_EMAIL;
-const adminUsername = process.env.ADMIN_USERNAME;
-const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
 
-if (!adminEmail || !adminUsername || !adminPasswordHash) {
-  throw new Error('Missing required admin credentials. Please set ADMIN_EMAIL, ADMIN_USERNAME, and ADMIN_PASSWORD_HASH environment variables.');
+if (!adminEmail) {
+  throw new Error('Missing required admin email. Please set ADMIN_EMAIL environment variable.');
 }
 
 // Type-safe admin configuration after validation
 const ADMIN_EMAIL: string = adminEmail;
-const ADMIN_USERNAME: string = adminUsername;
-const ADMIN_PASSWORD_HASH: string = adminPasswordHash;
 
 // Simple session store (in production, use Redis or database)
 const adminSessions = new Set<string>();
@@ -21,19 +16,6 @@ const adminEmails = new Set<string>([ADMIN_EMAIL]); // Allow multiple admin emai
 
 export function generateSessionId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
-}
-
-export async function verifyAdminCredentials(username: string, password: string): Promise<boolean> {
-  if (username !== ADMIN_USERNAME) {
-    return false;
-  }
-  
-  try {
-    return await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
-  } catch (error) {
-    console.error("Password verification error:", error);
-    return false;
-  }
 }
 
 export function verifyAdminEmail(email: string): boolean {

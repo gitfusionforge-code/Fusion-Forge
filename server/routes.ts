@@ -12,7 +12,7 @@ import { handleRazorpayWebhook } from "./webhooks/razorpay-webhook";
 import { 
   requireAdminAuth, 
   optionalAdminAuth, 
-  verifyAdminCredentials, 
+  verifyAdminEmail, 
   createAdminSession, 
   destroyAdminSession, 
   generateSessionId, 
@@ -410,18 +410,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin Authentication Routes
+  // Admin Authentication Routes (Email-only)
   app.post("/api/admin/login", async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { email } = req.body;
       
-      if (!username || !password) {
-        return res.status(400).json({ error: "Username and password required" });
+      if (!email) {
+        return res.status(400).json({ error: "Email required" });
       }
       
-      const isValid = await verifyAdminCredentials(username, password);
+      const isValid = verifyAdminEmail(email);
       if (!isValid) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        return res.status(401).json({ error: "Invalid admin email" });
       }
       
       const sessionId = generateSessionId();
