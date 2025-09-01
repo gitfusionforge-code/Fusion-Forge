@@ -38,7 +38,23 @@ export function FirebaseAdminLogin() {
     setIsLoggingIn(true);
 
     try {
+      // Step 1: Firebase authentication
       await login(email, password);
+      
+      // Step 2: Create backend admin session
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+        credentials: 'include' // Important for cookie handling
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create admin session');
+      }
+      
       toast({
         title: "Admin Login Successful",
         description: "Welcome to the Fusion Forge PCs admin panel",
