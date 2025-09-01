@@ -105,7 +105,7 @@ function AdminContent() {
 
   // Initialize low stock threshold from server
   useEffect(() => {
-    if (lowStockSetting?.value) {
+    if (lowStockSetting && 'value' in lowStockSetting) {
       setLowStockThreshold(parseInt(lowStockSetting.value) || 5);
     }
   }, [lowStockSetting]);
@@ -413,6 +413,16 @@ FusionForge PCs Team`);
   const handleOrderStatusUpdate = async (orderId: number, newStatus: string) => {
     updateOrderStatusMutation.mutate({ id: orderId, status: newStatus });
   };
+
+  // Queue-structured order sorting: prioritize pending/processing orders first
+  const queuedOrders = [...orders].sort((a, b) => {
+    const statusPriority = { 'pending': 1, 'processing': 2, 'paid': 3, 'completed': 4, 'cancelled': 5 };
+    const priorityA = statusPriority[a.status as keyof typeof statusPriority] || 6;
+    const priorityB = statusPriority[b.status as keyof typeof statusPriority] || 6;
+    
+    if (priorityA !== priorityB) return priorityA - priorityB;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   // Analytics calculations
   const analytics = {
@@ -945,174 +955,155 @@ FusionForge PCs Team`);
               
               <div className="overflow-x-auto">
                 {ordersLoading ? (
-                  <div className="p-8 text-center">Loading orders...</div>
+                  <div className="p-8 text-center">Loading order queue...</div>
                 ) : ordersError ? (
-                  <div className="p-8 text-center text-red-600">Failed to load orders</div>
+                  <div className="p-8 text-center text-red-600">Failed to load order queue</div>
                 ) : orders.length === 0 ? (
-                  <div className="p-8 text-center text-gray-600">No orders found</div>
+                  <div className="p-8 text-center text-gray-600">No orders in queue</div>
                 ) : (
-                  <table className="min-w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ORDER ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CUSTOMER</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BUILD</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AMOUNT</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DATE</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {orders.map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-900">#{order.id}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {order.customerName || 'Guest Customer'}
+                  <div className="space-y-4 p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <span className="text-sm text-gray-600">High Priority (Pending)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Medium Priority (Processing)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Completed</span>
+                      </div>
+                    </div>
+                    
+                    {/* Queue-style order list */}
+                    {queuedOrders.map((order, index) => {
+                      const priorityColor = 
+                        order.status === 'pending' ? 'border-red-200 bg-red-50' :
+                        order.status === 'processing' ? 'border-yellow-200 bg-yellow-50' :
+                        order.status === 'paid' ? 'border-blue-200 bg-blue-50' :
+                        order.status === 'completed' ? 'border-green-200 bg-green-50' :
+                        'border-gray-200 bg-gray-50';
+                      
+                      const priorityDot = 
+                        order.status === 'pending' ? 'bg-red-500' :
+                        order.status === 'processing' ? 'bg-yellow-500' :
+                        order.status === 'paid' ? 'bg-blue-500' :
+                        order.status === 'completed' ? 'bg-green-500' :
+                        'bg-gray-500';
+                        
+                      return (
+                        <Card key={order.id} className={`${priorityColor} border-2 transition-all hover:shadow-md`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-3 h-3 ${priorityDot} rounded-full`}></div>
+                                  <span className="font-medium text-sm text-gray-500">Queue #{index + 1}</span>
+                                </div>
+                                <div>
+                                  <div className="font-medium text-gray-900">Order #{order.id}</div>
+                                  <div className="text-sm text-gray-600">{order.customerName || 'Guest Customer'}</div>
+                                  <div className="text-xs text-gray-500">{order.customerEmail}</div>
+                                </div>
                               </div>
-                              <div className="text-sm text-gray-500">
-                                {order.customerEmail || 'No email provided'}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{JSON.parse(order.items || '[]')[0]?.build?.name || 'Order Items'}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-900">{order.total}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Select
-                              key={`${order.id}-${order.status}`}
-                              value={order.status}
-                              onValueChange={(value) => handleOrderStatusUpdate(order.id, value)}
-                            >
-                              <SelectTrigger className="w-36 h-9 text-sm border border-gray-300 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <SelectValue>
-                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                    order.status === "completed" 
-                                      ? "bg-lime-200 text-lime-900" 
-                                      : order.status === "processing"
-                                      ? "bg-indigo-200 text-indigo-900"
-                                      : order.status === "paid"
-                                      ? "bg-teal-200 text-teal-900"
-                                      : order.status === "cancelled"
-                                      ? "bg-rose-200 text-rose-900"
-                                      : "bg-amber-200 text-amber-900"
-                                  }`}>
-                                    {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Pending'}
-                                  </span>
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                                <SelectItem value="pending" className="hover:bg-amber-50 focus:bg-amber-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-900">
-                                    Pending
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="processing" className="hover:bg-indigo-50 focus:bg-indigo-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-200 text-indigo-900">
-                                    Processing
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="paid" className="hover:bg-teal-50 focus:bg-teal-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-teal-200 text-teal-900">
-                                    Paid
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="completed" className="hover:bg-lime-50 focus:bg-lime-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-lime-200 text-lime-900">
-                                    Completed
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="cancelled" className="hover:bg-rose-50 focus:bg-rose-50">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-200 text-rose-900">
-                                    Cancelled
-                                  </span>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center text-sm text-gray-500">
-                              <Clock className="h-4 w-4 mr-2" />
-                              {formatDate(order.createdAt)}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="flex items-center gap-2 text-sm"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  View Details
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                  <DialogTitle>Order Details - #{order.id}</DialogTitle>
-                                  <DialogDescription>
-                                    View order information and payment details
-                                  </DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Order Number</label>
-                                      <p className="text-sm text-gray-900">{order.orderNumber}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Customer Name</label>
-                                      <p className="text-sm text-gray-900">{order.customerName || 'Not provided'}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Customer Email</label>
-                                      <p className="text-sm text-gray-900">{order.customerEmail || 'Not provided'}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Items</label>
-                                      <p className="text-sm text-gray-900">{JSON.parse(order.items || '[]').length} items</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Shipping Address</label>
-                                      <p className="text-sm text-gray-900">{order.shippingAddress || 'Not provided'}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Total Amount</label>
-                                      <p className="text-sm text-gray-900">{order.total}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Payment Method</label>
-                                      <p className="text-sm text-gray-900 capitalize">{order.paymentMethod || 'Not specified'}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Order Status</label>
-                                      <p className="text-sm text-gray-900 capitalize">{order.status}</p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-medium text-gray-700">Order Date</label>
-                                      <p className="text-sm text-gray-900">{formatDate(order.createdAt)}</p>
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <label className="text-sm font-medium text-gray-700">Shipping Address</label>
-                                    <p className="text-sm text-gray-900 mt-1">{order.shippingAddress || 'No shipping address provided'}</p>
+                              
+                              <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                  <div className="font-medium text-gray-900">₹{order.total}</div>
+                                  <div className="text-xs text-gray-500">{JSON.parse(order.items || '[]')[0]?.build?.name || 'Order Items'}</div>
+                                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {new Date(order.createdAt).toLocaleDateString()}
                                   </div>
                                 </div>
-                              </DialogContent>
-                            </Dialog>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                                
+                                <div className="flex items-center gap-2">
+                                  <Select
+                                    key={`${order.id}-${order.status}`}
+                                    value={order.status}
+                                    onValueChange={(value) => handleOrderStatusUpdate(order.id, value)}
+                                  >
+                                    <SelectTrigger className="w-32 h-8 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="pending">Pending</SelectItem>
+                                      <SelectItem value="processing">Processing</SelectItem>
+                                      <SelectItem value="paid">Paid</SelectItem>
+                                      <SelectItem value="completed">Completed</SelectItem>
+                                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                        <Eye className="h-4 w-4" />
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl">
+                                      <DialogHeader>
+                                        <DialogTitle>Order Details - #{order.id}</DialogTitle>
+                                        <DialogDescription>
+                                          View order information and payment details
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Order Number</label>
+                                            <p className="text-sm text-gray-900">{order.orderNumber}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Customer Name</label>
+                                            <p className="text-sm text-gray-900">{order.customerName || 'Not provided'}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Customer Email</label>
+                                            <p className="text-sm text-gray-900">{order.customerEmail || 'Not provided'}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Items</label>
+                                            <p className="text-sm text-gray-900">{JSON.parse(order.items || '[]').length} items</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Shipping Address</label>
+                                            <p className="text-sm text-gray-900">{order.shippingAddress || 'Not provided'}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Total Amount</label>
+                                            <p className="text-sm text-gray-900">{order.total}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Payment Method</label>
+                                            <p className="text-sm text-gray-900 capitalize">{order.paymentMethod || 'Not specified'}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Order Status</label>
+                                            <p className="text-sm text-gray-900 capitalize">{order.status}</p>
+                                          </div>
+                                          <div>
+                                            <label className="text-sm font-medium text-gray-700">Order Date</label>
+                                            <p className="text-sm text-gray-900">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm font-medium text-gray-700">Shipping Address</label>
+                                          <p className="text-sm text-gray-900 mt-1">{order.shippingAddress || 'No shipping address provided'}</p>
+                                        </div>
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                              </div>
+                            </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
                 )}
               </div>
             </div>

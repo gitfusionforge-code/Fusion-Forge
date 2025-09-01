@@ -295,7 +295,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveUserAddress(address: InsertUserAddress): Promise<UserAddress> {
-    const result = await db.insert(userAddresses).values(address).returning();
+    const { nanoid } = await import('nanoid');
+    const addressWithId = { ...address, id: nanoid() };
+    const result = await db.insert(userAddresses).values(addressWithId).returning();
     return result[0];
   }
 
