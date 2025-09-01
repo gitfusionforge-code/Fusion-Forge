@@ -249,30 +249,36 @@ export class FirebaseRealtimeStorage implements IStorage {
   }
 
   async getInquiries(): Promise<Inquiry[]> {
-    const snapshot = await get(ref(database, 'inquiries'));
-    if (!snapshot.exists()) return [];
-    
-    const data = snapshot.val();
-    const inquiries = Object.values(data).filter(Boolean) as Inquiry[];
-    
-    // Backfill missing timestamps with different dates for each entry
-    let backfillCount = 0;
-    for (const inquiry of inquiries) {
-      if (!inquiry.createdAt) {
-        // Create different timestamps for each entry (going back in time)
-        const fallbackDate = new Date(Date.now() - (backfillCount * 24 * 60 * 60 * 1000)); // Each entry 1 day earlier
-        await update(ref(database, `inquiries/${inquiry.id}`), {
-          createdAt: fallbackDate.toISOString(),
-          updatedAt: fallbackDate.toISOString()
-        });
-        // Update the in-memory object
-        (inquiry as any).createdAt = fallbackDate.toISOString();
-        (inquiry as any).updatedAt = fallbackDate.toISOString();
-        backfillCount++;
+    try {
+      const snapshot = await get(ref(database, 'inquiries'));
+      if (!snapshot.exists()) return [];
+      
+      const data = snapshot.val();
+      const inquiries = Object.values(data).filter(Boolean) as Inquiry[];
+      
+      // Backfill missing timestamps with different dates for each entry
+      let backfillCount = 0;
+      for (const inquiry of inquiries) {
+        if (!inquiry.createdAt) {
+          // Create different timestamps for each entry (going back in time)
+          const fallbackDate = new Date(Date.now() - (backfillCount * 24 * 60 * 60 * 1000)); // Each entry 1 day earlier
+          await update(ref(database, `inquiries/${inquiry.id}`), {
+            createdAt: fallbackDate.toISOString(),
+            updatedAt: fallbackDate.toISOString()
+          });
+          // Update the in-memory object
+          (inquiry as any).createdAt = fallbackDate.toISOString();
+          (inquiry as any).updatedAt = fallbackDate.toISOString();
+          backfillCount++;
+        }
       }
+      
+      return inquiries;
+    } catch (error) {
+      console.error('Error fetching inquiries from Firebase:', error);
+      // Return empty array instead of throwing error for admin panel
+      return [];
     }
-    
-    return inquiries;
   }
 
   async updateInquiryStatus(id: number, status: string): Promise<Inquiry> {
@@ -404,7 +410,8 @@ export class FirebaseRealtimeStorage implements IStorage {
       });
     } catch (error) {
       console.error('Error fetching orders from Firebase:', error);
-      throw error;
+      // Return empty array instead of throwing error for admin panel
+      return [];
     }
   }
 

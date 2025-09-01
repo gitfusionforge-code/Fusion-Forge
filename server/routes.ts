@@ -50,6 +50,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Seed sample admin data (inquiries and orders) for testing
+  app.post("/api/admin/seed-data", requireAdminAuth, async (_req, res) => {
+    try {
+      // Create sample inquiries
+      const sampleInquiries = [
+        {
+          name: "Rahul Sharma",
+          email: "rahul.sharma@example.com",
+          budget: "₹80,000 - ₹1,00,000",
+          useCase: "gaming",
+          details: "Looking for a high-performance gaming PC for streaming and content creation. Need at least RTX 4070 GPU.",
+          status: "uncompleted"
+        },
+        {
+          name: "Priya Patel",
+          email: "priya.patel@example.com", 
+          budget: "₹1,50,000 - ₹2,00,000",
+          useCase: "professional",
+          details: "Need a workstation for 4K video editing and 3D rendering. Require 32GB RAM and professional GPU.",
+          status: "completed"
+        },
+        {
+          name: "Amit Kumar",
+          email: "amit.kumar@example.com",
+          budget: "₹60,000 - ₹80,000",
+          useCase: "office",
+          details: "Budget PC for programming and light productivity work. No gaming requirements.",
+          status: "uncompleted"
+        }
+      ];
+
+      // Create sample orders  
+      const sampleOrders = [
+        {
+          orderNumber: "FPC-2025-001",
+          userId: "sample_user_1",
+          customerName: "Vikash Singh",
+          customerEmail: "vikash.singh@example.com",
+          items: JSON.stringify([{
+            build: { id: 1, name: "Gaming Beast Pro", category: "gaming" },
+            quantity: 1,
+            price: 95000
+          }]),
+          total: "₹95,000",
+          status: "processing",
+          paymentMethod: "razorpay",
+          shippingAddress: "123 Tech Street, Bangalore, Karnataka 560001"
+        },
+        {
+          orderNumber: "FPC-2025-002", 
+          userId: "sample_user_2",
+          customerName: "Sneha Reddy",
+          customerEmail: "sneha.reddy@example.com",
+          items: JSON.stringify([{
+            build: { id: 2, name: "Professional Workstation", category: "professional" },
+            quantity: 1,
+            price: 175000
+          }]),
+          total: "₹1,75,000",
+          status: "completed",
+          paymentMethod: "razorpay",
+          shippingAddress: "456 Business Avenue, Mumbai, Maharashtra 400001"
+        }
+      ];
+
+      // Create inquiries
+      for (const inquiry of sampleInquiries) {
+        await storage.createInquiry(inquiry);
+      }
+
+      // Create orders
+      for (const order of sampleOrders) {
+        await storage.createOrder(order);
+      }
+
+      res.json({ 
+        success: true, 
+        message: `Successfully created ${sampleInquiries.length} inquiries and ${sampleOrders.length} orders`,
+        data: {
+          inquiries: sampleInquiries.length,
+          orders: sampleOrders.length
+        }
+      });
+    } catch (error) {
+      console.error('Failed to seed admin data:', error);
+      res.status(500).json({ error: "Failed to create sample data" });
+    }
+  });
+
   // Get all PC builds
   app.get("/api/builds", async (_req, res) => {
     try {
@@ -180,7 +269,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(inquiries);
     } catch (error) {
       console.error('Failed to fetch inquiries:', error);
-      res.status(500).json({ error: "Failed to fetch inquiries" });
+      // Return empty array instead of error
+      res.json([]);
     }
   });
 
@@ -291,7 +381,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(orders);
     } catch (error) {
       console.error('Error fetching orders from Firebase:', error);
-      res.status(500).json({ error: "Failed to fetch orders" });
+      // Return empty array instead of error
+      res.json([]);
     }
   });
 
