@@ -1,0 +1,46 @@
+../dist/public/assets/award-rYN4WZWw.js                                           0.44 kB │ gzip:   0.33 kB
+../dist/public/assets/users-D-SZcbTy.js                                           0.47 kB │ gzip:   0.32 kB
+../dist/public/assets/chevron-up-LJcfp7_i.js                                      0.54 kB │ gzip:   0.28 kB
+../dist/public/assets/hard-drive-BF8YSeRZ.js                                      0.56 kB │ gzip:   0.37 kB
+../dist/public/assets/phone-CoJPhJHo.js                                           0.56 kB │ gzip:   0.36 kB
+../dist/public/assets/textarea-CmDlYp1v.js                                        0.60 kB │ gzip:   0.39 kB
+../dist/public/assets/gamepad-2-BIZ6CepQ.js                                       0.79 kB │ gzip:   0.49 kB
+../dist/public/assets/monitor-CP1ZAmbi.js                                         1.04 kB │ gzip:   0.45 kB
+../dist/public/assets/progress-Cwyw1uEr.js                                        2.16 kB │ gzip:   1.04 kB
+../dist/public/assets/switch-Btr7IL6l.js                                          2.62 kB │ gzip:   1.29 kB
+../dist/public/assets/useMutation-D2DW2_Y7.js                                     2.91 kB │ gzip:   1.23 kB
+../dist/public/assets/Login-s5imVXuf.js                                           3.14 kB │ gzip:   0.88 kB
+../dist/public/assets/enhanced-seo-head-EjHm5E25.js                               3.49 kB │ gzip:   1.52 kB
+../dist/public/assets/user-layout-CDMPLqMH.js                                     4.27 kB │ gzip:   1.06 kB
+../dist/public/assets/add-to-cart-button-iajLnQtQ.js                              4.59 kB │ gzip:   1.28 kB
+../dist/public/assets/profile-C07sQClA.js                                         7.27 kB │ gzip:   1.58 kB
+../dist/public/assets/order-success-DiMU2XR-.js                                   7.30 kB │ gzip:   1.52 kB
+../dist/public/assets/enhanced-loading-states-DUuIapS7.js                         7.44 kB │ gzip:   0.86 kB
+../dist/public/assets/profile-builds-C8Mdm6Sf.js                                  8.06 kB │ gzip:   1.73 kB
+../dist/public/assets/not-found-BXjHeTkA.js                                       8.58 kB │ gzip:   1.46 kB
+../dist/public/assets/admin-login-B_7hsVm6.js                                     9.32 kB │ gzip:   2.00 kB
+../dist/public/assets/useQuery-C6-TLL7H.js                                       10.68 kB │ gzip:   3.87 kB
+../dist/public/assets/profile-orders-DTWUV8To.js                                 11.56 kB │ gzip:   2.42 kB
+../dist/public/assets/about-Cn11DFRi.js                                          13.99 kB │ gzip:   2.88 kB
+../dist/public/assets/faq-DZNL9onf.js                                            14.63 kB │ gzip:   4.33 kB
+../dist/public/assets/services-CaHACN-F.js                                       15.71 kB │ gzip:   3.86 kB
+../dist/public/assets/home-DDBoYPIn.js                                           18.28 kB │ gzip:   3.04 kB
+../dist/public/assets/Dashboard-5Kluk2vX.js                                      19.78 kB │ gzip:   2.94 kB
+../dist/public/assets/custom-pc-cta-CfeBHj82.js                                  20.48 kB │ gzip:   4.13 kB
+../dist/public/assets/builds-DeuLFG1a.js                                         23.20 kB │ gzip:   4.58 kB
+../dist/public/assets/select-BSTExhPI.js                                         23.37 kB │ gzip:   7.53 kB
+../dist/public/assets/Checkout-DpHsR5AD.js                                       24.92 kB │ gzip:   4.81 kB
+../dist/public/assets/profile-settings-CCjlDUJe.js                               30.35 kB │ gzip:   4.17 kB
+../dist/public/assets/configurator-CUngNtsY.js                                   58.60 kB │ gzip:  12.22 kB
+../dist/public/assets/contact-CVSPVyyG.js                                        61.66 kB │ gzip:  16.33 kB
+../dist/public/assets/index-CE_A_JXV.js                                          89.83 kB │ gzip:  24.92 kB
+../dist/public/assets/admin-CgVlYxWU.js                                         152.49 kB │ gzip:  17.41 kB
+../dist/public/assets/build-details-DJI40SQe.js                                 425.20 kB │ gzip: 113.55 kB
+../dist/public/assets/index-BWdTEvIt.js                                         897.65 kB │ gzip: 246.05 kB
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 12.69s
+  dist/index.js  140.7kb
+⚡ Done in 10ms
