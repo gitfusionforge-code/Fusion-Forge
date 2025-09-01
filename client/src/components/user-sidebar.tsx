@@ -25,11 +25,15 @@ const navigationItems = [
   }
 ];
 
-export default function UserSidebar() {
+interface UserSidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function UserSidebar({ onNavigate }: UserSidebarProps = {}) {
   const [location] = useLocation();
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 min-h-screen">
+    <div className="w-full md:w-64 bg-white border-r border-gray-200 min-h-screen">
       <nav className="p-4 space-y-2">
         {navigationItems.map((item) => {
           const Icon = item.icon;
@@ -38,6 +42,7 @@ export default function UserSidebar() {
           return (
             <Link key={item.href} href={item.href}>
               <div
+                onClick={onNavigate}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer",
                   isActive

@@ -6,6 +6,7 @@ import { useCartStore } from '@/lib/cart-store';
 import { Link } from 'wouter';
 import ProtectedCheckout from '@/components/auth/ProtectedCheckout';
 import { formatPrice } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function CartSidebar() {
   const { 
@@ -20,6 +21,7 @@ export default function CartSidebar() {
     getGSTAmount,
     clearCart 
   } = useCartStore();
+  const isMobile = useIsMobile();
 
   const subtotal = getTotalPrice();
   const gstAmount = getGSTAmount();
@@ -36,7 +38,7 @@ export default function CartSidebar() {
       />
       
       {/* Cart Sidebar */}
-      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 flex flex-col">
+      <div className={`fixed ${isMobile ? 'inset-0' : 'right-0 top-0'} h-full ${isMobile ? 'w-full' : 'w-96'} bg-white shadow-xl z-50 flex flex-col`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">

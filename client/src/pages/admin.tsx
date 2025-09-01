@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EnhancedSEOHead from "@/components/enhanced-seo-head";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Users, 
   Mail, 
@@ -40,6 +41,7 @@ function AdminContent() {
   const [selectedBuild, setSelectedBuild] = useState<PcBuild | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [editingBuild, setEditingBuild] = useState<PcBuild | null>(null);
+  const isMobile = useIsMobile();
   const [buildEditForm, setBuildEditForm] = useState({
     name: '',
     basePrice: 0,
@@ -668,43 +670,45 @@ FusionForge PCs Team`);
             {/* Filters */}
             <Card>
               <CardContent className="p-6">
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className={`${isMobile ? 'space-y-4' : 'flex flex-wrap gap-4 items-center'}`}>
                   <div className="flex items-center gap-2">
                     <Search className="h-4 w-4 text-gray-400" />
                     <Input
                       placeholder="Search inquiries..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-64"
+                      className={`${isMobile ? 'flex-1' : 'w-64'}`}
                     />
                   </div>
 
-                  <Select value={budgetFilter} onValueChange={setBudgetFilter}>
-                    <SelectTrigger className="w-40">
-                      <Filter className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Budget" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Budgets</SelectItem>
-                      <SelectItem value="₹30,000 - ₹50,000">₹30K - ₹50K</SelectItem>
-                      <SelectItem value="₹50,000 - ₹75,000">₹50K - ₹75K</SelectItem>
-                      <SelectItem value="₹75,000 - ₹1,00,000">₹75K - ₹100K</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className={`${isMobile ? 'grid grid-cols-2 gap-3' : 'flex gap-4 items-center'}`}>
+                    <Select value={budgetFilter} onValueChange={setBudgetFilter}>
+                      <SelectTrigger className={`${isMobile ? 'w-full' : 'w-40'}`}>
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="Budget" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Budgets</SelectItem>
+                        <SelectItem value="₹30,000 - ₹50,000">₹30K - ₹50K</SelectItem>
+                        <SelectItem value="₹50,000 - ₹75,000">₹50K - ₹75K</SelectItem>
+                        <SelectItem value="₹75,000 - ₹1,00,000">₹75K - ₹100K</SelectItem>
+                      </SelectContent>
+                    </Select>
 
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-40">
-                      <Filter className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="uncompleted">Uncompleted</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className={`${isMobile ? 'w-full' : 'w-40'}`}>
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="uncompleted">Uncompleted</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                  <div className="text-sm text-gray-600 flex items-center">
+                  <div className={`text-sm text-gray-600 ${isMobile ? 'text-center' : 'flex items-center'}`}>
                     Showing {filteredInquiries.length} of {analytics.totalInquiries} inquiries
                   </div>
                 </div>
