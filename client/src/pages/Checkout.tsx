@@ -159,7 +159,7 @@ export default function Checkout() {
         );
 
         const options = {
-          key: 'rzp_test_uKo2E3dcFizVIW', // Use the key from our credentials
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID || '', // Razorpay key from environment
           amount: order.amount,
           currency: order.currency,
           name: 'FusionForge PCs',

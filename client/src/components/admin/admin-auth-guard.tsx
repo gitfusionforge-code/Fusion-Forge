@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Shield, AlertTriangle, Loader2 } from "lucide-react";
 
-const ADMIN_EMAIL = "fusionforgepc@gmail.com";
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "admin@company.com";
 
 interface AdminAuthGuardProps {
   children: React.ReactNode;

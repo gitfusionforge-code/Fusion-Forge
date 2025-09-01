@@ -5,14 +5,14 @@ import { sendAutomatedReceipt, ReceiptData } from '../services/receipt-generator
 import { firebaseRealtimeStorage as storage } from '../firebase-realtime-storage';
 
 // Razorpay webhook secret - set this in your environment
-const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET || 'your_webhook_secret_here';
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
 export async function handleRazorpayWebhook(req: Request, res: Response) {
   try {
     // Verify webhook signature (skip in development/test mode)
     const receivedSignature = req.headers['x-razorpay-signature'] as string;
     
-    if (WEBHOOK_SECRET !== 'your_webhook_secret_here' && receivedSignature) {
+    if (WEBHOOK_SECRET && receivedSignature) {
       const body = JSON.stringify(req.body);
       
       const expectedSignature = crypto
@@ -161,11 +161,11 @@ async function generateAndSendReceipt(payment: any, order: any) {
       }),
       companyDetails: {
         name: 'Fusion Forge PCs',
-        address: '58, Jayaprakash Street<br>Palladam - 641664<br>Tirupur, Tamil Nadu',
-        phone: '9626199577',
-        email: 'fusionforgepc@gmail.com',
+        address: process.env.BUSINESS_ADDRESS || 'Company Address',
+        phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
+        email: process.env.BUSINESS_EMAIL || 'contact@company.com',
         website: 'www.fusionforge.com',
-        gst: 'GST123456789'
+        gst: process.env.BUSINESS_GST || 'GST-NUMBER'
       }
     };
     

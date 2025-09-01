@@ -1032,7 +1032,7 @@ FusionForge PCs Team`);
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Business Email</label>
-                      <Input placeholder="fusionforgepc@gmail.com" disabled />
+                      <Input placeholder={import.meta.env.VITE_BUSINESS_EMAIL || "business@company.com"} disabled />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Email Service Status</label>

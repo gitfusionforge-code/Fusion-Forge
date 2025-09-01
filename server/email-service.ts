@@ -111,7 +111,7 @@ export function createInquiryResponseEmail(inquiry: any) {
       
       <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
         <p style="margin: 0; color: #92400e;">
-          <strong>Ready to proceed?</strong> Reply to this email or call us at 9626199577 to discuss your quote and place your order.
+          <strong>Ready to proceed?</strong> Reply to this email or call us at ${process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX'} to discuss your quote and place your order.
         </p>
       </div>
       
@@ -138,7 +138,7 @@ export function createInquiryResponseEmail(inquiry: any) {
     
     Based on your requirements, we've designed a high-performance PC build that delivers exceptional value within your budget.
     
-    Ready to proceed? Reply to this email or call us at 9626199577 to discuss your quote and place your order.
+    Ready to proceed? Reply to this email or call us at ${process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX'} to discuss your quote and place your order.
     
     We're excited to build your dream PC!
     
@@ -194,7 +194,7 @@ export function createCustomerConfirmationEmail(inquiry: any) {
       </div>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="mailto:fusionforgepc@gmail.com" 
+        <a href="mailto:${process.env.BUSINESS_EMAIL || 'contact@company.com'}" 
            style="background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
           Contact Us Directly
         </a>
@@ -310,7 +310,7 @@ export function createOrderConfirmationEmail(orderData: any) {
       
       <!-- Support Section -->
       <div style="text-align: center; margin: 30px 0;">
-        <a href="mailto:fusionforgepc@gmail.com" 
+        <a href="mailto:${process.env.BUSINESS_EMAIL || 'contact@company.com'}" 
            style="background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
           Contact Support
         </a>
@@ -359,7 +359,7 @@ export function createOrderConfirmationEmail(orderData: any) {
     - We'll begin sourcing and assembling your custom PC
     - You'll receive tracking information once shipped
     
-    Questions? Contact us at fusionforgepc@gmail.com or +91-XXXX-XXXXXX
+    Questions? Contact us at ${process.env.BUSINESS_EMAIL || 'contact@company.com'} or +91-XXXX-XXXXXX
   `;
   
   return { subject, html, text, orderNumber };

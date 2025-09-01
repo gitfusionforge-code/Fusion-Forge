@@ -9,13 +9,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, Mail, Eye, EyeOff, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_EMAIL = "fusionforgepc@gmail.com";
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "admin@company.com";
 
 export function FirebaseAdminLogin() {
   const [, setLocation] = useLocation();
   const { login, user, loading } = useAuth();
   const { toast } = useToast();
-  const [email, setEmail] = useState(ADMIN_EMAIL);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");

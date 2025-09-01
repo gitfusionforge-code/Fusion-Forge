@@ -138,8 +138,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Send notification to business
         const businessEmail = createQuoteRequestEmail(inquiry);
         const businessEmailSent = await sendEmail({
-          to: "fusionforgepc@gmail.com", // Admin notification email
-          from: "fusionforgepc@gmail.com", // Business email
+          to: process.env.BUSINESS_EMAIL || "contact@company.com", // Admin notification email
+          from: process.env.BUSINESS_EMAIL || "contact@company.com", // Business email
           subject: businessEmail.subject,
           html: businessEmail.html,
           text: businessEmail.text
@@ -151,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customerEmail = createCustomerConfirmationEmail(inquiry);
         const customerEmailSent = await sendEmail({
           to: inquiry.email,
-          from: "fusionforgepc@gmail.com", // Business email
+          from: process.env.BUSINESS_EMAIL || "contact@company.com", // Business email
           subject: customerEmail.subject,
           html: customerEmail.html
         });
@@ -260,7 +260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const responseEmail = createInquiryResponseEmail(inquiry);
         const emailSent = await sendEmail({
           to: inquiry.email,
-          from: "fusionforgepc@gmail.com",
+          from: process.env.BUSINESS_EMAIL || "contact@company.com",
           subject: responseEmail.subject,
           html: responseEmail.html,
           text: responseEmail.text
@@ -679,11 +679,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }),
               companyDetails: {
                 name: 'Fusion Forge PCs',
-                address: '58, Jayaprakash Street<br>Palladam - 641664<br>Tirupur, Tamil Nadu',
-                phone: '9626199577',
-                email: 'fusionforgepc@gmail.com',
+                address: process.env.BUSINESS_ADDRESS || 'Company Address',
+                phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
+                email: process.env.BUSINESS_EMAIL || 'contact@company.com',
                 website: 'www.fusionforge.com',
-                gst: 'GST123456789'
+                gst: process.env.BUSINESS_GST || 'GST-NUMBER'
               }
             };
             
@@ -831,7 +831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Send order confirmation via Nodemailer
         emailSent = await sendEmail({
           to: orderData.email,
-          from: '"Fusion Forge PCs" <fusionforgepc@gmail.com>',
+          from: `"Fusion Forge PCs" <${process.env.BUSINESS_EMAIL || 'contact@company.com'}>`,
           subject: orderEmail.subject,
           html: orderEmail.html,
           text: orderEmail.text
@@ -842,8 +842,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Also send a copy to admin with customer details
         await sendEmail({
-          to: "fusionforgepc@gmail.com",
-          from: '"Fusion Forge PCs" <fusionforgepc@gmail.com>',
+          to: process.env.BUSINESS_EMAIL || "contact@company.com",
+          from: `"Fusion Forge PCs" <${process.env.BUSINESS_EMAIL || 'contact@company.com'}>`,
           subject: `New Order Alert - ${orderEmail.orderNumber}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -939,11 +939,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }),
             companyDetails: {
               name: 'Fusion Forge PCs',
-              address: '58, Jayaprakash Street<br>Palladam - 641664<br>Tirupur, Tamil Nadu',
-              phone: '9626199577',
-              email: 'fusionforgepc@gmail.com',
+              address: process.env.BUSINESS_ADDRESS || 'Company Address',
+              phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
+              email: process.env.BUSINESS_EMAIL || 'contact@company.com',
               website: 'https://fusionforge.replit.app',
-              gst: 'GST123456789'
+              gst: process.env.BUSINESS_GST || 'GST-NUMBER'
             }
           };
 
@@ -1062,8 +1062,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentId: "pay_QkyDGHIgNuDggZ", 
         orderId: "order_QkyDCBGSMYr242",
         customerName: "Ragul V.L",
-        customerEmail: "ragulkamelash@gmail.com",
-        customerPhone: "9626199577",
+        customerEmail: "demo@customer.com",
+        customerPhone: "DEMO-PHONE",
         amount: 25000,
         paymentMethod: "online_payment",
         paymentStatus: "completed",
@@ -1087,11 +1087,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionDate: "24/06/2025, 02:09:23 pm",
         companyDetails: {
           name: "Fusion Forge PCs",
-          address: "58, Jayaprakash Street<br>Palladam - 641664<br>Tirupur, Tamil Nadu",
-          phone: "9626199577",
-          email: "fusionforgepc@gmail.com",
+          address: process.env.BUSINESS_ADDRESS || 'Company Address',
+          phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
+          email: process.env.BUSINESS_EMAIL || "contact@company.com",
           website: "www.fusionforge.com",
-          gst: "GST123456789"
+          gst: process.env.BUSINESS_GST || 'GST-NUMBER'
         }
       };
       
@@ -1100,7 +1100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: receiptSent,
-        message: receiptSent ? 'Receipt sent to ragulkamelash@gmail.com! Check console for preview URL.' : 'Receipt generation failed',
+        message: receiptSent ? 'Receipt sent! Check console for preview URL.' : 'Receipt generation failed',
         customerEmail: receiptData.customerEmail,
         orderNumber: receiptData.orderNumber
       });
@@ -1136,8 +1136,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentId: 'pay_QkyDGHIgNuDggZ',
         orderId: '12',
         customerName: 'Ragul V.L',
-        customerEmail: 'ragulkamelash@gmail.com',
-        customerPhone: '9626199577',
+        customerEmail: 'demo@customer.com',
+        customerPhone: 'DEMO-PHONE',
         amount: 25000,
         paymentMethod: 'online_payment',
         paymentStatus: 'paid',
@@ -1161,9 +1161,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionDate: new Date().toISOString(),
         companyDetails: {
           name: 'FusionForge PCs',
-          address: '58, Jayaprakash Street<br>Palladam - 641664<br>Tirupur, Tamil Nadu',
-          phone: '9626199577',
-          email: 'fusionforgepc@gmail.com',
+          address: process.env.BUSINESS_ADDRESS || 'Company Address',
+          phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
+          email: process.env.BUSINESS_EMAIL || 'contact@company.com',
           website: 'www.fusionforge.com'
         }
       };
@@ -1355,11 +1355,11 @@ async function manualReceiptGeneration(orderId: number): Promise<boolean> {
       }),
       companyDetails: {
         name: 'Fusion Forge PCs',
-        address: '58, Jayaprakash Street<br>Palladam - 641664<br>Tirupur, Tamil Nadu',
-        phone: '9626199577',
-        email: 'fusionforgepc@gmail.com',
+        address: process.env.BUSINESS_ADDRESS || 'Company Address',
+        phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
+        email: process.env.BUSINESS_EMAIL || 'contact@company.com',
         website: 'www.fusionforge.com',
-        gst: 'GST123456789'
+        gst: process.env.BUSINESS_GST || 'GST-NUMBER'
       }
     };
     
