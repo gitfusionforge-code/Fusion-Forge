@@ -140,6 +140,14 @@ export const userAddresses = pgTable("user_addresses", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Admin settings table
+export const adminSettings = pgTable("admin_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertPcBuildSchema = createInsertSchema(pcBuilds).omit({
   id: true,
 });
@@ -186,6 +194,11 @@ export const insertUserAddressSchema = createInsertSchema(userAddresses).omit({
   createdAt: true,
 });
 
+export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
 export type InsertPcBuild = z.infer<typeof insertPcBuildSchema>;
 export type PcBuild = typeof pcBuilds.$inferSelect;
 
@@ -212,3 +225,6 @@ export type SavedBuild = typeof savedBuilds.$inferSelect;
 
 export type InsertUserAddress = z.infer<typeof insertUserAddressSchema>;
 export type UserAddress = typeof userAddresses.$inferSelect;
+
+export type InsertAdminSetting = z.infer<typeof insertAdminSettingSchema>;
+export type AdminSetting = typeof adminSettings.$inferSelect;

@@ -718,7 +718,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Settings API endpoints
+  app.get("/api/admin/settings", requireAdminAuth, async (req, res) => {
+    try {
+      const settings = await storage.getAllAdminSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching admin settings:', error);
+      res.status(500).json({ error: "Failed to fetch admin settings" });
+    }
+  });
 
+  app.get("/api/admin/settings/:key", requireAdminAuth, async (req, res) => {
+    try {
+      const { key } = req.params;
+      const setting = await storage.getAdminSetting(key);
+      
+      if (!setting) {
+        return res.status(404).json({ error: "Setting not found" });
+      }
+      
+      res.json(setting);
+    } catch (error) {
+      console.error('Error fetching admin setting:', error);
+      res.status(500).json({ error: "Failed to fetch admin setting" });
+    }
+  });
+
+  app.post("/api/admin/settings", requireAdminAuth, async (req, res) => {
+    try {
+      const { key, value } = req.body;
+      
+      if (!key || !value) {
+        return res.status(400).json({ error: "Key and value are required" });
+      }
+      
+      const setting = await storage.setAdminSetting(key, value);
+      res.json(setting);
+    } catch (error) {
+      console.error('Error saving admin setting:', error);
+      res.status(500).json({ error: "Failed to save admin setting" });
+    }
+  });
 
   // Create Razorpay order
   app.post("/api/payment/create-order", async (req, res) => {

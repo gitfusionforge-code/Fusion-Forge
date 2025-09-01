@@ -7,6 +7,7 @@ import {
   orders, 
   savedBuilds, 
   userAddresses,
+  adminSettings,
   type PcBuild, 
   type InsertPcBuild, 
   type Component, 
@@ -20,7 +21,9 @@ import {
   type SavedBuild, 
   type InsertSavedBuild,
   type UserAddress,
-  type InsertUserAddress
+  type InsertUserAddress,
+  type AdminSetting,
+  type InsertAdminSetting
 } from "@shared/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 
@@ -77,6 +80,11 @@ export interface IStorage {
   updateUserAddress(addressId: string, address: Partial<InsertUserAddress>): Promise<UserAddress>;
   deleteUserAddress(addressId: string): Promise<void>;
   setDefaultAddress(userId: string, addressId: string): Promise<void>;
+  
+  // Admin Settings
+  getAdminSetting(key: string): Promise<AdminSetting | undefined>;
+  setAdminSetting(key: string, value: string): Promise<AdminSetting>;
+  getAllAdminSettings(): Promise<AdminSetting[]>;
 
   // Account Linking Methods
   getUserProfilesByEmail(email: string): Promise<UserProfile[]>;
@@ -364,6 +372,31 @@ export class DatabaseStorage implements IStorage {
         await db.delete(userProfiles).where(eq(userProfiles.uid, profile.uid));
       }
     }
+  }
+
+  // Admin Settings
+  async getAdminSetting(key: string): Promise<AdminSetting | undefined> {
+    const result = await db.select().from(adminSettings).where(eq(adminSettings.key, key));
+    return result[0];
+  }
+
+  async setAdminSetting(key: string, value: string): Promise<AdminSetting> {
+    const existing = await this.getAdminSetting(key);
+    
+    if (existing) {
+      const result = await db.update(adminSettings)
+        .set({ value, updatedAt: new Date() })
+        .where(eq(adminSettings.key, key))
+        .returning();
+      return result[0];
+    } else {
+      const result = await db.insert(adminSettings).values({ key, value }).returning();
+      return result[0];
+    }
+  }
+
+  async getAllAdminSettings(): Promise<AdminSetting[]> {
+    return await db.select().from(adminSettings);
   }
 }
 
