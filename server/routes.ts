@@ -56,7 +56,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const results = {
         pcBuilds: { accessible: false, count: 0, error: null as string | null },
         inquiries: { accessible: false, count: 0, error: null as string | null },
-        orders: { accessible: false, count: 0, error: null as string | null }
+        orders: { accessible: false, count: 0, error: null as string | null },
+        userProfiles: { accessible: false, count: 0, error: null as string | null }
       };
 
       // Test pcBuilds access
@@ -83,6 +84,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         results.orders = { accessible: false, count: 0, error: error?.message || 'Unknown error' };
       }
 
+      // Test user profiles access
+      try {
+        const profiles = await storage.getAllUserProfiles();
+        results.userProfiles = { accessible: true, count: profiles.length, error: null };
+      } catch (error: any) {
+        results.userProfiles = { accessible: false, count: 0, error: error?.message || 'Unknown error' };
+      }
+
       res.json({
         timestamp: new Date().toISOString(),
         firebase_project: process.env.VITE_FIREBASE_PROJECT_ID,
@@ -92,6 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error?.message || 'Unknown error' });
     }
   });
+
 
   // Seed sample admin data (inquiries and orders) for testing
   app.post("/api/admin/seed-data", requireAdminAuth, async (_req, res) => {
