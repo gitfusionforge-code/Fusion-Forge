@@ -114,167 +114,25 @@ if (process.env.NODE_ENV === 'development') {
 export class FirebaseRealtimeStorage implements IStorage {
   // PC Builds
   async getPcBuilds(): Promise<PcBuild[]> {
-    try {
-      const snapshot = await get(ref(database, 'pcBuilds'));
-      if (!snapshot.exists()) {
-        console.log('No data found in Firebase, attempting to seed with sample data...');
-        await this.seedSampleData();
-        return this.getSampleBuilds();
-      }
-      
-      const data = snapshot.val();
-      console.log('Successfully loaded data from Firebase');
-      return Object.values(data).filter(Boolean) as PcBuild[];
-    } catch (error) {
-      console.warn('Firebase connection failed, using sample data:', error);
-      return this.getSampleBuilds();
+    const snapshot = await get(ref(database, 'pcBuilds'));
+    if (!snapshot.exists()) {
+      console.log('No PC builds found in Firebase database');
+      return [];
     }
+    
+    const data = snapshot.val();
+    console.log('Successfully loaded data from Firebase');
+    return Object.values(data).filter(Boolean) as PcBuild[];
   }
 
-  // Method to seed Firebase with sample data
-  async seedSampleData(): Promise<void> {
-    try {
-      const sampleBuilds = this.getSampleBuilds();
-      const buildsRef = ref(database, 'pcBuilds');
-      
-      const buildsData: { [key: string]: PcBuild } = {};
-      sampleBuilds.forEach(build => {
-        buildsData[build.id.toString()] = build;
-      });
-      
-      await set(buildsRef, buildsData);
-      console.log('Successfully seeded Firebase with sample PC builds data');
-    } catch (error) {
-      console.warn('Failed to seed Firebase data:', error);
-    }
-  }
-
-  private getSampleBuilds(): PcBuild[] {
-    return [
-      {
-        id: 1,
-        name: "Budget Gaming Starter",
-        category: "Student Gaming & Productivity",
-        buildType: "CPU Only",
-        budgetRange: "₹30,000 - ₹50,000",
-        basePrice: 45000,
-        profitMargin: 5000,
-        totalPrice: 50000,
-        description: "Perfect entry-level gaming PC for students. Handles popular games at 1080p medium settings with excellent value for money.",
-        imageUrl: "/images/budget-pc.svg",
-        processor: "AMD Ryzen 5 4500",
-        motherboard: "MSI B450M PRO-B",
-        ram: "16GB DDR4-3200",
-        storage: "500GB NVMe SSD",
-        gpu: "NVIDIA GTX 1660 Super",
-        casePsu: "Cooler Master MasterBox Q300L + EVGA 500W 80+ Bronze",
-        monitor: null,
-        keyboardMouse: null,
-        mousePad: null,
-        stockQuantity: 15,
-        lowStockThreshold: 3,
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
-      },
-      {
-        id: 2,
-        name: "Mid-Range Gaming Beast",
-        category: "Mid-Tier Creators & Gamers",
-        buildType: "CPU Only",
-        budgetRange: "₹80,000 - ₹1,20,000",
-        basePrice: 95000,
-        profitMargin: 15000,
-        totalPrice: 110000,
-        description: "Excellent 1440p gaming performance with ray tracing capabilities. Perfect balance of price and performance for serious gamers.",
-        imageUrl: "/images/mid-range-pc.svg",
-        processor: "AMD Ryzen 5 7600X",
-        motherboard: "MSI B650 GAMING PLUS WIFI",
-        ram: "32GB DDR5-5600",
-        storage: "1TB NVMe Gen4 SSD",
-        gpu: "NVIDIA RTX 4060 Ti",
-        casePsu: "Fractal Design Core 1000 + Corsair RM750x 750W 80+ Gold",
-        monitor: null,
-        keyboardMouse: null,
-        mousePad: null,
-        stockQuantity: 8,
-        lowStockThreshold: 2,
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
-      },
-      {
-        id: 3,
-        name: "High-End Performance Pro",
-        category: "Budget Creators",
-        buildType: "Full Set",
-        budgetRange: "₹1,50,000 - ₹2,50,000",
-        basePrice: 180000,
-        profitMargin: 30000,
-        totalPrice: 210000,
-        description: "Ultimate 4K gaming and content creation powerhouse. Handles any game at maximum settings with professional-grade performance.",
-        imageUrl: "/images/high-end-pc.svg",
-        processor: "AMD Ryzen 7 7800X3D",
-        motherboard: "ASUS ROG STRIX X670E-E",
-        ram: "32GB DDR5-6000 CL30",
-        storage: "2TB NVMe Gen4 SSD + 2TB HDD",
-        gpu: "NVIDIA RTX 4080 Super",
-        casePsu: "Lian Li PC-O11 Dynamic + Corsair HX1000 1000W 80+ Platinum",
-        monitor: "27\" 1440p 144Hz Gaming Monitor",
-        keyboardMouse: "Mechanical Gaming Keyboard + Gaming Mouse",
-        mousePad: "Large Gaming Mouse Pad",
-        stockQuantity: 5,
-        lowStockThreshold: 1,
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
-      },
-      {
-        id: 4,
-        name: "Premium Workstation Elite",
-        category: "Student Essentials",
-        buildType: "Full Set",
-        budgetRange: "₹3,00,000+",
-        basePrice: 350000,
-        profitMargin: 50000,
-        totalPrice: 400000,
-        description: "Professional-grade workstation for advanced content creation, 3D rendering, and demanding computational tasks. No compromises.",
-        imageUrl: "/images/premium-pc.svg",
-        processor: "AMD Ryzen 9 7950X3D",
-        motherboard: "ASUS ProArt X670E-CREATOR",
-        ram: "64GB DDR5-6000 ECC",
-        storage: "4TB NVMe Gen4 SSD + 8TB HDD RAID",
-        gpu: "NVIDIA RTX 4090",
-        casePsu: "Fractal Design Define 7 XL + Seasonic PRIME TX-1300 1300W 80+ Titanium",
-        monitor: "32\" 4K Professional Monitor",
-        keyboardMouse: "Professional Mechanical Keyboard + Precision Mouse",
-        mousePad: "Professional Mouse Pad",
-        stockQuantity: 2,
-        lowStockThreshold: 1,
-        isActive: true,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
-      }
-    ];
-  }
 
   async deleteAllPcBuilds(): Promise<void> {
     await remove(ref(database, 'pcBuilds'));
   }
 
   async getPcBuildById(id: number): Promise<PcBuild | undefined> {
-    try {
-      const snapshot = await get(ref(database, `pcBuilds/${id}`));
-      if (snapshot.exists()) {
-        return snapshot.val();
-      }
-    } catch (error) {
-      console.warn('Firebase connection failed for getPcBuildById, using sample data:', error);
-    }
-    
-    // Fallback to sample data
-    const sampleBuilds = this.getSampleBuilds();
-    return sampleBuilds.find(build => build.id === id);
+    const snapshot = await get(ref(database, `pcBuilds/${id}`));
+    return snapshot.exists() ? snapshot.val() : undefined;
   }
 
   async getPcBuildsByCategory(category: string): Promise<PcBuild[]> {
