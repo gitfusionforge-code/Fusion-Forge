@@ -105,8 +105,8 @@ function AdminContent() {
 
   // Initialize low stock threshold from server
   useEffect(() => {
-    if (lowStockSetting && 'value' in lowStockSetting) {
-      setLowStockThreshold(parseInt(lowStockSetting.value) || 5);
+    if (lowStockSetting && typeof lowStockSetting === 'object' && 'value' in lowStockSetting) {
+      setLowStockThreshold(parseInt(String(lowStockSetting.value)) || 5);
     }
   }, [lowStockSetting]);
 
