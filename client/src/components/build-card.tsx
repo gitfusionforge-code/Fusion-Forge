@@ -11,7 +11,7 @@ import type { PcBuild } from "@shared/schema";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useMemo, useCallback } from "react";
 
 interface BuildCardProps {
   build: PcBuild;
@@ -21,7 +21,7 @@ interface BuildCardProps {
   viewMode?: "grid" | "list";
 }
 
-export default function BuildCard({ 
+const BuildCard = memo(function BuildCard({ 
   build, 
   isSelected = false, 
   onSelect, 
@@ -86,7 +86,7 @@ export default function BuildCard({
     },
   });
 
-  const handleSaveToggle = (e: React.MouseEvent) => {
+  const handleSaveToggle = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -99,10 +99,10 @@ export default function BuildCard({
     } else {
       saveBuildMutation.mutate();
     }
-  };
+  }, [user, isProcessing, saveBuildMutation, removeBuildMutation, isSaved]);
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
+  const categoryColor = useMemo(() => {
+    switch (build.category) {
       case "budget":
         return "bg-green-100 text-success-green";
       case "mid-range":
@@ -114,17 +114,16 @@ export default function BuildCard({
       default:
         return "bg-gray-100 text-gray-600";
     }
-  };
+  }, [build.category]);
 
   return (
     <Card className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ease-in-out hover:-translate-y-1 flex flex-col h-full group min-h-[500px]">
       <div className="relative overflow-hidden">
-        <img 
+        <LazyImage 
           src={build.imageUrl || '/api/placeholder/400/300'} 
           alt={build.name} 
-          loading="lazy"
-          decoding="async"
-          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110" 
+          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+          fallback="/api/placeholder/400/300"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
@@ -150,7 +149,7 @@ export default function BuildCard({
       <CardContent className="p-6 flex flex-col flex-grow justify-between min-h-0">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xl font-bold text-deep-blue">{build.name}</h3>
-          <Badge className={`px-2 py-1 rounded text-sm font-semibold ${getCategoryColor(build.category)}`}>
+          <Badge className={`px-2 py-1 rounded text-sm font-semibold ${categoryColor}`}>
             {formatPrice(build.totalPrice)}
           </Badge>
         </div>
@@ -190,4 +189,6 @@ export default function BuildCard({
       </CardContent>
     </Card>
   );
-}
+});
+
+export default BuildCard;

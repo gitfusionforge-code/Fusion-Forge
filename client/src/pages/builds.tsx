@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,13 +25,13 @@ export default function Builds() {
     queryKey: ["/api/builds"],
   });
 
-  const categories = [
+  const categories = useMemo(() => [
     { id: "all", label: "All Builds", range: "", count: builds?.length || 0 },
     { id: "Student Essentials", label: "Student Essentials", range: "₹10,000-15,000", count: builds?.filter(b => b.category === "Student Essentials").length || 0 },
     { id: "Budget Creators", label: "Budget Creators", range: "₹30,000", count: builds?.filter(b => b.category === "Budget Creators").length || 0 },
     { id: "Student Gaming & Productivity", label: "Student Gaming & Productivity", range: "₹50,000", count: builds?.filter(b => b.category === "Student Gaming & Productivity").length || 0 },
     { id: "Mid-Tier Creators & Gamers", label: "Mid-Tier Creators & Gamers", range: "₹1,00,000", count: builds?.filter(b => b.category === "Mid-Tier Creators & Gamers").length || 0 },
-  ];
+  ], [builds]);
 
   const priceRanges = [
     { value: "all", label: "All Prices" },
@@ -41,37 +41,42 @@ export default function Builds() {
     { value: "200000+", label: "Above ₹2,00,000" },
   ];
 
-  const filteredBuilds = builds?.filter(build => {
-    const matchesCategory = selectedCategory === "all" || build.category === selectedCategory;
-    const matchesSearch = searchQuery === "" || 
-      build.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (build.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      build.processor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (build.gpu || '').toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const buildPrice = build.totalPrice;
-    let matchesPrice = true;
-    if (priceRange !== "all") {
-      if (priceRange === "0-50000") matchesPrice = buildPrice < 50000;
-      else if (priceRange === "50000-100000") matchesPrice = buildPrice >= 50000 && buildPrice < 100000;
-      else if (priceRange === "100000-200000") matchesPrice = buildPrice >= 100000 && buildPrice < 200000;
-      else if (priceRange === "200000+") matchesPrice = buildPrice >= 200000;
-    }
-    
-    return matchesCategory && matchesSearch && matchesPrice;
-  })?.sort((a, b) => {
-    if (sortBy === "price-low") return a.totalPrice - b.totalPrice;
-    if (sortBy === "price-high") return b.totalPrice - a.totalPrice;
-    return a.name.localeCompare(b.name);
-  }) || [];
+  const filteredBuilds = useMemo(() => {
+    return builds?.filter(build => {
+      const matchesCategory = selectedCategory === "all" || build.category === selectedCategory;
+      const matchesSearch = searchQuery === "" || 
+        build.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (build.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        build.processor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (build.gpu || '').toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const buildPrice = build.totalPrice;
+      let matchesPrice = true;
+      if (priceRange !== "all") {
+        if (priceRange === "0-50000") matchesPrice = buildPrice < 50000;
+        else if (priceRange === "50000-100000") matchesPrice = buildPrice >= 50000 && buildPrice < 100000;
+        else if (priceRange === "100000-200000") matchesPrice = buildPrice >= 100000 && buildPrice < 200000;
+        else if (priceRange === "200000+") matchesPrice = buildPrice >= 200000;
+      }
+      
+      return matchesCategory && matchesSearch && matchesPrice;
+    })?.sort((a, b) => {
+      if (sortBy === "price-low") return a.totalPrice - b.totalPrice;
+      if (sortBy === "price-high") return b.totalPrice - a.totalPrice;
+      return a.name.localeCompare(b.name);
+    }) || [];
+  }, [builds, selectedCategory, searchQuery, priceRange, sortBy]);
 
-  const handleBuildSelect = (build: PcBuild) => {
-    if (selectedBuilds.find(b => b.id === build.id)) {
-      setSelectedBuilds(selectedBuilds.filter(b => b.id !== build.id));
-    } else if (selectedBuilds.length < 3) {
-      setSelectedBuilds([...selectedBuilds, build]);
-    }
-  };
+  const handleBuildSelect = useCallback((build: PcBuild) => {
+    setSelectedBuilds(prev => {
+      if (prev.find(b => b.id === build.id)) {
+        return prev.filter(b => b.id !== build.id);
+      } else if (prev.length < 3) {
+        return [...prev, build];
+      }
+      return prev;
+    });
+  }, []);
 
   const handleRemoveBuild = (buildId: number) => {
     setSelectedBuilds(selectedBuilds.filter(b => b.id !== buildId));
