@@ -40,6 +40,8 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
           });
           
           if (response.ok) {
+            // Add a small delay to ensure session cookie is set
+            await new Promise(resolve => setTimeout(resolve, 100));
             setAdminSessionCreated(true);
           } else {
             console.error('Failed to create admin session');
@@ -55,7 +57,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     createAdminSession();
   }, [user, adminSessionCreated]);
 
-  if (loading || adminSessionLoading) {
+  if (loading || adminSessionLoading || !adminSessionCreated) {
     return (
       <div className="min-h-screen bg-light-grey flex items-center justify-center">
         <Card className="w-full max-w-md">

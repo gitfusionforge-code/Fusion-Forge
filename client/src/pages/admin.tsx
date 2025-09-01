@@ -394,40 +394,8 @@ FusionForge PCs Team`);
 
             {/* Customer Inquiries Table */}
             <div className="bg-white rounded-lg border border-gray-200">
-              <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+              <div className="px-6 py-5 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900">Customer Inquiries</h2>
-                {inquiries.length === 0 && (
-                  <Button
-                    onClick={async () => {
-                      try {
-                        const response = await fetch('/api/admin/seed-data', {
-                          method: 'POST',
-                          credentials: 'include'
-                        });
-                        if (response.ok) {
-                          queryClient.invalidateQueries({ queryKey: ['/api/inquiries'] });
-                          queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
-                          toast({
-                            title: "Sample Data Created",
-                            description: "Added sample inquiries and orders for testing.",
-                          });
-                        } else {
-                          throw new Error('Failed to create sample data');
-                        }
-                      } catch (error) {
-                        toast({
-                          title: "Error",
-                          description: "Failed to create sample data.",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Sample Data
-                  </Button>
-                )}
               </div>
               
               <div className="overflow-x-auto">
