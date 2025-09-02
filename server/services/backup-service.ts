@@ -139,16 +139,50 @@ export class BackupService {
               // Before creating new order, check if user exists in NeonDB
               const userExists = await this.neonStorage.getUserProfile(order.userId);
               if (!userExists) {
-                console.warn(`⚠️ Skipping order ${order.id} - user ${order.userId} not found in NeonDB`);
-                continue;
+                // Create a basic user profile for the missing user
+                try {
+                  await this.neonStorage.createUserProfile({
+                    uid: order.userId,
+                    email: order.customerEmail || `${order.userId}@unknown.com`,
+                    displayName: order.customerName || 'Unknown User',
+                    phone: null,
+                    address: order.shippingAddress || null,
+                    city: null,
+                    zipCode: null,
+                    preferences: null
+                  });
+                  console.log(`✨ Created missing user profile for ${order.userId}`);
+                } catch (userCreateError) {
+                  console.warn(`⚠️ Failed to create user ${order.userId}, skipping order ${order.id}:`, userCreateError);
+                  continue;
+                }
               }
               
               // Check if order number already exists (to avoid duplicate constraint)
               const existingOrders = await this.neonStorage.getAllOrders();
-              const duplicateOrderNumber = existingOrders.find(o => o.orderNumber === order.orderNumber);
+              const duplicateOrderNumber = existingOrders.find(o => o.orderNumber === order.orderNumber && o.id !== order.id);
               
               if (duplicateOrderNumber) {
-                console.warn(`⚠️ Skipping order ${order.id} - order number ${order.orderNumber} already exists as order ${duplicateOrderNumber.id}`);
+                // Generate a unique order number by appending a suffix
+                const uniqueOrderNumber = `${order.orderNumber}-${order.id}`;
+                console.log(`🔄 Updating duplicate order number ${order.orderNumber} to ${uniqueOrderNumber} for order ${order.id}`);
+                
+                // Create order with unique order number
+                await this.neonStorage.createOrder({
+                  userId: order.userId,
+                  orderNumber: uniqueOrderNumber,
+                  status: order.status,
+                  total: order.total,
+                  items: order.items,
+                  customerName: order.customerName,
+                  customerEmail: order.customerEmail,
+                  shippingAddress: order.shippingAddress,
+                  billingAddress: order.billingAddress,
+                  paymentMethod: order.paymentMethod,
+                  trackingNumber: order.trackingNumber
+                });
+                console.log(`✨ Created order ${order.id} with unique order number ${uniqueOrderNumber}`);
+                successCount++;
                 continue;
               }
               
