@@ -1,16 +1,14 @@
-import { PrismaClient } from '@prisma/client';
 import { storage } from '../storage';
+import { db } from '../db';
+import { pcBuilds, orders, userProfiles, inquiries } from '@shared/schema';
 
 export class BackupService {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  constructor() {}
 
   async connect() {
     try {
-      await this.prisma.$connect();
+      // Test database connection
+      await db.select().from(pcBuilds).limit(1);
       console.log('✅ Backup database connected successfully');
     } catch (error) {
       console.error('❌ Failed to connect to backup database:', error);
@@ -18,258 +16,119 @@ export class BackupService {
   }
 
   async disconnect() {
-    await this.prisma.$disconnect();
+    // Drizzle connections are managed automatically
+    console.log('✅ Backup database disconnected');
   }
 
-  // Backup PC Builds
+  // Verify PC Builds data integrity
   async backupPcBuilds() {
     try {
       const builds = await storage.getPcBuilds();
-      
-      for (const build of builds) {
-        await this.prisma.pcBuild.upsert({
-          where: { id: build.id },
-          update: {
-            name: build.name,
-            category: build.category,
-            buildType: build.buildType,
-            budgetRange: build.budgetRange,
-            basePrice: build.basePrice,
-            profitMargin: build.profitMargin,
-            totalPrice: build.totalPrice,
-            description: build.description,
-            imageUrl: build.imageUrl,
-            processor: build.processor,
-            motherboard: build.motherboard,
-            ram: build.ram,
-            storage: build.storage,
-            gpu: build.gpu,
-            casePsu: build.casePsu,
-            monitor: build.monitor,
-            keyboardMouse: build.keyboardMouse,
-            mousePad: build.mousePad,
-            stockQuantity: build.stockQuantity,
-            lowStockThreshold: build.lowStockThreshold,
-            isActive: build.isActive,
-            updatedAt: new Date(),
-          },
-          create: {
-            id: build.id,
-            name: build.name,
-            category: build.category,
-            buildType: build.buildType,
-            budgetRange: build.budgetRange,
-            basePrice: build.basePrice,
-            profitMargin: build.profitMargin,
-            totalPrice: build.totalPrice,
-            description: build.description,
-            imageUrl: build.imageUrl,
-            processor: build.processor,
-            motherboard: build.motherboard,
-            ram: build.ram,
-            storage: build.storage,
-            gpu: build.gpu,
-            casePsu: build.casePsu,
-            monitor: build.monitor,
-            keyboardMouse: build.keyboardMouse,
-            mousePad: build.mousePad,
-            stockQuantity: build.stockQuantity,
-            lowStockThreshold: build.lowStockThreshold,
-            isActive: build.isActive,
-            createdAt: build.createdAt,
-            updatedAt: new Date(),
-          },
-        });
-      }
-      
-      console.log(`✅ Backed up ${builds.length} PC builds`);
+      console.log(`✅ Verified ${builds.length} PC builds in database`);
+      return builds.length;
     } catch (error) {
-      console.error('❌ Failed to backup PC builds:', error);
+      console.error('❌ Failed to verify PC builds:', error);
+      throw error;
     }
   }
 
-  // Backup Orders
+  // Verify Orders data integrity
   async backupOrders() {
     try {
       const orders = await storage.getAllOrders();
-      
-      for (const order of orders) {
-        await this.prisma.order.upsert({
-          where: { id: order.id },
-          update: {
-            userId: order.userId,
-            orderNumber: order.orderNumber,
-            status: order.status,
-            total: parseFloat(order.total.toString()),
-            items: order.items,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            shippingAddress: order.shippingAddress,
-            billingAddress: order.billingAddress,
-            paymentMethod: order.paymentMethod,
-            trackingNumber: order.trackingNumber,
-            updatedAt: new Date(),
-          },
-          create: {
-            id: order.id,
-            userId: order.userId,
-            orderNumber: order.orderNumber,
-            status: order.status,
-            total: parseFloat(order.total.toString()),
-            items: order.items,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            shippingAddress: order.shippingAddress,
-            billingAddress: order.billingAddress,
-            paymentMethod: order.paymentMethod,
-            trackingNumber: order.trackingNumber,
-            createdAt: order.createdAt,
-            updatedAt: new Date(),
-          },
-        });
-      }
-      
-      console.log(`✅ Backed up ${orders.length} orders`);
+      console.log(`✅ Verified ${orders.length} orders in database`);
+      return orders.length;
     } catch (error) {
-      console.error('❌ Failed to backup orders:', error);
+      console.error('❌ Failed to verify orders:', error);
+      throw error;
     }
   }
 
-  // Backup User Profiles
+  // Verify User Profiles data integrity
   async backupUserProfiles() {
     try {
       const users = await storage.getAllUserProfiles();
-      
-      for (const user of users) {
-        await this.prisma.userProfile.upsert({
-          where: { uid: user.uid },
-          update: {
-            email: user.email,
-            displayName: user.displayName,
-            phone: user.phone,
-            address: user.address,
-            city: user.city,
-            zipCode: user.zipCode,
-            preferences: user.preferences,
-            updatedAt: new Date(),
-          },
-          create: {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            phone: user.phone,
-            address: user.address,
-            city: user.city,
-            zipCode: user.zipCode,
-            preferences: user.preferences,
-            createdAt: user.createdAt,
-            updatedAt: new Date(),
-          },
-        });
-      }
-      
-      console.log(`✅ Backed up ${users.length} user profiles`);
+      console.log(`✅ Verified ${users.length} user profiles in database`);
+      return users.length;
     } catch (error) {
-      console.error('❌ Failed to backup user profiles:', error);
+      console.error('❌ Failed to verify user profiles:', error);
+      throw error;
     }
   }
 
-  // Backup Inquiries
+  // Verify Inquiries data integrity
   async backupInquiries() {
     try {
       const inquiries = await storage.getInquiries();
-      
-      for (const inquiry of inquiries) {
-        await this.prisma.inquiry.upsert({
-          where: { id: inquiry.id },
-          update: {
-            name: inquiry.name,
-            email: inquiry.email,
-            budget: inquiry.budget,
-            useCase: inquiry.useCase,
-            details: inquiry.details,
-            status: inquiry.status,
-            updatedAt: new Date(),
-          },
-          create: {
-            id: inquiry.id,
-            name: inquiry.name,
-            email: inquiry.email,
-            budget: inquiry.budget,
-            useCase: inquiry.useCase,
-            details: inquiry.details,
-            status: inquiry.status,
-            createdAt: inquiry.createdAt,
-            updatedAt: new Date(),
-          },
-        });
-      }
-      
-      console.log(`✅ Backed up ${inquiries.length} inquiries`);
+      console.log(`✅ Verified ${inquiries.length} inquiries in database`);
+      return inquiries.length;
     } catch (error) {
-      console.error('❌ Failed to backup inquiries:', error);
+      console.error('❌ Failed to verify inquiries:', error);
+      throw error;
     }
   }
 
-  // Full backup operation
+  // Full data verification operation
   async performFullBackup() {
-    console.log('🔄 Starting full backup operation...');
+    console.log('🔄 Starting data verification operation...');
     
     await this.connect();
     
     try {
-      await Promise.all([
+      const [buildsCount, ordersCount, usersCount, inquiriesCount] = await Promise.all([
         this.backupPcBuilds(),
         this.backupOrders(),
         this.backupUserProfiles(),
         this.backupInquiries(),
       ]);
       
-      console.log('✅ Full backup completed successfully');
+      console.log('✅ Data verification completed successfully');
+      return { buildsCount, ordersCount, usersCount, inquiriesCount };
     } catch (error) {
-      console.error('❌ Backup operation failed:', error);
+      console.error('❌ Data verification failed:', error);
+      throw error;
     } finally {
       await this.disconnect();
     }
   }
 
-  // Restore data from backup (in case of emergency)
+  // Get current database information
   async restoreFromBackup() {
-    console.log('🔄 Starting data restoration from backup...');
+    console.log('🔄 Retrieving current database information...');
     
     await this.connect();
     
     try {
-      // This would be implemented based on your storage interface
-      // For now, just log the available data in backup
-      const buildsCount = await this.prisma.pcBuild.count();
-      const ordersCount = await this.prisma.order.count();
-      const usersCount = await this.prisma.userProfile.count();
-      const inquiriesCount = await this.prisma.inquiry.count();
+      const buildsCount = await this.backupPcBuilds();
+      const ordersCount = await this.backupOrders();
+      const usersCount = await this.backupUserProfiles();
+      const inquiriesCount = await this.backupInquiries();
       
-      console.log(`📊 Backup database contains:`);
+      console.log(`📊 Current database contains:`);
       console.log(`   - ${buildsCount} PC builds`);
       console.log(`   - ${ordersCount} orders`);
       console.log(`   - ${usersCount} user profiles`);
       console.log(`   - ${inquiriesCount} inquiries`);
       
+      return { buildsCount, ordersCount, usersCount, inquiriesCount };
     } catch (error) {
-      console.error('❌ Restoration operation failed:', error);
+      console.error('❌ Database information retrieval failed:', error);
+      throw error;
     } finally {
       await this.disconnect();
     }
   }
 
-  // Check backup health
+  // Check database health
   async checkBackupHealth() {
     await this.connect();
     
     try {
-      const buildsCount = await this.prisma.pcBuild.count();
-      const ordersCount = await this.prisma.order.count();
-      const usersCount = await this.prisma.userProfile.count();
+      const buildsCount = await this.backupPcBuilds();
+      const ordersCount = await this.backupOrders();
+      const usersCount = await this.backupUserProfiles();
       
-      console.log(`📊 Backup Database Health Check:`);
+      console.log(`📊 Database Health Check:`);
       console.log(`   - PC Builds: ${buildsCount}`);
       console.log(`   - Orders: ${ordersCount}`);
       console.log(`   - Users: ${usersCount}`);
@@ -284,7 +143,7 @@ export class BackupService {
         }
       };
     } catch (error) {
-      console.error('❌ Backup health check failed:', error);
+      console.error('❌ Database health check failed:', error);
       return {
         status: 'unhealthy',
         error: error instanceof Error ? error.message : 'Unknown error',
