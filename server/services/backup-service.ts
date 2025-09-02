@@ -136,6 +136,22 @@ export class BackupService {
               await this.neonStorage.updateOrderStatus(order.id, order.status);
               console.log(`🔄 Updated existing order ${order.id}`);
             } else {
+              // Before creating new order, check if user exists in NeonDB
+              const userExists = await this.neonStorage.getUserProfile(order.userId);
+              if (!userExists) {
+                console.warn(`⚠️ Skipping order ${order.id} - user ${order.userId} not found in NeonDB`);
+                continue;
+              }
+              
+              // Check if order number already exists (to avoid duplicate constraint)
+              const existingOrders = await this.neonStorage.getAllOrders();
+              const duplicateOrderNumber = existingOrders.find(o => o.orderNumber === order.orderNumber);
+              
+              if (duplicateOrderNumber) {
+                console.warn(`⚠️ Skipping order ${order.id} - order number ${order.orderNumber} already exists as order ${duplicateOrderNumber.id}`);
+                continue;
+              }
+              
               // Create new order
               await this.neonStorage.createOrder({
                 userId: order.userId,
@@ -297,10 +313,13 @@ export class BackupService {
     await this.connect();
     
     try {
-      const [buildsCount, ordersCount, usersCount, inquiriesCount] = await Promise.all([
+      // Sync users first to ensure foreign key constraints are satisfied
+      const usersCount = await this.backupUserProfiles();
+      
+      // Then sync the rest in parallel
+      const [buildsCount, ordersCount, inquiriesCount] = await Promise.all([
         this.backupPcBuilds(),
         this.backupOrders(),
-        this.backupUserProfiles(),
         this.backupInquiries(),
       ]);
       
