@@ -13,7 +13,8 @@ import {
   Check, 
   AlertCircle,
   Timer,
-  Download
+  Download,
+  RotateCcw
 } from 'lucide-react';
 
 interface BackupTimerStatus {
@@ -140,7 +141,7 @@ export function BackupSettings() {
 
       if (result.success) {
         setLastAction('Immediate backup completed successfully');
-        await fetchBackupHealth();
+        // Remove automatic health check to prevent server overload
         toast({
           title: "Backup Complete",
           description: "Database backup completed successfully",
@@ -207,7 +208,23 @@ export function BackupSettings() {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium">Status:</span>
-            {getStatusBadge(backupHealth?.status)}
+            <div className="flex items-center gap-2">
+              {getStatusBadge(backupHealth?.status)}
+              <Button
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  fetchTimerStatus();
+                  fetchBackupHealth();
+                }}
+                disabled={isLoading}
+                className="h-6 w-6 p-0"
+                title="Refresh Status"
+                data-testid="button-refresh-status"
+              >
+                <RotateCcw className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
 
           {backupHealth?.counts && (
