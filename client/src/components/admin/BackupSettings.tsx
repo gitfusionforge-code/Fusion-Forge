@@ -262,7 +262,15 @@ export function BackupSettings() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Next Backup:</span>
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(timerStatus.nextBackup).toLocaleString()}
+                    {new Date(timerStatus.nextBackup).toLocaleString('en-US', {
+                      month: '2-digit',
+                      day: '2-digit', 
+                      year: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: true
+                    })}
                   </span>
                 </div>
               )}
