@@ -123,18 +123,36 @@ export class BackupService {
       const firebaseOrders = await firebaseRealtimeStorage.getAllOrders();
       console.log(`🔄 Syncing ${firebaseOrders.length} orders from Firebase to NeonDB`);
       
+      // Get all existing orders from NeonDB once (much more efficient)
+      const existingOrders = await this.neonStorage.getAllOrders();
+      console.log(`📊 Found ${existingOrders.length} existing orders in NeonDB`);
+      
+      // Create a map for faster lookups using order number
+      const existingOrdersMap = new Map();
+      existingOrders.forEach(order => {
+        existingOrdersMap.set(order.orderNumber, order);
+      });
+      
       // Sync each order to NeonDB with better error handling
       let successCount = 0;
+      let updatedCount = 0;
+      let createdCount = 0;
+      
       if (firebaseOrders.length > 0) {
         for (const order of firebaseOrders) {
           try {
-            // Check if order already exists in NeonDB
-            const existingOrder = await this.neonStorage.getOrderById(order.id);
+            // Check if order already exists by order number
+            const existingOrder = existingOrdersMap.get(order.orderNumber);
             
             if (existingOrder) {
-              // Update existing order
-              await this.neonStorage.updateOrderStatus(order.id, order.status);
-              console.log(`🔄 Updated existing order ${order.id}`);
+              // Update existing order only if status changed
+              if (existingOrder.status !== order.status) {
+                await this.neonStorage.updateOrderStatus(existingOrder.id, order.status);
+                console.log(`🔄 Updated order status ${existingOrder.id}: ${existingOrder.status} → ${order.status}`);
+                updatedCount++;
+              } else {
+                console.log(`✅ Order ${order.orderNumber} already up to date`);
+              }
             } else {
               // Before creating new order, check if user exists in NeonDB
               const userExists = await this.neonStorage.getUserProfile(order.userId);
@@ -159,45 +177,9 @@ export class BackupService {
                     console.log(`🔄 User ${order.userId} already exists (created in this sync)`);
                   }
                 } catch (userCreateError) {
-                  console.warn(`⚠️ Failed to create user ${order.userId}, skipping order ${order.id}:`, userCreateError);
+                  console.warn(`⚠️ Failed to create user ${order.userId}, skipping order ${order.orderNumber}:`, userCreateError);
                   continue;
                 }
-              }
-              
-              // Check if order number already exists (to avoid duplicate constraint)
-              const existingOrders = await this.neonStorage.getAllOrders();
-              const duplicateOrderNumber = existingOrders.find(o => o.orderNumber === order.orderNumber && o.id !== order.id);
-              
-              if (duplicateOrderNumber) {
-                // Check if we already created this order with a unique number
-                const existingUniqueOrder = existingOrders.find(o => o.orderNumber === `${order.orderNumber}-${order.id}`);
-                if (existingUniqueOrder) {
-                  console.log(`🔄 Order ${order.id} already exists with unique order number`);
-                  successCount++;
-                  continue;
-                }
-                
-                // Generate a unique order number by appending a suffix
-                const uniqueOrderNumber = `${order.orderNumber}-${order.id}`;
-                console.log(`🔄 Creating order ${order.id} with unique order number ${uniqueOrderNumber}`);
-                
-                // Create order with unique order number
-                await this.neonStorage.createOrder({
-                  userId: order.userId,
-                  orderNumber: uniqueOrderNumber,
-                  status: order.status,
-                  total: order.total,
-                  items: order.items,
-                  customerName: order.customerName,
-                  customerEmail: order.customerEmail,
-                  shippingAddress: order.shippingAddress,
-                  billingAddress: order.billingAddress,
-                  paymentMethod: order.paymentMethod,
-                  trackingNumber: order.trackingNumber
-                });
-                console.log(`✨ Created order ${order.id} with unique order number ${uniqueOrderNumber}`);
-                successCount++;
-                continue;
               }
               
               // Create new order
@@ -214,11 +196,15 @@ export class BackupService {
                 paymentMethod: order.paymentMethod,
                 trackingNumber: order.trackingNumber
               });
-              console.log(`✨ Created new order ${order.id}`);
+              console.log(`✨ Created new order: ${order.orderNumber}`);
+              createdCount++;
+              
+              // Add to our map to avoid processing it again if there are duplicates in Firebase
+              existingOrdersMap.set(order.orderNumber, { id: 'temp', orderNumber: order.orderNumber, status: order.status });
             }
             successCount++;
           } catch (syncError) {
-            console.error(`❌ Failed to sync order ${order.id}:`, {
+            console.error(`❌ Failed to sync order ${order.orderNumber}:`, {
               error: syncError instanceof Error ? syncError.message : 'Unknown error',
               orderData: {
                 id: order.id,
@@ -232,6 +218,7 @@ export class BackupService {
       }
       
       console.log(`✅ Successfully synced ${successCount}/${firebaseOrders.length} orders to NeonDB`);
+      console.log(`📈 Created: ${createdCount}, Updated: ${updatedCount}, Skipped: ${successCount - createdCount - updatedCount}`);
       return successCount;
     } catch (error) {
       console.error('❌ Failed to sync orders:', error);
@@ -309,24 +296,39 @@ export class BackupService {
       const firebaseInquiries = await firebaseRealtimeStorage.getInquiries();
       console.log(`🔄 Syncing ${firebaseInquiries.length} inquiries from Firebase to NeonDB`);
       
+      // Get all existing inquiries from NeonDB once (much more efficient)
+      const existingInquiries = await this.neonStorage.getInquiries();
+      console.log(`📊 Found ${existingInquiries.length} existing inquiries in NeonDB`);
+      
+      // Create a map for faster lookups using normalized composite key
+      const existingInquiriesMap = new Map();
+      existingInquiries.forEach(inquiry => {
+        // Use normalized values for comparison (trim whitespace, lowercase email)
+        const key = `${inquiry.name.trim().toLowerCase()}|${inquiry.email.trim().toLowerCase()}|${inquiry.budget.trim()}|${inquiry.useCase.trim()}`;
+        existingInquiriesMap.set(key, inquiry);
+      });
+      
       // Sync each inquiry to NeonDB with better error handling
       let successCount = 0;
+      let updatedCount = 0;
+      let createdCount = 0;
+      
       if (firebaseInquiries.length > 0) {
         for (const inquiry of firebaseInquiries) {
           try {
-            // Check if inquiry already exists by comparing key fields
-            const existingInquiries = await this.neonStorage.getInquiries();
-            const duplicateInquiry = existingInquiries.find(i => 
-              i.name === inquiry.name && 
-              i.email === inquiry.email && 
-              i.budget === inquiry.budget &&
-              i.useCase === inquiry.useCase
-            );
+            // Create normalized composite key for this Firebase inquiry
+            const normalizedKey = `${inquiry.name.trim().toLowerCase()}|${inquiry.email.trim().toLowerCase()}|${inquiry.budget.trim()}|${inquiry.useCase.trim()}`;
+            const existingInquiry = existingInquiriesMap.get(normalizedKey);
             
-            if (duplicateInquiry) {
-              // Update existing inquiry
-              await this.neonStorage.updateInquiryStatus(duplicateInquiry.id, inquiry.status);
-              console.log(`🔄 Updated existing inquiry ${duplicateInquiry.id}`);
+            if (existingInquiry) {
+              // Update existing inquiry only if status changed
+              if (existingInquiry.status !== inquiry.status) {
+                await this.neonStorage.updateInquiryStatus(existingInquiry.id, inquiry.status);
+                console.log(`🔄 Updated inquiry status ${existingInquiry.id}: ${existingInquiry.status} → ${inquiry.status}`);
+                updatedCount++;
+              } else {
+                console.log(`✅ Inquiry ${existingInquiry.id} already up to date`);
+              }
             } else {
               // Create new inquiry
               await this.neonStorage.createInquiry({
@@ -337,7 +339,8 @@ export class BackupService {
                 details: inquiry.details,
                 status: inquiry.status
               });
-              console.log(`✨ Created new inquiry ${inquiry.id}`);
+              console.log(`✨ Created new inquiry: ${inquiry.name} (${inquiry.email})`);
+              createdCount++;
             }
             successCount++;
           } catch (syncError) {
@@ -355,6 +358,7 @@ export class BackupService {
       }
       
       console.log(`✅ Successfully synced ${successCount}/${firebaseInquiries.length} inquiries to NeonDB`);
+      console.log(`📈 Created: ${createdCount}, Updated: ${updatedCount}, Skipped: ${successCount - createdCount - updatedCount}`);
       return successCount;
     } catch (error) {
       console.error('❌ Failed to sync inquiries:', error);
