@@ -1,0 +1,137 @@
+ Backup database (NeonDB) connected successfully
+Successfully loaded data from Firebase
+📊 Database Sync Status:
+   Firebase (Primary): 10 builds, 15 orders, 4 users, 5 inquiries
+   NeonDB (Backup): 10 builds, 9 orders, 4 users, 5 inquiries
+   Sync Status: ⚠️ Out of Sync
+✅ Backup database disconnected
+9:11:41 AM [express] POST /api/admin/backup 200 in 2976ms :: {"success":true,"health":{"status":"hea…
+✅ Backup database (NeonDB) connected successfully
+Successfully loaded data from Firebase
+📊 Database Sync Status:
+   Firebase (Primary): 10 builds, 15 orders, 4 users, 5 inquiries
+   NeonDB (Backup): 10 builds, 9 orders, 4 users, 5 inquiries
+   Sync Status: ⚠️ Out of Sync
+✅ Backup database disconnected
+9:12:02 AM [express] POST /api/admin/backup 200 in 2920ms :: {"success":true,"health":{"status":"hea…
+✅ Backup database (NeonDB) connected successfully
+Successfully loaded data from Firebase
+📊 Database Sync Status:
+   Firebase (Primary): 10 builds, 15 orders, 4 users, 5 inquiries
+   NeonDB (Backup): 10 builds, 9 orders, 4 users, 5 inquiries
+   Sync Status: ⚠️ Out of Sync
+✅ Backup database disconnected
+9:12:05 AM [express] POST /api/admin/backup 200 in 2916ms :: {"success":true,"health":{"status":"hea…
+✅ Backup database (NeonDB) connected successfully
+Successfully loaded data from Firebase
+🔄 Starting Firebase → NeonDB sync operation...
+✅ Backup database (NeonDB) connected successfully
+Successfully loaded data from Firebase
+🔄 Syncing 10 PC builds from Firebase to NeonDB
+🔄 Syncing 15 orders from Firebase to NeonDB
+🔄 Syncing 4 user profiles from Firebase to NeonDB
+🔄 Syncing 5 inquiries from Firebase to NeonDB
+🔄 Updated existing PC build 1
+📊 Database Sync Status:
+   Firebase (Primary): 10 builds, 15 orders, 4 users, 5 inquiries
+   NeonDB (Backup): 10 builds, 9 orders, 4 users, 5 inquiries
+   Sync Status: ⚠️ Out of Sync
+✅ Backup database disconnected
+9:12:09 AM [express] POST /api/admin/backup 200 in 2253ms :: {"success":true,"health":{"status":"hea…
+🔄 Updated existing PC build 2
+✨ Created new inquiry 1
+🔄 Updated existing order 15
+🔄 Updated existing user profile 953850LcQ1eB6nL172Xss7WoSZO2
+✨ Created new inquiry 2
+🔄 Updated existing PC build 3
+✨ Created new inquiry 3
+🔄 Updated existing order 14
+🔄 Updated existing user profile AHVy3rPptpREASQZBP4GL6ISlKw1
+✨ Created new inquiry 4
+🔄 Updated existing PC build 4
+✨ Created new inquiry 5
+✅ Successfully synced 5/5 inquiries to NeonDB
+❌ Failed to sync order 13: {
+  error: 'duplicate key value violates unique constraint "orders_order_number_key"',
+  orderData: {
+    id: 13,
+    orderNumber: 'FF09651816',
+    userId: 'jo6m8VHznaMFix4h90iJTQUEuJ72',
+    total: '29500'
+  }
+}
+🔄 Updated existing user profile TEST_UID_123
+🔄 Updated existing PC build 5
+🔄 Updated existing order 12
+🔄 Updated existing user profile jo6m8VHznaMFix4h90iJTQUEuJ72
+✅ Successfully synced 4/4 user profiles to NeonDB
+🔄 Updated existing PC build 6
+🔄 Updated existing order 11
+🔄 Updated existing PC build 7
+🔄 Updated existing order 10
+🔄 Updated existing PC build 8
+🔄 Updated existing order 9
+🔄 Updated existing PC build 9
+❌ Failed to sync order 8: {
+  error: 'insert or update on table "orders" violates foreign key constraint "orders_user_id_fkey"',
+  orderData: {
+    id: 8,
+    orderNumber: 'FF76380077',
+    userId: 'ZSHcP9D2DxWu64ECctQuYCHWpui1',
+    total: '35400'
+  }
+}
+🔄 Updated existing PC build 10
+✅ Successfully synced 10/10 PC builds to NeonDB
+❌ Failed to sync order 7: {
+  error: 'duplicate key value violates unique constraint "orders_order_number_key"',
+  orderData: {
+    id: 7,
+    orderNumber: 'FF77664784',
+    userId: 'jo6m8VHznaMFix4h90iJTQUEuJ72',
+    total: '29500'
+  }
+}
+🔄 Updated existing order 6
+🔄 Updated existing order 5
+❌ Failed to sync order 4: {
+  error: 'duplicate key value violates unique constraint "orders_order_number_key"',
+  orderData: {
+    id: 4,
+    orderNumber: 'FF01746903',
+    userId: 'jo6m8VHznaMFix4h90iJTQUEuJ72',
+    total: '29500'
+  }
+}
+🔄 Updated existing order 3
+❌ Failed to sync order 2: {
+  error: 'duplicate key value violates unique constraint "orders_order_number_key"',
+  orderData: {
+    id: 2,
+    orderNumber: 'FF34541551',
+    userId: 'jo6m8VHznaMFix4h90iJTQUEuJ72',
+    total: '27140'
+  }
+}
+❌ Failed to sync order 1: {
+  error: 'duplicate key value violates unique constraint "orders_order_number_key"',
+  orderData: {
+    id: 1,
+    orderNumber: 'FF34248531',
+    userId: 'jo6m8VHznaMFix4h90iJTQUEuJ72',
+    total: '27141'
+  }
+}
+✅ Successfully synced 9/15 orders to NeonDB
+✅ Firebase → NeonDB sync completed successfully
+📊 Synced: 10 builds, 9 orders, 4 users, 5 inquiries
+✅ Backup database disconnected
+9:12:17 AM [express] POST /api/admin/backup 200 in 8472ms :: {"success":true,"message":"Full backup …
+✅ Backup database (NeonDB) connected successfully
+Successfully loaded data from Firebase
+📊 Database Sync Status:
+   Firebase (Primary): 10 builds, 15 orders, 4 users, 5 inquiries
+   NeonDB (Backup): 10 builds, 9 orders, 4 users, 10 inquiries
+   Sync Status: ⚠️ Out of Sync
+✅ Backup database disconnected
+9:12:20 AM [express] POST /api/admin/backup 200 in 3212ms :: {"success":true,"health":{"status":"hea…
