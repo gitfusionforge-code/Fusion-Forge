@@ -64,6 +64,24 @@ export async function handleBackupOperations(req: Request, res: Response) {
         });
         break;
 
+      case 'cleanup_analysis':
+        const analysisResult = await backupService.cleanupOrphanedRecords(false);
+        res.json({
+          success: true,
+          message: 'Cleanup analysis completed',
+          analysis: analysisResult
+        });
+        break;
+
+      case 'cleanup_execute':
+        const cleanupResult = await backupService.cleanupOrphanedRecords(true);
+        res.json({
+          success: true,
+          message: 'Cleanup completed successfully',
+          result: cleanupResult
+        });
+        break;
+
       default:
         res.status(400).json({ 
           success: false, 

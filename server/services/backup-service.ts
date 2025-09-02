@@ -1,6 +1,7 @@
 import { storage } from '../storage'; // Firebase (primary)
 import { db } from '../db'; // NeonDB (backup)
 import { pcBuilds, orders, userProfiles, inquiries } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 import { firebaseRealtimeStorage } from '../firebase-realtime-storage';
 import { DatabaseStorage } from '../storage';
 
@@ -484,6 +485,125 @@ export class BackupService {
         status: 'unhealthy',
         error: error instanceof Error ? error.message : 'Unknown error',
       };
+    } finally {
+      await this.disconnect();
+    }
+  }
+
+  // Clean up orphaned records in NeonDB that don't exist in Firebase
+  async cleanupOrphanedRecords(performCleanup: boolean = false) {
+    console.log('🧹 Starting orphaned records cleanup analysis...');
+    
+    await this.connect();
+    
+    try {
+      // Get data from both databases
+      const firebaseBuilds = await firebaseRealtimeStorage.getPcBuilds();
+      const firebaseOrders = await firebaseRealtimeStorage.getAllOrders();
+      const firebaseUsers = await firebaseRealtimeStorage.getAllUserProfiles();
+      const firebaseInquiries = await firebaseRealtimeStorage.getInquiries();
+      
+      const neonBuilds = await this.neonStorage.getPcBuilds();
+      const neonOrders = await this.neonStorage.getAllOrders();
+      const neonUsers = await this.neonStorage.getAllUserProfiles();
+      const neonInquiries = await this.neonStorage.getInquiries();
+
+      let cleanupSummary = {
+        inquiriesToRemove: 0,
+        ordersToRemove: 0,
+        usersToRemove: 0,
+        buildsToRemove: 0
+      };
+
+      // 1. Clean up orphaned inquiries
+      const firebaseInquiryKeys = new Set();
+      firebaseInquiries.forEach(inquiry => {
+        const key = `${inquiry.name.trim().toLowerCase()}|${inquiry.email.trim().toLowerCase()}|${inquiry.budget.trim()}|${inquiry.useCase.trim()}`;
+        firebaseInquiryKeys.add(key);
+      });
+
+      const orphanedInquiries = neonInquiries.filter(inquiry => {
+        const key = `${inquiry.name.trim().toLowerCase()}|${inquiry.email.trim().toLowerCase()}|${inquiry.budget.trim()}|${inquiry.useCase.trim()}`;
+        return !firebaseInquiryKeys.has(key);
+      });
+
+      console.log(`🔍 Found ${orphanedInquiries.length} orphaned inquiries in NeonDB`);
+      if (orphanedInquiries.length > 0) {
+        orphanedInquiries.forEach(inquiry => {
+          console.log(`  - Inquiry ID ${inquiry.id}: ${inquiry.name} (${inquiry.email})`);
+        });
+        
+        if (performCleanup) {
+          for (const inquiry of orphanedInquiries) {
+            await db.delete(inquiries).where(eq(inquiries.id, inquiry.id));
+            console.log(`🗑️ Removed orphaned inquiry ID ${inquiry.id}`);
+          }
+          cleanupSummary.inquiriesToRemove = orphanedInquiries.length;
+        }
+      }
+
+      // 2. Clean up orphaned orders
+      const firebaseOrderNumbers = new Set(firebaseOrders.map(order => order.orderNumber));
+      const orphanedOrders = neonOrders.filter(order => {
+        // Remove orders that don't exist in Firebase or have suffixed order numbers (created by old backup logic)
+        return !firebaseOrderNumbers.has(order.orderNumber) || order.orderNumber.includes('-');
+      });
+
+      console.log(`🔍 Found ${orphanedOrders.length} orphaned orders in NeonDB`);
+      if (orphanedOrders.length > 0) {
+        orphanedOrders.forEach(order => {
+          console.log(`  - Order ID ${order.id}: ${order.orderNumber} (${order.customerName})`);
+        });
+        
+        if (performCleanup) {
+          for (const order of orphanedOrders) {
+            await db.delete(orders).where(eq(orders.id, order.id));
+            console.log(`🗑️ Removed orphaned order ID ${order.id}`);
+          }
+          cleanupSummary.ordersToRemove = orphanedOrders.length;
+        }
+      }
+
+      // 3. Clean up orphaned users (users that don't exist in Firebase)
+      const firebaseUserIds = new Set(firebaseUsers.map(user => user.uid));
+      const orphanedUsers = neonUsers.filter(user => !firebaseUserIds.has(user.uid));
+
+      console.log(`🔍 Found ${orphanedUsers.length} orphaned users in NeonDB`);
+      if (orphanedUsers.length > 0) {
+        orphanedUsers.forEach(user => {
+          console.log(`  - User ID ${user.uid}: ${user.displayName} (${user.email})`);
+        });
+        
+        if (performCleanup) {
+          for (const user of orphanedUsers) {
+            await db.delete(userProfiles).where(eq(userProfiles.uid, user.uid));
+            console.log(`🗑️ Removed orphaned user ${user.uid}`);
+          }
+          cleanupSummary.usersToRemove = orphanedUsers.length;
+        }
+      }
+
+      if (performCleanup) {
+        console.log('✅ Cleanup completed successfully');
+        console.log(`📊 Removed: ${cleanupSummary.inquiriesToRemove} inquiries, ${cleanupSummary.ordersToRemove} orders, ${cleanupSummary.usersToRemove} users`);
+      } else {
+        console.log('ℹ️ This was a dry run. Use performCleanup=true to actually remove orphaned records.');
+        console.log(`📊 Would remove: ${orphanedInquiries.length} inquiries, ${orphanedOrders.length} orders, ${orphanedUsers.length} users`);
+      }
+
+      return {
+        success: true,
+        performed: performCleanup,
+        summary: cleanupSummary,
+        orphanedCounts: {
+          inquiries: orphanedInquiries.length,
+          orders: orphanedOrders.length,
+          users: orphanedUsers.length
+        }
+      };
+    } catch (error) {
+      console.error('❌ Cleanup operation failed:', error);
+      throw error;
     } finally {
       await this.disconnect();
     }
