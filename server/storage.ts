@@ -402,4 +402,8 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Import Firebase storage implementation
+import { firebaseRealtimeStorage } from './firebase-realtime-storage';
+
+// Use Firebase as primary storage, NeonDB as backup
+export const storage = firebaseRealtimeStorage;

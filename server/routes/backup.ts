@@ -56,6 +56,14 @@ export async function handleBackupOperations(req: Request, res: Response) {
         res.json(result);
         break;
 
+      case 'execute_restore':
+        // This would be a destructive operation - implement with extreme caution
+        res.json({
+          success: false,
+          error: 'Restore execution not implemented for safety. Use database management tools directly.'
+        });
+        break;
+
       default:
         res.status(400).json({ 
           success: false, 

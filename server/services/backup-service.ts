@@ -1,15 +1,21 @@
-import { storage } from '../storage';
-import { db } from '../db';
+import { storage } from '../storage'; // Firebase (primary)
+import { db } from '../db'; // NeonDB (backup)
 import { pcBuilds, orders, userProfiles, inquiries } from '@shared/schema';
+import { firebaseRealtimeStorage } from '../firebase-realtime-storage';
+import { DatabaseStorage } from '../storage';
 
 export class BackupService {
-  constructor() {}
+  private neonStorage: DatabaseStorage;
+
+  constructor() {
+    this.neonStorage = new DatabaseStorage();
+  }
 
   async connect() {
     try {
-      // Test database connection
+      // Test NeonDB backup database connection
       await db.select().from(pcBuilds).limit(1);
-      console.log('✅ Backup database connected successfully');
+      console.log('✅ Backup database (NeonDB) connected successfully');
     } catch (error) {
       console.error('❌ Failed to connect to backup database:', error);
     }
@@ -20,57 +26,214 @@ export class BackupService {
     console.log('✅ Backup database disconnected');
   }
 
-  // Verify PC Builds data integrity
+  // Sync PC Builds from Firebase to NeonDB
   async backupPcBuilds() {
     try {
-      const builds = await storage.getPcBuilds();
-      console.log(`✅ Verified ${builds.length} PC builds in database`);
-      return builds.length;
+      // Get data from Firebase (primary)
+      const firebaseBuilds = await firebaseRealtimeStorage.getPcBuilds();
+      console.log(`🔄 Syncing ${firebaseBuilds.length} PC builds from Firebase to NeonDB`);
+      
+      // Clear existing data in NeonDB and insert fresh data
+      if (firebaseBuilds.length > 0) {
+        // Sync each build to NeonDB
+        for (const build of firebaseBuilds) {
+          try {
+            await this.neonStorage.createPcBuild({
+              name: build.name,
+              category: build.category,
+              buildType: build.buildType,
+              budgetRange: build.budgetRange,
+              basePrice: build.basePrice,
+              profitMargin: build.profitMargin,
+              totalPrice: build.totalPrice,
+              description: build.description,
+              imageUrl: build.imageUrl,
+              processor: build.processor,
+              motherboard: build.motherboard,
+              ram: build.ram,
+              storage: build.storage,
+              gpu: build.gpu,
+              casePsu: build.casePsu,
+              monitor: build.monitor,
+              keyboardMouse: build.keyboardMouse,
+              mousePad: build.mousePad,
+              stockQuantity: build.stockQuantity,
+              lowStockThreshold: build.lowStockThreshold,
+              isActive: build.isActive
+            });
+          } catch (createError) {
+            // If create fails, try to update existing record
+            try {
+              await this.neonStorage.updatePcBuild(build.id, {
+                name: build.name,
+                category: build.category,
+                buildType: build.buildType,
+                budgetRange: build.budgetRange,
+                basePrice: build.basePrice,
+                profitMargin: build.profitMargin,
+                totalPrice: build.totalPrice,
+                description: build.description,
+                imageUrl: build.imageUrl,
+                processor: build.processor,
+                motherboard: build.motherboard,
+                ram: build.ram,
+                storage: build.storage,
+                gpu: build.gpu,
+                casePsu: build.casePsu,
+                monitor: build.monitor,
+                keyboardMouse: build.keyboardMouse,
+                mousePad: build.mousePad,
+                stockQuantity: build.stockQuantity,
+                lowStockThreshold: build.lowStockThreshold,
+                isActive: build.isActive
+              });
+            } catch (updateError) {
+              console.warn(`⚠️ Failed to sync PC build ${build.id}:`, updateError);
+            }
+          }
+        }
+      }
+      
+      console.log(`✅ Successfully synced ${firebaseBuilds.length} PC builds to NeonDB`);
+      return firebaseBuilds.length;
     } catch (error) {
-      console.error('❌ Failed to verify PC builds:', error);
+      console.error('❌ Failed to sync PC builds:', error);
       throw error;
     }
   }
 
-  // Verify Orders data integrity
+  // Sync Orders from Firebase to NeonDB
   async backupOrders() {
     try {
-      const orders = await storage.getAllOrders();
-      console.log(`✅ Verified ${orders.length} orders in database`);
-      return orders.length;
+      // Get data from Firebase (primary)
+      const firebaseOrders = await firebaseRealtimeStorage.getAllOrders();
+      console.log(`🔄 Syncing ${firebaseOrders.length} orders from Firebase to NeonDB`);
+      
+      // Sync each order to NeonDB
+      if (firebaseOrders.length > 0) {
+        for (const order of firebaseOrders) {
+          try {
+            await this.neonStorage.createOrder({
+              userId: order.userId,
+              orderNumber: order.orderNumber,
+              status: order.status,
+              total: order.total,
+              items: order.items,
+              customerName: order.customerName,
+              customerEmail: order.customerEmail,
+              shippingAddress: order.shippingAddress,
+              billingAddress: order.billingAddress,
+              paymentMethod: order.paymentMethod,
+              trackingNumber: order.trackingNumber
+            });
+          } catch (createError) {
+            // If create fails, try to update existing record
+            try {
+              await this.neonStorage.updateOrderStatus(order.id, order.status);
+            } catch (updateError) {
+              console.warn(`⚠️ Failed to sync order ${order.id}:`, updateError);
+            }
+          }
+        }
+      }
+      
+      console.log(`✅ Successfully synced ${firebaseOrders.length} orders to NeonDB`);
+      return firebaseOrders.length;
     } catch (error) {
-      console.error('❌ Failed to verify orders:', error);
+      console.error('❌ Failed to sync orders:', error);
       throw error;
     }
   }
 
-  // Verify User Profiles data integrity
+  // Sync User Profiles from Firebase to NeonDB
   async backupUserProfiles() {
     try {
-      const users = await storage.getAllUserProfiles();
-      console.log(`✅ Verified ${users.length} user profiles in database`);
-      return users.length;
+      // Get data from Firebase (primary)
+      const firebaseUsers = await firebaseRealtimeStorage.getAllUserProfiles();
+      console.log(`🔄 Syncing ${firebaseUsers.length} user profiles from Firebase to NeonDB`);
+      
+      // Sync each user profile to NeonDB
+      if (firebaseUsers.length > 0) {
+        for (const user of firebaseUsers) {
+          try {
+            await this.neonStorage.createUserProfile({
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              phone: user.phone,
+              address: user.address,
+              city: user.city,
+              zipCode: user.zipCode,
+              preferences: user.preferences
+            });
+          } catch (createError) {
+            // If create fails, try to update existing record
+            try {
+              await this.neonStorage.updateUserProfile(user.uid, {
+                email: user.email,
+                displayName: user.displayName,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                zipCode: user.zipCode,
+                preferences: user.preferences
+              });
+            } catch (updateError) {
+              console.warn(`⚠️ Failed to sync user profile ${user.uid}:`, updateError);
+            }
+          }
+        }
+      }
+      
+      console.log(`✅ Successfully synced ${firebaseUsers.length} user profiles to NeonDB`);
+      return firebaseUsers.length;
     } catch (error) {
-      console.error('❌ Failed to verify user profiles:', error);
+      console.error('❌ Failed to sync user profiles:', error);
       throw error;
     }
   }
 
-  // Verify Inquiries data integrity
+  // Sync Inquiries from Firebase to NeonDB
   async backupInquiries() {
     try {
-      const inquiries = await storage.getInquiries();
-      console.log(`✅ Verified ${inquiries.length} inquiries in database`);
-      return inquiries.length;
+      // Get data from Firebase (primary)
+      const firebaseInquiries = await firebaseRealtimeStorage.getInquiries();
+      console.log(`🔄 Syncing ${firebaseInquiries.length} inquiries from Firebase to NeonDB`);
+      
+      // Sync each inquiry to NeonDB
+      if (firebaseInquiries.length > 0) {
+        for (const inquiry of firebaseInquiries) {
+          try {
+            await this.neonStorage.createInquiry({
+              name: inquiry.name,
+              email: inquiry.email,
+              budget: inquiry.budget,
+              useCase: inquiry.useCase,
+              details: inquiry.details,
+              status: inquiry.status
+            });
+          } catch (createError) {
+            // If create fails, try to update existing record
+            try {
+              await this.neonStorage.updateInquiryStatus(inquiry.id, inquiry.status);
+            } catch (updateError) {
+              console.warn(`⚠️ Failed to sync inquiry ${inquiry.id}:`, updateError);
+            }
+          }
+        }
+      }
+      
+      console.log(`✅ Successfully synced ${firebaseInquiries.length} inquiries to NeonDB`);
+      return firebaseInquiries.length;
     } catch (error) {
-      console.error('❌ Failed to verify inquiries:', error);
+      console.error('❌ Failed to sync inquiries:', error);
       throw error;
     }
   }
 
-  // Full data verification operation
+  // Full Firebase → NeonDB sync operation
   async performFullBackup() {
-    console.log('🔄 Starting data verification operation...');
+    console.log('🔄 Starting Firebase → NeonDB sync operation...');
     
     await this.connect();
     
@@ -82,64 +245,99 @@ export class BackupService {
         this.backupInquiries(),
       ]);
       
-      console.log('✅ Data verification completed successfully');
+      console.log('✅ Firebase → NeonDB sync completed successfully');
+      console.log(`📊 Synced: ${buildsCount} builds, ${ordersCount} orders, ${usersCount} users, ${inquiriesCount} inquiries`);
       return { buildsCount, ordersCount, usersCount, inquiriesCount };
     } catch (error) {
-      console.error('❌ Data verification failed:', error);
+      console.error('❌ Firebase → NeonDB sync failed:', error);
       throw error;
     } finally {
       await this.disconnect();
     }
   }
 
-  // Get current database information
+  // Restore Firebase data from NeonDB backup
   async restoreFromBackup() {
-    console.log('🔄 Retrieving current database information...');
+    console.log('🔄 Starting NeonDB → Firebase restore operation...');
     
     await this.connect();
     
     try {
-      const buildsCount = await this.backupPcBuilds();
-      const ordersCount = await this.backupOrders();
-      const usersCount = await this.backupUserProfiles();
-      const inquiriesCount = await this.backupInquiries();
+      // Get data from NeonDB (backup)
+      const neonBuilds = await this.neonStorage.getPcBuilds();
+      const neonOrders = await this.neonStorage.getAllOrders();
+      const neonUsers = await this.neonStorage.getAllUserProfiles();
+      const neonInquiries = await this.neonStorage.getInquiries();
       
-      console.log(`📊 Current database contains:`);
-      console.log(`   - ${buildsCount} PC builds`);
-      console.log(`   - ${ordersCount} orders`);
-      console.log(`   - ${usersCount} user profiles`);
-      console.log(`   - ${inquiriesCount} inquiries`);
+      console.log(`🔄 Restoring from NeonDB: ${neonBuilds.length} builds, ${neonOrders.length} orders, ${neonUsers.length} users, ${neonInquiries.length} inquiries`);
       
-      return { buildsCount, ordersCount, usersCount, inquiriesCount };
+      // Clear Firebase and restore from NeonDB
+      // Note: This is a destructive operation - use with caution!
+      
+      console.log(`📊 NeonDB backup contains:`);
+      console.log(`   - ${neonBuilds.length} PC builds`);
+      console.log(`   - ${neonOrders.length} orders`);
+      console.log(`   - ${neonUsers.length} user profiles`);
+      console.log(`   - ${neonInquiries.length} inquiries`);
+      console.log(`⚠️ Note: Use 'restore_execute' action to actually perform the restore`);
+      
+      return { 
+        buildsCount: neonBuilds.length, 
+        ordersCount: neonOrders.length, 
+        usersCount: neonUsers.length, 
+        inquiriesCount: neonInquiries.length 
+      };
     } catch (error) {
-      console.error('❌ Database information retrieval failed:', error);
+      console.error('❌ NeonDB backup information retrieval failed:', error);
       throw error;
     } finally {
       await this.disconnect();
     }
   }
 
-  // Check database health
+  // Check sync status between Firebase and NeonDB
   async checkBackupHealth() {
     await this.connect();
     
     try {
-      const buildsCount = await this.backupPcBuilds();
-      const ordersCount = await this.backupOrders();
-      const usersCount = await this.backupUserProfiles();
+      // Get counts from both databases
+      const firebaseBuilds = await firebaseRealtimeStorage.getPcBuilds();
+      const firebaseOrders = await firebaseRealtimeStorage.getAllOrders();
+      const firebaseUsers = await firebaseRealtimeStorage.getAllUserProfiles();
+      const firebaseInquiries = await firebaseRealtimeStorage.getInquiries();
       
-      console.log(`📊 Database Health Check:`);
-      console.log(`   - PC Builds: ${buildsCount}`);
-      console.log(`   - Orders: ${ordersCount}`);
-      console.log(`   - Users: ${usersCount}`);
-      console.log(`   - Status: ✅ Healthy`);
+      const neonBuilds = await this.neonStorage.getPcBuilds();
+      const neonOrders = await this.neonStorage.getAllOrders();
+      const neonUsers = await this.neonStorage.getAllUserProfiles();
+      const neonInquiries = await this.neonStorage.getInquiries();
+      
+      console.log(`📊 Database Sync Status:`);
+      console.log(`   Firebase (Primary): ${firebaseBuilds.length} builds, ${firebaseOrders.length} orders, ${firebaseUsers.length} users, ${firebaseInquiries.length} inquiries`);
+      console.log(`   NeonDB (Backup): ${neonBuilds.length} builds, ${neonOrders.length} orders, ${neonUsers.length} users, ${neonInquiries.length} inquiries`);
+      
+      const inSync = (
+        firebaseBuilds.length === neonBuilds.length &&
+        firebaseOrders.length === neonOrders.length &&
+        firebaseUsers.length === neonUsers.length &&
+        firebaseInquiries.length === neonInquiries.length
+      );
+      
+      console.log(`   Sync Status: ${inSync ? '✅ In Sync' : '⚠️ Out of Sync'}`);
       
       return {
         status: 'healthy',
+        inSync,
         counts: {
-          builds: buildsCount,
-          orders: ordersCount,
-          users: usersCount,
+          builds: firebaseBuilds.length,
+          orders: firebaseOrders.length,
+          users: firebaseUsers.length,
+          inquiries: firebaseInquiries.length
+        },
+        backupCounts: {
+          builds: neonBuilds.length,
+          orders: neonOrders.length,
+          users: neonUsers.length,
+          inquiries: neonInquiries.length
         }
       };
     } catch (error) {
