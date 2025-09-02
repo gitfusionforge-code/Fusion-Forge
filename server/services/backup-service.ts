@@ -141,17 +141,23 @@ export class BackupService {
               if (!userExists) {
                 // Create a basic user profile for the missing user
                 try {
-                  await this.neonStorage.createUserProfile({
-                    uid: order.userId,
-                    email: order.customerEmail || `${order.userId}@unknown.com`,
-                    displayName: order.customerName || 'Unknown User',
-                    phone: null,
-                    address: order.shippingAddress || null,
-                    city: null,
-                    zipCode: null,
-                    preferences: null
-                  });
-                  console.log(`✨ Created missing user profile for ${order.userId}`);
+                  // Double-check the user doesn't exist (might have been created in this sync)
+                  const recheckUser = await this.neonStorage.getUserProfile(order.userId);
+                  if (!recheckUser) {
+                    await this.neonStorage.createUserProfile({
+                      uid: order.userId,
+                      email: order.customerEmail || `${order.userId}@unknown.com`,
+                      displayName: order.customerName || 'Unknown User',
+                      phone: null,
+                      address: order.shippingAddress || null,
+                      city: null,
+                      zipCode: null,
+                      preferences: null
+                    });
+                    console.log(`✨ Created missing user profile for ${order.userId}`);
+                  } else {
+                    console.log(`🔄 User ${order.userId} already exists (created in this sync)`);
+                  }
                 } catch (userCreateError) {
                   console.warn(`⚠️ Failed to create user ${order.userId}, skipping order ${order.id}:`, userCreateError);
                   continue;
@@ -300,9 +306,21 @@ export class BackupService {
       if (firebaseInquiries.length > 0) {
         for (const inquiry of firebaseInquiries) {
           try {
-            // For inquiries, we'll use a different approach since there's no getInquiryById method
-            // Try to create first, if it fails due to duplicate, update
-            try {
+            // Check if inquiry already exists by comparing key fields
+            const existingInquiries = await this.neonStorage.getInquiries();
+            const duplicateInquiry = existingInquiries.find(i => 
+              i.name === inquiry.name && 
+              i.email === inquiry.email && 
+              i.budget === inquiry.budget &&
+              i.useCase === inquiry.useCase
+            );
+            
+            if (duplicateInquiry) {
+              // Update existing inquiry
+              await this.neonStorage.updateInquiryStatus(duplicateInquiry.id, inquiry.status);
+              console.log(`🔄 Updated existing inquiry ${duplicateInquiry.id}`);
+            } else {
+              // Create new inquiry
               await this.neonStorage.createInquiry({
                 name: inquiry.name,
                 email: inquiry.email,
@@ -312,10 +330,6 @@ export class BackupService {
                 status: inquiry.status
               });
               console.log(`✨ Created new inquiry ${inquiry.id}`);
-            } catch (createError) {
-              // If create fails, try to update existing record
-              await this.neonStorage.updateInquiryStatus(inquiry.id, inquiry.status);
-              console.log(`🔄 Updated existing inquiry ${inquiry.id}`);
             }
             successCount++;
           } catch (syncError) {
