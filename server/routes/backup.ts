@@ -17,7 +17,7 @@ export async function handleBackupOperations(req: Request, res: Response) {
         break;
 
       case 'health_check':
-        const health = await backupService.checkBackupHealth();
+        const health = await backupScheduler.getBackupStatus();
         res.json({ 
           success: true, 
           health 
