@@ -169,9 +169,17 @@ export class BackupService {
               const duplicateOrderNumber = existingOrders.find(o => o.orderNumber === order.orderNumber && o.id !== order.id);
               
               if (duplicateOrderNumber) {
+                // Check if we already created this order with a unique number
+                const existingUniqueOrder = existingOrders.find(o => o.orderNumber === `${order.orderNumber}-${order.id}`);
+                if (existingUniqueOrder) {
+                  console.log(`🔄 Order ${order.id} already exists with unique order number`);
+                  successCount++;
+                  continue;
+                }
+                
                 // Generate a unique order number by appending a suffix
                 const uniqueOrderNumber = `${order.orderNumber}-${order.id}`;
-                console.log(`🔄 Updating duplicate order number ${order.orderNumber} to ${uniqueOrderNumber} for order ${order.id}`);
+                console.log(`🔄 Creating order ${order.id} with unique order number ${uniqueOrderNumber}`);
                 
                 // Create order with unique order number
                 await this.neonStorage.createOrder({
