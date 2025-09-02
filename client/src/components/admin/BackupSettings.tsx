@@ -166,17 +166,14 @@ export function BackupSettings() {
   };
 
   useEffect(() => {
+    // Only fetch on initial mount - disable polling temporarily
     fetchTimerStatus();
     fetchBackupHealth();
     
-    // Set up polling for status updates
-    const interval = setInterval(() => {
-      fetchTimerStatus();
-      fetchBackupHealth();
-    }, 30000); // Update every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []);
+    // Polling disabled until the auto-backup issue is resolved
+    // TODO: Re-enable with proper safeguards
+    
+  }, []); // Remove isLoading dependency to prevent re-runs
 
   useEffect(() => {
     if (timerStatus) {
