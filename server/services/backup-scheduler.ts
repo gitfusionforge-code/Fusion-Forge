@@ -11,9 +11,7 @@ export class BackupScheduler {
       return;
     }
 
-    // Run initial backup health check
-    this.runInitialCheck();
-    
+    // Skip initial backup check - only run scheduled backups
     // Use provided interval or default to 6 hours
     if (intervalHours) {
       this.currentInterval = intervalHours * 60 * 60 * 1000;
