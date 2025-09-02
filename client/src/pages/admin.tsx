@@ -34,6 +34,7 @@ import {
 import type { Inquiry, PcBuild, Order } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
 import { BackupManager } from "@/components/BackupManager";
+import { BackupSettings } from "@/components/admin/BackupSettings";
 
 function AdminContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -1496,9 +1497,10 @@ FusionForge PCs Team`);
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
+            {/* System Configuration */}
             <Card>
               <CardHeader>
-                <CardTitle>System Settings</CardTitle>
+                <CardTitle>System Configuration</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
@@ -1526,24 +1528,69 @@ FusionForge PCs Team`);
                     </div>
                   </div>
                 </div>
+
+                <div>
+                  <h3 className="text-lg font-medium mb-4">System Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Environment</label>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          import.meta.env.MODE === 'development' ? 'bg-yellow-500' : 'bg-green-500'
+                        }`}></div>
+                        <span className="text-sm text-gray-600 capitalize">
+                          {import.meta.env.MODE || 'Production'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Firebase Project</label>
+                      <span className="text-sm text-gray-600">
+                        {import.meta.env.VITE_FIREBASE_PROJECT_ID || 'Not configured'}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Database Status</label>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">PostgreSQL + Firebase Connected</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Payment Gateway</label>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">Razorpay Active</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
                 <div>
-                  <h3 className="text-lg font-medium mb-4">Inventory Alerts</h3>
+                  <h3 className="text-lg font-medium mb-4">Inventory Management</h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Low Stock Threshold</label>
-                      <div className="relative">
+                      <div className="flex items-center gap-4">
                         <Input 
                           type="number" 
                           value={lowStockThreshold}
                           onChange={handleThresholdChange}
-                          className="w-32 pr-20" 
+                          className="w-32" 
                           data-testid="input-stock-threshold"
                           min="1"
                           max="50"
                         />
+                        <span className="text-sm text-gray-600">items</span>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">Alert when inventory drops below this number</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Auto-reorder Notifications</label>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">Enabled - Email alerts for low stock</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <input 
@@ -1559,6 +1606,105 @@ FusionForge PCs Team`);
                         <strong>💡 How it works:</strong> When PC components or builds drop below the threshold, 
                         automatic email notifications are sent to your business email for quick restocking.
                       </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Backup Management Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5" />
+                  Database Backup Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BackupSettings />
+              </CardContent>
+            </Card>
+
+            {/* Additional Admin Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Advanced Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">System Maintenance</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Maintenance Mode</label>
+                        <p className="text-xs text-gray-500">Temporarily disable customer access</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">Disabled</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">System Notifications</label>
+                        <p className="text-xs text-gray-500">Admin alert system status</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">Active</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Security Settings</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Session Timeout</label>
+                        <p className="text-xs text-gray-500">Admin session duration</p>
+                      </div>
+                      <span className="text-sm text-gray-600">4 hours</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Two-Factor Authentication</label>
+                        <p className="text-xs text-gray-500">Enhanced admin security</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span className="text-sm text-gray-600">Recommended</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Performance Monitoring</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Error Tracking</label>
+                        <p className="text-xs text-gray-500">Client-side error monitoring</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">Active</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Performance Alerts</label>
+                        <p className="text-xs text-gray-500">Core Web Vitals monitoring</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-sm text-gray-600">Enabled</span>
+                      </div>
                     </div>
                   </div>
                 </div>

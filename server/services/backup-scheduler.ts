@@ -2,9 +2,10 @@ import { backupService } from './backup-service';
 
 export class BackupScheduler {
   private intervalId: NodeJS.Timeout | null = null;
+  private currentInterval: number = 6 * 60 * 60 * 1000; // Default: 6 hours
   
-  // Start automatic backups every 6 hours
-  startScheduledBackups() {
+  // Start automatic backups with configurable interval
+  startScheduledBackups(intervalHours?: number) {
     if (this.intervalId) {
       console.log('⚠️ Backup scheduler already running');
       return;
@@ -13,8 +14,11 @@ export class BackupScheduler {
     // Run initial backup health check
     this.runInitialCheck();
     
-    // Schedule backups every 6 hours (6 * 60 * 60 * 1000 ms)
-    const backupInterval = 6 * 60 * 60 * 1000;
+    // Use provided interval or default to 6 hours
+    if (intervalHours) {
+      this.currentInterval = intervalHours * 60 * 60 * 1000;
+    }
+    const backupInterval = this.currentInterval;
     
     this.intervalId = setInterval(async () => {
       try {
@@ -26,7 +30,33 @@ export class BackupScheduler {
       }
     }, backupInterval);
     
-    console.log(`✅ Backup scheduler started - backups will run every 6 hours`);
+    const hours = intervalHours || 6;
+    console.log(`✅ Backup scheduler started - backups will run every ${hours} hours`);
+  }
+  
+  // Update backup interval and restart scheduler
+  updateBackupInterval(intervalHours: number) {
+    if (intervalHours < 1 || intervalHours > 24) {
+      throw new Error('Backup interval must be between 1 and 24 hours');
+    }
+    
+    // Stop current scheduler
+    this.stopScheduledBackups();
+    
+    // Start with new interval
+    this.startScheduledBackups(intervalHours);
+    
+    console.log(`✅ Backup interval updated to ${intervalHours} hours`);
+    return { success: true, intervalHours, message: `Backup interval updated to ${intervalHours} hours` };
+  }
+  
+  // Get current backup interval in hours
+  getCurrentInterval() {
+    return {
+      intervalHours: this.currentInterval / (60 * 60 * 1000),
+      isRunning: this.intervalId !== null,
+      nextBackup: this.intervalId ? new Date(Date.now() + this.currentInterval).toISOString() : null
+    };
   }
   
   // Stop automatic backups

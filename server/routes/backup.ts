@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { backupService } from '../services/backup-service';
+import { backupScheduler } from '../services/backup-scheduler';
 
 // Admin-only backup routes
 export async function handleBackupOperations(req: Request, res: Response) {
   try {
-    const { action } = req.body;
+    const { action, intervalHours } = req.body;
 
     switch (action) {
       case 'full_backup':
@@ -29,6 +30,30 @@ export async function handleBackupOperations(req: Request, res: Response) {
           success: true, 
           message: 'Backup restoration info logged' 
         });
+        break;
+
+      case 'get_timer_status':
+        const timerStatus = backupScheduler.getCurrentInterval();
+        res.json({
+          success: true,
+          timer: timerStatus
+        });
+        break;
+
+      case 'update_timer':
+        if (!intervalHours || intervalHours < 1 || intervalHours > 24) {
+          return res.status(400).json({
+            success: false,
+            error: 'Interval must be between 1 and 24 hours'
+          });
+        }
+        const updateResult = backupScheduler.updateBackupInterval(intervalHours);
+        res.json(updateResult);
+        break;
+
+      case 'immediate_backup':
+        const result = await backupScheduler.triggerImmediateBackup();
+        res.json(result);
         break;
 
       default:
