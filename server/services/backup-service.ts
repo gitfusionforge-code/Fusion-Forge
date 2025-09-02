@@ -33,37 +33,16 @@ export class BackupService {
       const firebaseBuilds = await firebaseRealtimeStorage.getPcBuilds();
       console.log(`🔄 Syncing ${firebaseBuilds.length} PC builds from Firebase to NeonDB`);
       
-      // Clear existing data in NeonDB and insert fresh data
+      // Sync each build to NeonDB with better error handling
+      let successCount = 0;
       if (firebaseBuilds.length > 0) {
-        // Sync each build to NeonDB
         for (const build of firebaseBuilds) {
           try {
-            await this.neonStorage.createPcBuild({
-              name: build.name,
-              category: build.category,
-              buildType: build.buildType,
-              budgetRange: build.budgetRange,
-              basePrice: build.basePrice,
-              profitMargin: build.profitMargin,
-              totalPrice: build.totalPrice,
-              description: build.description,
-              imageUrl: build.imageUrl,
-              processor: build.processor,
-              motherboard: build.motherboard,
-              ram: build.ram,
-              storage: build.storage,
-              gpu: build.gpu,
-              casePsu: build.casePsu,
-              monitor: build.monitor,
-              keyboardMouse: build.keyboardMouse,
-              mousePad: build.mousePad,
-              stockQuantity: build.stockQuantity,
-              lowStockThreshold: build.lowStockThreshold,
-              isActive: build.isActive
-            });
-          } catch (createError) {
-            // If create fails, try to update existing record
-            try {
+            // Check if build already exists in NeonDB
+            const existingBuild = await this.neonStorage.getPcBuildById(build.id);
+            
+            if (existingBuild) {
+              // Update existing build
               await this.neonStorage.updatePcBuild(build.id, {
                 name: build.name,
                 category: build.category,
@@ -87,15 +66,50 @@ export class BackupService {
                 lowStockThreshold: build.lowStockThreshold,
                 isActive: build.isActive
               });
-            } catch (updateError) {
-              console.warn(`⚠️ Failed to sync PC build ${build.id}:`, updateError);
+              console.log(`🔄 Updated existing PC build ${build.id}`);
+            } else {
+              // Create new build
+              await this.neonStorage.createPcBuild({
+                name: build.name,
+                category: build.category,
+                buildType: build.buildType,
+                budgetRange: build.budgetRange,
+                basePrice: build.basePrice,
+                profitMargin: build.profitMargin,
+                totalPrice: build.totalPrice,
+                description: build.description,
+                imageUrl: build.imageUrl,
+                processor: build.processor,
+                motherboard: build.motherboard,
+                ram: build.ram,
+                storage: build.storage,
+                gpu: build.gpu,
+                casePsu: build.casePsu,
+                monitor: build.monitor,
+                keyboardMouse: build.keyboardMouse,
+                mousePad: build.mousePad,
+                stockQuantity: build.stockQuantity,
+                lowStockThreshold: build.lowStockThreshold,
+                isActive: build.isActive
+              });
+              console.log(`✨ Created new PC build ${build.id}`);
             }
+            successCount++;
+          } catch (syncError) {
+            console.error(`❌ Failed to sync PC build ${build.id}:`, {
+              error: syncError instanceof Error ? syncError.message : 'Unknown error',
+              buildData: {
+                id: build.id,
+                name: build.name,
+                category: build.category
+              }
+            });
           }
         }
       }
       
-      console.log(`✅ Successfully synced ${firebaseBuilds.length} PC builds to NeonDB`);
-      return firebaseBuilds.length;
+      console.log(`✅ Successfully synced ${successCount}/${firebaseBuilds.length} PC builds to NeonDB`);
+      return successCount;
     } catch (error) {
       console.error('❌ Failed to sync PC builds:', error);
       throw error;
@@ -109,36 +123,52 @@ export class BackupService {
       const firebaseOrders = await firebaseRealtimeStorage.getAllOrders();
       console.log(`🔄 Syncing ${firebaseOrders.length} orders from Firebase to NeonDB`);
       
-      // Sync each order to NeonDB
+      // Sync each order to NeonDB with better error handling
+      let successCount = 0;
       if (firebaseOrders.length > 0) {
         for (const order of firebaseOrders) {
           try {
-            await this.neonStorage.createOrder({
-              userId: order.userId,
-              orderNumber: order.orderNumber,
-              status: order.status,
-              total: order.total,
-              items: order.items,
-              customerName: order.customerName,
-              customerEmail: order.customerEmail,
-              shippingAddress: order.shippingAddress,
-              billingAddress: order.billingAddress,
-              paymentMethod: order.paymentMethod,
-              trackingNumber: order.trackingNumber
-            });
-          } catch (createError) {
-            // If create fails, try to update existing record
-            try {
+            // Check if order already exists in NeonDB
+            const existingOrder = await this.neonStorage.getOrderById(order.id);
+            
+            if (existingOrder) {
+              // Update existing order
               await this.neonStorage.updateOrderStatus(order.id, order.status);
-            } catch (updateError) {
-              console.warn(`⚠️ Failed to sync order ${order.id}:`, updateError);
+              console.log(`🔄 Updated existing order ${order.id}`);
+            } else {
+              // Create new order
+              await this.neonStorage.createOrder({
+                userId: order.userId,
+                orderNumber: order.orderNumber,
+                status: order.status,
+                total: order.total,
+                items: order.items,
+                customerName: order.customerName,
+                customerEmail: order.customerEmail,
+                shippingAddress: order.shippingAddress,
+                billingAddress: order.billingAddress,
+                paymentMethod: order.paymentMethod,
+                trackingNumber: order.trackingNumber
+              });
+              console.log(`✨ Created new order ${order.id}`);
             }
+            successCount++;
+          } catch (syncError) {
+            console.error(`❌ Failed to sync order ${order.id}:`, {
+              error: syncError instanceof Error ? syncError.message : 'Unknown error',
+              orderData: {
+                id: order.id,
+                orderNumber: order.orderNumber,
+                userId: order.userId,
+                total: order.total
+              }
+            });
           }
         }
       }
       
-      console.log(`✅ Successfully synced ${firebaseOrders.length} orders to NeonDB`);
-      return firebaseOrders.length;
+      console.log(`✅ Successfully synced ${successCount}/${firebaseOrders.length} orders to NeonDB`);
+      return successCount;
     } catch (error) {
       console.error('❌ Failed to sync orders:', error);
       throw error;
@@ -152,23 +182,16 @@ export class BackupService {
       const firebaseUsers = await firebaseRealtimeStorage.getAllUserProfiles();
       console.log(`🔄 Syncing ${firebaseUsers.length} user profiles from Firebase to NeonDB`);
       
-      // Sync each user profile to NeonDB
+      // Sync each user profile to NeonDB with better error handling
+      let successCount = 0;
       if (firebaseUsers.length > 0) {
         for (const user of firebaseUsers) {
           try {
-            await this.neonStorage.createUserProfile({
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              phone: user.phone,
-              address: user.address,
-              city: user.city,
-              zipCode: user.zipCode,
-              preferences: user.preferences
-            });
-          } catch (createError) {
-            // If create fails, try to update existing record
-            try {
+            // Check if user profile already exists in NeonDB
+            const existingUser = await this.neonStorage.getUserProfile(user.uid);
+            
+            if (existingUser) {
+              // Update existing user profile
               await this.neonStorage.updateUserProfile(user.uid, {
                 email: user.email,
                 displayName: user.displayName,
@@ -178,15 +201,37 @@ export class BackupService {
                 zipCode: user.zipCode,
                 preferences: user.preferences
               });
-            } catch (updateError) {
-              console.warn(`⚠️ Failed to sync user profile ${user.uid}:`, updateError);
+              console.log(`🔄 Updated existing user profile ${user.uid}`);
+            } else {
+              // Create new user profile
+              await this.neonStorage.createUserProfile({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                zipCode: user.zipCode,
+                preferences: user.preferences
+              });
+              console.log(`✨ Created new user profile ${user.uid}`);
             }
+            successCount++;
+          } catch (syncError) {
+            console.error(`❌ Failed to sync user profile ${user.uid}:`, {
+              error: syncError instanceof Error ? syncError.message : 'Unknown error',
+              userData: {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName
+              }
+            });
           }
         }
       }
       
-      console.log(`✅ Successfully synced ${firebaseUsers.length} user profiles to NeonDB`);
-      return firebaseUsers.length;
+      console.log(`✅ Successfully synced ${successCount}/${firebaseUsers.length} user profiles to NeonDB`);
+      return successCount;
     } catch (error) {
       console.error('❌ Failed to sync user profiles:', error);
       throw error;
@@ -200,31 +245,45 @@ export class BackupService {
       const firebaseInquiries = await firebaseRealtimeStorage.getInquiries();
       console.log(`🔄 Syncing ${firebaseInquiries.length} inquiries from Firebase to NeonDB`);
       
-      // Sync each inquiry to NeonDB
+      // Sync each inquiry to NeonDB with better error handling
+      let successCount = 0;
       if (firebaseInquiries.length > 0) {
         for (const inquiry of firebaseInquiries) {
           try {
-            await this.neonStorage.createInquiry({
-              name: inquiry.name,
-              email: inquiry.email,
-              budget: inquiry.budget,
-              useCase: inquiry.useCase,
-              details: inquiry.details,
-              status: inquiry.status
-            });
-          } catch (createError) {
-            // If create fails, try to update existing record
+            // For inquiries, we'll use a different approach since there's no getInquiryById method
+            // Try to create first, if it fails due to duplicate, update
             try {
+              await this.neonStorage.createInquiry({
+                name: inquiry.name,
+                email: inquiry.email,
+                budget: inquiry.budget,
+                useCase: inquiry.useCase,
+                details: inquiry.details,
+                status: inquiry.status
+              });
+              console.log(`✨ Created new inquiry ${inquiry.id}`);
+            } catch (createError) {
+              // If create fails, try to update existing record
               await this.neonStorage.updateInquiryStatus(inquiry.id, inquiry.status);
-            } catch (updateError) {
-              console.warn(`⚠️ Failed to sync inquiry ${inquiry.id}:`, updateError);
+              console.log(`🔄 Updated existing inquiry ${inquiry.id}`);
             }
+            successCount++;
+          } catch (syncError) {
+            console.error(`❌ Failed to sync inquiry ${inquiry.id}:`, {
+              error: syncError instanceof Error ? syncError.message : 'Unknown error',
+              inquiryData: {
+                id: inquiry.id,
+                name: inquiry.name,
+                email: inquiry.email,
+                status: inquiry.status
+              }
+            });
           }
         }
       }
       
-      console.log(`✅ Successfully synced ${firebaseInquiries.length} inquiries to NeonDB`);
-      return firebaseInquiries.length;
+      console.log(`✅ Successfully synced ${successCount}/${firebaseInquiries.length} inquiries to NeonDB`);
+      return successCount;
     } catch (error) {
       console.error('❌ Failed to sync inquiries:', error);
       throw error;
