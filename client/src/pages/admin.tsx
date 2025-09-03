@@ -1484,7 +1484,6 @@ FusionForge PCs Team`);
             </Card>
           </TabsContent>
 
-          {/* Database Backup Tab */}
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
@@ -1544,7 +1543,7 @@ FusionForge PCs Team`);
                       <label className="block text-sm font-medium text-gray-700">Database Status</label>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm text-gray-600">PostgreSQL + Firebase Connected</span>
+                        <span className="text-sm text-gray-600">Firebase Realtime Database Connected</span>
                       </div>
                     </div>
                     <div className="space-y-2">

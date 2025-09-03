@@ -1,230 +1,218 @@
-import { pgTable, serial, text, integer, decimal, boolean, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const pcBuilds = pgTable("pc_builds", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  category: text("category").notNull(), // Student Essentials, Budget Creators, Student Gaming & Productivity, Mid-Tier Creators & Gamers
-  buildType: text("build_type").notNull(), // CPU Only, Full Set
-  budgetRange: text("budget_range").notNull(),
-  basePrice: integer("base_price").notNull(),
-  profitMargin: integer("profit_margin").notNull(),
-  totalPrice: integer("total_price").notNull(),
-  description: text("description"),
-  imageUrl: text("image_url"),
+// Base types for Firebase Realtime Database
+export interface PcBuild {
+  id: number;
+  name: string;
+  category: string;
+  buildType: string;
+  budgetRange: string;
+  basePrice: number;
+  profitMargin: number;
+  totalPrice: number;
+  description?: string;
+  imageUrl?: string;
   // Core Components
-  processor: text("processor").notNull(),
-  motherboard: text("motherboard").notNull(),
-  ram: text("ram").notNull(),
-  storage: text("storage").notNull(),
-  gpu: text("gpu"),
-  casePsu: text("case_psu").notNull(),
+  processor: string;
+  motherboard: string;
+  ram: string;
+  storage: string;
+  gpu?: string;
+  casePsu: string;
   // Peripherals (for Full Set builds)
-  monitor: text("monitor"),
-  keyboardMouse: text("keyboard_mouse"),
-  mousePad: text("mouse_pad"),
+  monitor?: string;
+  keyboardMouse?: string;
+  mousePad?: string;
   // Meta fields
-  stockQuantity: integer("stock_quantity").default(0).notNull(),
-  lowStockThreshold: integer("low_stock_threshold").default(2).notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  stockQuantity: number;
+  lowStockThreshold: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Component {
+  id: number;
+  buildId: number;
+  name: string;
+  specification: string;
+  price: string;
+  type: string;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  isActive: boolean;
+  sku?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Inquiry {
+  id: number;
+  name: string;
+  email: string;
+  budget: string;
+  useCase: string;
+  details: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserProfile {
+  id: number;
+  uid: string;
+  email: string;
+  displayName?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  zipCode?: string;
+  preferences?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Order {
+  id: number;
+  userId: string;
+  orderNumber: string;
+  status: string;
+  total: number;
+  items: string;
+  customerName?: string;
+  customerEmail?: string;
+  shippingAddress?: string;
+  billingAddress?: string;
+  paymentMethod?: string;
+  trackingNumber?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SavedBuild {
+  id: number;
+  userId: string;
+  buildId: number;
+  savedAt: Date;
+}
+
+export interface UserAddress {
+  id: string;
+  userId: string;
+  fullName: string;
+  phone: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  isDefault: boolean;
+  createdAt: Date;
+}
+
+export interface AdminSetting {
+  id: number;
+  key: string;
+  value: string;
+  updatedAt: Date;
+}
+
+// Zod schemas for validation
+export const insertPcBuildSchema = z.object({
+  name: z.string().min(1),
+  category: z.string().min(1),
+  buildType: z.string().min(1),
+  budgetRange: z.string().min(1),
+  basePrice: z.number().min(0),
+  profitMargin: z.number().min(0),
+  totalPrice: z.number().min(0),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
+  processor: z.string().min(1),
+  motherboard: z.string().min(1),
+  ram: z.string().min(1),
+  storage: z.string().min(1),
+  gpu: z.string().optional(),
+  casePsu: z.string().min(1),
+  monitor: z.string().optional(),
+  keyboardMouse: z.string().optional(),
+  mousePad: z.string().optional(),
+  stockQuantity: z.number().min(0).default(0),
+  lowStockThreshold: z.number().min(0).default(2),
+  isActive: z.boolean().default(true),
 });
 
-export const components = pgTable("components", {
-  id: serial("id").primaryKey(),
-  buildId: integer("build_id").notNull(),
-  name: text("name").notNull(),
-  specification: text("specification").notNull(),
-  price: text("price").notNull(),
-  type: text("type").notNull(), // cpu, gpu, ram, storage, etc.
-  stockQuantity: integer("stock_quantity").default(0).notNull(),
-  lowStockThreshold: integer("low_stock_threshold").default(5).notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  sku: text("sku"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const insertComponentSchema = z.object({
+  buildId: z.number(),
+  name: z.string().min(1),
+  specification: z.string().min(1),
+  price: z.string().min(1),
+  type: z.string().min(1),
+  stockQuantity: z.number().min(0).default(0),
+  lowStockThreshold: z.number().min(0).default(5),
+  isActive: z.boolean().default(true),
+  sku: z.string().optional(),
 });
 
-export const inquiries = pgTable("inquiries", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  budget: text("budget").notNull(),
-  useCase: text("use_case").notNull(),
-  details: text("details").notNull(),
-  status: text("status").default("uncompleted").notNull(), // 'completed' or 'uncompleted'
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const insertInquirySchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  budget: z.string().min(1),
+  useCase: z.string().min(1),
+  details: z.string().min(1),
+  status: z.string().default("uncompleted"),
 });
 
-// Stock movements tracking
-export const stockMovements = pgTable("stock_movements", {
-  id: serial("id").primaryKey(),
-  componentId: integer("component_id"),
-  buildId: integer("build_id"), 
-  movementType: text("movement_type").notNull(), // 'in', 'out', 'adjustment'
-  quantity: integer("quantity").notNull(),
-  reason: text("reason"), // 'purchase', 'sale', 'damage', 'adjustment'
-  notes: text("notes"),
-  createdBy: text("created_by"), // admin user
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertUserProfileSchema = z.object({
+  uid: z.string().min(1),
+  email: z.string().email(),
+  displayName: z.string().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  zipCode: z.string().optional(),
+  preferences: z.string().optional(),
 });
 
-// Low stock alerts
-export const stockAlerts = pgTable("stock_alerts", {
-  id: serial("id").primaryKey(),
-  componentId: integer("component_id"),
-  buildId: integer("build_id"),
-  alertType: text("alert_type").notNull(), // 'low_stock', 'out_of_stock'
-  currentStock: integer("current_stock").notNull(),
-  threshold: integer("threshold").notNull(),
-  itemName: text("item_name").notNull(),
-  isResolved: boolean("is_resolved").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  resolvedAt: timestamp("resolved_at"),
+export const insertOrderSchema = z.object({
+  userId: z.string().min(1),
+  orderNumber: z.string().min(1),
+  status: z.string().default("processing"),
+  total: z.number().min(0),
+  items: z.string().min(1),
+  customerName: z.string().optional(),
+  customerEmail: z.string().optional(),
+  shippingAddress: z.string().optional(),
+  billingAddress: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  trackingNumber: z.string().optional(),
 });
 
-// User profiles table
-export const userProfiles = pgTable("user_profiles", {
-  id: serial("id").primaryKey(),
-  uid: text("uid").notNull().unique(), // Firebase UID
-  email: text("email").notNull(),
-  displayName: text("display_name"),
-  phone: text("phone"),
-  address: text("address"),
-  city: text("city"),
-  zipCode: text("zip_code"),
-  preferences: text("preferences"), // JSON string for notification preferences
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const insertSavedBuildSchema = z.object({
+  userId: z.string().min(1),
+  buildId: z.number(),
 });
 
-// Orders table
-export const orders = pgTable("orders", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(), // Firebase UID
-  orderNumber: text("order_number").notNull().unique(),
-  status: text("status").notNull().default("processing"), // processing, shipped, delivered, cancelled
-  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
-  items: text("items").notNull(), // JSON string of order items
-  customerName: text("customer_name"), // Customer name from checkout
-  customerEmail: text("customer_email"), // Customer email from checkout
-  shippingAddress: text("shipping_address"),
-  billingAddress: text("billing_address"),
-  paymentMethod: text("payment_method"),
-  trackingNumber: text("tracking_number"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const insertUserAddressSchema = z.object({
+  id: z.string().min(1),
+  userId: z.string().min(1),
+  fullName: z.string().min(1),
+  phone: z.string().min(1),
+  address: z.string().min(1),
+  city: z.string().min(1),
+  zipCode: z.string().min(1),
+  isDefault: z.boolean().default(false),
 });
 
-// Saved builds table (user favorites)
-export const savedBuilds = pgTable("saved_builds", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(), // Firebase UID
-  buildId: integer("build_id").notNull(),
-  savedAt: timestamp("saved_at").defaultNow().notNull(),
+export const insertAdminSettingSchema = z.object({
+  key: z.string().min(1),
+  value: z.string().min(1),
 });
 
-// User addresses table
-export const userAddresses = pgTable("user_addresses", {
-  id: text("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  fullName: text("full_name").notNull(),
-  phone: text("phone").notNull(),
-  address: text("address").notNull(),
-  city: text("city").notNull(),
-  zipCode: text("zip_code").notNull(),
-  isDefault: boolean("is_default").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Admin settings table
-export const adminSettings = pgTable("admin_settings", {
-  id: serial("id").primaryKey(),
-  key: text("key").notNull().unique(),
-  value: text("value").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const insertPcBuildSchema = createInsertSchema(pcBuilds).omit({
-  id: true,
-});
-
-export const insertComponentSchema = createInsertSchema(components).omit({
-  id: true,
-});
-
-export const insertInquirySchema = createInsertSchema(inquiries).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertStockMovementSchema = createInsertSchema(stockMovements).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertStockAlertSchema = createInsertSchema(stockAlerts).omit({
-  id: true,
-  createdAt: true,
-  resolvedAt: true,
-});
-
-export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertOrderSchema = createInsertSchema(orders).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export const insertSavedBuildSchema = createInsertSchema(savedBuilds).omit({
-  id: true,
-  savedAt: true,
-});
-
-export const insertUserAddressSchema = createInsertSchema(userAddresses).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
-  id: true,
-  updatedAt: true,
-});
-
+// Type exports
 export type InsertPcBuild = z.infer<typeof insertPcBuildSchema>;
-export type PcBuild = typeof pcBuilds.$inferSelect;
-
 export type InsertComponent = z.infer<typeof insertComponentSchema>;
-export type Component = typeof components.$inferSelect;
-
 export type InsertInquiry = z.infer<typeof insertInquirySchema>;
-export type Inquiry = typeof inquiries.$inferSelect;
-
-export type InsertStockMovement = z.infer<typeof insertStockMovementSchema>;
-export type StockMovement = typeof stockMovements.$inferSelect;
-
-export type InsertStockAlert = z.infer<typeof insertStockAlertSchema>;
-export type StockAlert = typeof stockAlerts.$inferSelect;
-
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
-export type UserProfile = typeof userProfiles.$inferSelect;
-
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
-export type Order = typeof orders.$inferSelect;
-
 export type InsertSavedBuild = z.infer<typeof insertSavedBuildSchema>;
-export type SavedBuild = typeof savedBuilds.$inferSelect;
-
 export type InsertUserAddress = z.infer<typeof insertUserAddressSchema>;
-export type UserAddress = typeof userAddresses.$inferSelect;
-
 export type InsertAdminSetting = z.infer<typeof insertAdminSettingSchema>;
-export type AdminSetting = typeof adminSettings.$inferSelect;
