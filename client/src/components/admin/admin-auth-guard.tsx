@@ -8,10 +8,6 @@ import { Shield, AlertTriangle, Loader2 } from "lucide-react";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'fusionforgepc@gmail.com';
 
-// Debug environment variable
-console.log('VITE_ADMIN_EMAIL from env:', import.meta.env.VITE_ADMIN_EMAIL);
-console.log('Using ADMIN_EMAIL:', ADMIN_EMAIL);
-
 interface AdminSessionContextType {
   adminSessionReady: boolean;
 }
@@ -62,7 +58,8 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
             await new Promise(resolve => setTimeout(resolve, 100));
             setAdminSessionCreated(true);
           } else {
-            console.error('Failed to create admin session');
+            const errorData = await response.text();
+            console.error('Failed to create admin session:', errorData);
           }
         } catch (error) {
           console.error('Error creating admin session:', error);

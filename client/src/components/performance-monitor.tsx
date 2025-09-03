@@ -55,7 +55,7 @@ export default function PerformanceMonitor() {
         }
 
         // Log performance metrics in development (only if there are performance issues)
-        if (process.env.NODE_ENV === 'development') {
+        if (import.meta.env.DEV) {
           setTimeout(() => {
             // Only log if there are performance issues
             const hasPerformanceIssues = 

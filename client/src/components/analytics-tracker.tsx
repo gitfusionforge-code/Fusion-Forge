@@ -19,10 +19,13 @@ export function initializeAnalytics() {
   };
   
   window.gtag('js', new Date());
-  window.gtag('config', 'GA_MEASUREMENT_ID', {
-    page_title: document.title,
-    page_location: window.location.href,
-  });
+  const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+  if (measurementId) {
+    window.gtag('config', measurementId, {
+      page_title: document.title,
+      page_location: window.location.href,
+    });
+  }
 }
 
 // Track page views
@@ -31,11 +34,14 @@ export function usePageTracking() {
   
   useEffect(() => {
     if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('config', 'GA_MEASUREMENT_ID', {
-        page_path: location,
-        page_title: document.title,
-        page_location: window.location.href,
-      });
+      const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+      if (measurementId) {
+        window.gtag('config', measurementId, {
+          page_path: location,
+          page_title: document.title,
+          page_location: window.location.href,
+        });
+      }
       
       // Track internal navigation
       trackEvent('page_view', {
@@ -57,11 +63,8 @@ export function trackEvent(eventName: string, properties?: Record<string, any>) 
   }
   
   // Also log to console in development
-  if (process.env.NODE_ENV === 'development') {
-    // Only log analytics events in development
-    if (import.meta.env.DEV) {
-      console.log(`Analytics Event: ${eventName}`, properties);
-    }
+  if (import.meta.env.DEV) {
+    console.log(`Analytics Event: ${eventName}`, properties);
   }
 }
 
