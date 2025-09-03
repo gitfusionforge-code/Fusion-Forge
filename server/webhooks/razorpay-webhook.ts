@@ -70,7 +70,8 @@ async function handlePaymentCaptured(payment: any) {
     }
     
   } catch (error) {
-    // Error handling without console logging
+    console.error('Critical payment capture error:', error);
+    // TODO: Add proper error notification system for payment failures
   }
 }
 
@@ -88,7 +89,8 @@ async function handlePaymentFailed(payment: any) {
     }
     
   } catch (error) {
-    // Error handling without console logging
+    console.error('Critical payment capture error:', error);
+    // TODO: Add proper error notification system for payment failures
   }
 }
 
@@ -108,7 +110,8 @@ async function handleOrderPaid(order: any, payment: any) {
     }
     
   } catch (error) {
-    // Error handling without console logging
+    console.error('Critical payment capture error:', error);
+    // TODO: Add proper error notification system for payment failures
   }
 }
 
@@ -120,7 +123,7 @@ async function generateAndSendReceipt(payment: any, order: any) {
       try {
         buildComponents = await storage.getComponentsByBuildId(order.buildId);
       } catch (error) {
-        // Error handling without console logging
+        console.error('Failed to fetch build components for receipt:', error);
       }
     }
 
@@ -174,6 +177,7 @@ async function generateAndSendReceipt(payment: any, order: any) {
     return receiptSent;
     
   } catch (error) {
+    console.error('Critical receipt generation failure:', error);
     return false;
   }
 }

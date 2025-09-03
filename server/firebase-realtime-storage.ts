@@ -155,12 +155,12 @@ export class FirebaseRealtimeStorage implements IStorage {
     const newBuild: PcBuild = {
       ...build,
       id: newId,
-      description: build.description || null,
-      imageUrl: build.imageUrl || null,
-      gpu: build.gpu || null,
-      monitor: build.monitor || null,
-      keyboardMouse: build.keyboardMouse || null,
-      mousePad: build.mousePad || null,
+      description: build.description || undefined,
+      imageUrl: build.imageUrl || undefined,
+      gpu: build.gpu || undefined,
+      monitor: build.monitor || undefined,
+      keyboardMouse: build.keyboardMouse || undefined,
+      mousePad: build.mousePad || undefined,
       stockQuantity: build.stockQuantity || 0,
       lowStockThreshold: build.lowStockThreshold || 2,
       isActive: build.isActive !== false,
@@ -228,7 +228,7 @@ export class FirebaseRealtimeStorage implements IStorage {
       isActive: component.isActive !== false,
       createdAt: new Date(),
       updatedAt: new Date(),
-      sku: component.sku || null
+      sku: component.sku || undefined
     };
 
     await set(ref(database, `components/${newId}`), newComponent);
@@ -271,7 +271,10 @@ export class FirebaseRealtimeStorage implements IStorage {
   async getInquiries(): Promise<Inquiry[]> {
     try {
       const snapshot = await get(ref(database, 'inquiries'));
-      if (!snapshot.exists()) return [];
+      if (!snapshot.exists()) {
+        console.log('No inquiries found in Firebase database');
+        return [];
+      }
       
       const data = snapshot.val();
       const inquiries = Object.values(data).filter(Boolean) as Inquiry[];
@@ -282,21 +285,33 @@ export class FirebaseRealtimeStorage implements IStorage {
         if (!inquiry.createdAt) {
           // Create different timestamps for each entry (going back in time)
           const fallbackDate = new Date(Date.now() - (backfillCount * 24 * 60 * 60 * 1000)); // Each entry 1 day earlier
-          await update(ref(database, `inquiries/${inquiry.id}`), {
-            createdAt: fallbackDate.toISOString(),
-            updatedAt: fallbackDate.toISOString()
-          });
-          // Update the in-memory object
-          (inquiry as any).createdAt = fallbackDate.toISOString();
-          (inquiry as any).updatedAt = fallbackDate.toISOString();
-          backfillCount++;
+          try {
+            await update(ref(database, `inquiries/${inquiry.id}`), {
+              createdAt: fallbackDate.toISOString(),
+              updatedAt: fallbackDate.toISOString()
+            });
+            // Update the in-memory object
+            (inquiry as any).createdAt = fallbackDate.toISOString();
+            (inquiry as any).updatedAt = fallbackDate.toISOString();
+            backfillCount++;
+          } catch (updateError) {
+            console.warn('Failed to backfill inquiry timestamp:', updateError);
+            // Continue with existing data even if timestamp update fails
+          }
         }
       }
       
       return inquiries;
-    } catch (error) {
-      console.error('Error fetching inquiries from Firebase:', error);
-      // Return empty array instead of throwing error for admin panel
+    } catch (error: any) {
+      console.error('Critical error fetching inquiries from Firebase:', error);
+      
+      // Check if it's a permission error specifically
+      if (error.code === 'PERMISSION_DENIED') {
+        console.error('Firebase permission denied for inquiries - check security rules');
+        throw new Error('Database access denied. Check Firebase security configuration.');
+      }
+      
+      // Return empty array for other errors to prevent admin panel crashes
       return [];
     }
   }
@@ -333,12 +348,12 @@ export class FirebaseRealtimeStorage implements IStorage {
     const newProfile: UserProfile = {
       ...profile,
       id: Date.now(),
-      displayName: profile.displayName || null,
-      phone: profile.phone || null,
-      address: profile.address || null,
-      city: profile.city || null,
-      zipCode: profile.zipCode || null,
-      preferences: profile.preferences || null,
+      displayName: profile.displayName || undefined,
+      phone: profile.phone || undefined,
+      address: profile.address || undefined,
+      city: profile.city || undefined,
+      zipCode: profile.zipCode || undefined,
+      preferences: profile.preferences || undefined,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -430,6 +445,7 @@ export class FirebaseRealtimeStorage implements IStorage {
       const snapshot = await get(ref(database, 'orders'));
       
       if (!snapshot.exists()) {
+        console.log('No orders found in Firebase database');
         return [];
       }
       
@@ -442,14 +458,19 @@ export class FirebaseRealtimeStorage implements IStorage {
         if (!order.createdAt) {
           // Create different timestamps for each order (going back in time)
           const fallbackDate = new Date(Date.now() - (orderBackfillCount * 12 * 60 * 60 * 1000)); // Each order 12 hours earlier
-          await update(ref(database, `orders/${order.id}`), {
-            createdAt: fallbackDate.toISOString(),
-            updatedAt: fallbackDate.toISOString()
-          });
-          // Update the in-memory object
-          (order as any).createdAt = fallbackDate.toISOString();
-          (order as any).updatedAt = fallbackDate.toISOString();
-          orderBackfillCount++;
+          try {
+            await update(ref(database, `orders/${order.id}`), {
+              createdAt: fallbackDate.toISOString(),
+              updatedAt: fallbackDate.toISOString()
+            });
+            // Update the in-memory object
+            (order as any).createdAt = fallbackDate.toISOString();
+            (order as any).updatedAt = fallbackDate.toISOString();
+            orderBackfillCount++;
+          } catch (updateError) {
+            console.warn('Failed to backfill order timestamp:', updateError);
+            // Continue with existing data even if timestamp update fails
+          }
         }
       }
       
@@ -458,9 +479,16 @@ export class FirebaseRealtimeStorage implements IStorage {
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return dateB - dateA;
       });
-    } catch (error) {
-      console.error('Error fetching orders from Firebase:', error);
-      // Return empty array instead of throwing error for admin panel
+    } catch (error: any) {
+      console.error('Critical error fetching orders from Firebase:', error);
+      
+      // Check if it's a permission error specifically
+      if (error.code === 'PERMISSION_DENIED') {
+        console.error('Firebase permission denied for orders - check security rules');
+        throw new Error('Database access denied. Check Firebase security configuration.');
+      }
+      
+      // Return empty array for other errors to prevent admin panel crashes
       return [];
     }
   }
@@ -475,12 +503,12 @@ export class FirebaseRealtimeStorage implements IStorage {
       ...order,
       id: newId,
       status: order.status || "processing",
-      customerName: order.customerName || null,
-      customerEmail: order.customerEmail || null,
-      shippingAddress: order.shippingAddress || null,
-      billingAddress: order.billingAddress || null,
-      paymentMethod: order.paymentMethod || null,
-      trackingNumber: order.trackingNumber || null,
+      customerName: order.customerName || undefined,
+      customerEmail: order.customerEmail || undefined,
+      shippingAddress: order.shippingAddress || undefined,
+      billingAddress: order.billingAddress || undefined,
+      paymentMethod: order.paymentMethod || undefined,
+      trackingNumber: order.trackingNumber || undefined,
       createdAt: now,
       updatedAt: now
     };

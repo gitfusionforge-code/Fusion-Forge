@@ -161,6 +161,11 @@ export const insertInquirySchema = z.object({
   status: z.string().default("uncompleted"),
 });
 
+// Stock update validation schema
+export const stockUpdateSchema = z.object({
+  stockQuantity: z.number().min(0).max(10000),
+});
+
 export const insertUserProfileSchema = z.object({
   uid: z.string().min(1),
   email: z.string().email(),

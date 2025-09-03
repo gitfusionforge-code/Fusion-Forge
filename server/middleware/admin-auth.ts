@@ -24,7 +24,10 @@ setInterval(() => {
 }, 3600000);
 
 export function generateSessionId(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  // Use crypto.randomBytes for cryptographically secure random values
+  const crypto = require('crypto');
+  const randomBytes = crypto.randomBytes(32);
+  return randomBytes.toString('hex') + Date.now().toString(36);
 }
 
 export function verifyAdminEmail(email: string): boolean {

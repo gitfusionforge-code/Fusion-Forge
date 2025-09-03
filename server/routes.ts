@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { firebaseRealtimeStorage as storage, database } from "./firebase-realtime-storage";
 import { ref, get, set, update } from "firebase/database";
-import { insertInquirySchema, insertPcBuildSchema, Component } from "@shared/schema";
+import { insertInquirySchema, insertPcBuildSchema, stockUpdateSchema, Component } from "@shared/schema";
 import { z } from "zod";
 import { generateSitemap, generateRobotsTxt } from "./sitemap";
 import { sendEmail, createQuoteRequestEmail, createCustomerConfirmationEmail, createOrderConfirmationEmail } from "./email-service";
@@ -66,8 +66,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Debug endpoint to check Firebase data access (no auth required for debugging)
-  app.get("/api/debug/firebase-data", async (_req, res) => {
+  // Debug endpoint to check Firebase data access (admin auth required for security)
+  app.get("/api/debug/firebase-data", requireAdminAuth, async (_req, res) => {
     try {
       const results = {
         pcBuilds: { accessible: false, count: 0, error: null as string | null },
@@ -502,20 +502,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/builds/:id/stock", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { stockQuantity } = req.body;
       
       if (isNaN(id) || id <= 0) {
         return res.status(400).json({ error: "Invalid build ID" });
       }
       
-      if (typeof stockQuantity !== 'number' || stockQuantity < 0) {
-        return res.status(400).json({ error: "Invalid stock quantity. Must be a non-negative number" });
-      }
-
-      const updatedBuild = await storage.updatePcBuildStock(id, stockQuantity);
+      // Use Zod for proper input validation and sanitization
+      const validatedData = stockUpdateSchema.parse(req.body);
+      const updatedBuild = await storage.updatePcBuildStock(id, validatedData.stockQuantity);
       res.json(updatedBuild);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update PC build stock" });
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid stock data", details: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to update PC build stock" });
+      }
     }
   });
 
