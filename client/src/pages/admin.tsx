@@ -142,39 +142,6 @@ function AdminContent() {
     }
   });
 
-  // Mutation to send email and update status
-  const sendEmailMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const response = await fetch(`/api/inquiries/${id}/send-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to send email');
-      }
-      
-      return response.json();
-    },
-    onSuccess: (data, inquiryId) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/inquiries'] });
-      toast({
-        title: "Email Sent Successfully",
-        description: "Customer has been notified via email with their custom PC quote.",
-      });
-      
-      setSelectedInquiry(null); // Close the modal
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to send email.",
-        variant: "destructive",
-      });
-    }
-  });
 
   // Mutation to toggle maintenance mode
   const toggleMaintenanceMutation = useMutation({
@@ -268,8 +235,44 @@ function AdminContent() {
     updateStatusMutation.mutate({ id: inquiryId, status: newStatus });
   };
 
-  const handleSendEmail = async (inquiryId: number) => {
-    sendEmailMutation.mutate(inquiryId);
+  // Handle opening local email client with pre-filled details
+  const handleSendEmail = (inquiry: Inquiry) => {
+    const subject = encodeURIComponent(`Custom PC Build Quote - ${inquiry.name}`);
+    const body = encodeURIComponent(`Dear ${inquiry.name},
+
+Thank you for your interest in our custom PC building services. Based on your inquiry, here are the details we've received:
+
+INQUIRY DETAILS:
+• Budget Range: ${inquiry.budget}
+• Use Case: ${inquiry.useCase}
+• Customer Details: ${inquiry.email}
+• Submitted: ${new Date(inquiry.createdAt).toLocaleDateString()}
+
+REQUIREMENTS:
+${inquiry.details}
+
+RECOMMENDED CONFIGURATION:
+[Please add your custom PC recommendation here based on their requirements]
+
+PRICING & NEXT STEPS:
+[Please add pricing details and next steps here]
+
+We're excited to help you build the perfect PC for your needs. Please reply to this email if you have any questions or would like to proceed with the order.
+
+Best regards,
+FusionForge PCs Team
+
+Contact: [Your Phone Number]
+Website: [Your Website URL]
+Email: [Your Business Email]`);
+    
+    const mailtoLink = `mailto:${inquiry.email}?subject=${subject}&body=${body}`;
+    window.open(mailtoLink, '_blank');
+    
+    toast({
+      title: "Email Client Opened",
+      description: "Your default email app has been opened with pre-filled customer details.",
+    });
   };
 
   const handleStockUpdate = async (buildId: number, newStock: number) => {
@@ -867,12 +870,12 @@ function AdminContent() {
                                     
                                     <div className="flex gap-3 pt-4 border-t">
                                       <Button
-                                        onClick={() => handleSendEmail(selectedInquiry.id)}
-                                        disabled={sendEmailMutation.isPending}
+                                        onClick={() => handleSendEmail(selectedInquiry)}
                                         className="bg-gradient-to-r from-blue-600 to-orange-500 hover:from-blue-700 hover:to-orange-600 text-white"
+                                        data-testid="button-send-quote-email"
                                       >
                                         <Mail className="h-4 w-4 mr-2" />
-                                        {sendEmailMutation.isPending ? "Sending..." : "Send Quote Email"}
+                                        Send Quote Email
                                       </Button>
                                       
                                       {selectedInquiry.status !== "completed" && (
