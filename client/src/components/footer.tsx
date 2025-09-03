@@ -91,10 +91,10 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4 text-white">Contact Information</h4>
             <div className="space-y-2">
-              <p className="text-white">📧 {import.meta.env.VITE_BUSINESS_EMAIL || 'contact@company.com'}</p>
-              <p className="text-white">📞 {import.meta.env.VITE_BUSINESS_PHONE || '+91-XXXX-XXXXXX'}</p>
-              <p className="text-white">📍 {import.meta.env.VITE_BUSINESS_ADDRESS || 'Business Address, City, State'}</p>
-              <p className="text-white">⏰ Mon-Fri: 9AM-6PM IST</p>
+              <p className="text-white">📧 {import.meta.env.VITE_BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}</p>
+              <p className="text-white">📞 {import.meta.env.VITE_BUSINESS_PHONE || '+91 9363599577'}</p>
+              <p className="text-white">📍 {import.meta.env.VITE_BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India'}</p>
+              <p className="text-white">⏰ Open: 9AM - 10PM Daily</p>
             </div>
           </div>
         </div>

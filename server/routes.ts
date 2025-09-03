@@ -294,8 +294,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Send notification to business
         const businessEmail = createQuoteRequestEmail(inquiry);
         const businessEmailSent = await sendEmail({
-          to: process.env.BUSINESS_EMAIL || "contact@company.com", // Admin notification email
-          from: process.env.BUSINESS_EMAIL || "contact@company.com", // Business email
+          to: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com", // Admin notification email
+          from: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com", // Business email
           subject: businessEmail.subject,
           html: businessEmail.html,
           text: businessEmail.text
@@ -307,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customerEmail = createCustomerConfirmationEmail(inquiry);
         const customerEmailSent = await sendEmail({
           to: inquiry.email,
-          from: process.env.BUSINESS_EMAIL || "contact@company.com", // Business email
+          from: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com", // Business email
           subject: customerEmail.subject,
           html: customerEmail.html
         });
@@ -467,7 +467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const responseEmail = createInquiryResponseEmail(inquiry);
         const emailSent = await sendEmail({
           to: inquiry.email,
-          from: process.env.BUSINESS_EMAIL || "contact@company.com",
+          from: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com",
           subject: responseEmail.subject,
           html: responseEmail.html,
           text: responseEmail.text
@@ -946,9 +946,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }),
               companyDetails: {
                 name: 'Fusion Forge PCs',
-                address: process.env.BUSINESS_ADDRESS || 'Company Address',
-                phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
-                email: process.env.BUSINESS_EMAIL || 'contact@company.com',
+                address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+                phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+                email: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
                 website: 'www.fusionforge.com',
                 gst: process.env.BUSINESS_GST || 'GST-NUMBER'
               }
@@ -1098,7 +1098,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Send order confirmation via Nodemailer
         emailSent = await sendEmail({
           to: orderData.email,
-          from: `"Fusion Forge PCs" <${process.env.BUSINESS_EMAIL || 'contact@company.com'}>`,
+          from: `"Fusion Forge PCs" <${process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}>`,
           subject: orderEmail.subject,
           html: orderEmail.html,
           text: orderEmail.text
@@ -1109,8 +1109,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Also send a copy to admin with customer details
         await sendEmail({
-          to: process.env.BUSINESS_EMAIL || "contact@company.com",
-          from: `"Fusion Forge PCs" <${process.env.BUSINESS_EMAIL || 'contact@company.com'}>`,
+          to: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com",
+          from: `"Fusion Forge PCs" <${process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}>`,
           subject: `New Order Alert - ${orderEmail.orderNumber}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -1207,9 +1207,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }),
             companyDetails: {
               name: 'Fusion Forge PCs',
-              address: process.env.BUSINESS_ADDRESS || 'Company Address',
-              phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
-              email: process.env.BUSINESS_EMAIL || 'contact@company.com',
+              address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+              phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+              email: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
               website: 'https://fusionforge.replit.app',
               gst: process.env.BUSINESS_GST || 'GST-NUMBER'
             }
@@ -1355,9 +1355,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionDate: "24/06/2025, 02:09:23 pm",
         companyDetails: {
           name: "Fusion Forge PCs",
-          address: process.env.BUSINESS_ADDRESS || 'Company Address',
-          phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
-          email: process.env.BUSINESS_EMAIL || "contact@company.com",
+          address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+          phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+          email: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com",
           website: "www.fusionforge.com",
           gst: process.env.BUSINESS_GST || 'GST-NUMBER'
         }
@@ -1429,9 +1429,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionDate: new Date().toISOString(),
         companyDetails: {
           name: 'FusionForge PCs',
-          address: process.env.BUSINESS_ADDRESS || 'Company Address',
-          phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
-          email: process.env.BUSINESS_EMAIL || 'contact@company.com',
+          address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+          phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+          email: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
           website: 'www.fusionforge.com'
         }
       };
@@ -1630,9 +1630,9 @@ async function manualReceiptGeneration(orderId: number): Promise<boolean> {
       }),
       companyDetails: {
         name: 'Fusion Forge PCs',
-        address: process.env.BUSINESS_ADDRESS || 'Company Address',
-        phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
-        email: process.env.BUSINESS_EMAIL || 'contact@company.com',
+        address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+        phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+        email: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
         website: 'www.fusionforge.com',
         gst: process.env.BUSINESS_GST || 'GST-NUMBER'
       }

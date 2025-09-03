@@ -161,9 +161,9 @@ async function generateAndSendReceipt(payment: any, order: any) {
       }),
       companyDetails: {
         name: 'Fusion Forge PCs',
-        address: process.env.BUSINESS_ADDRESS || 'Company Address',
-        phone: process.env.BUSINESS_PHONE || '+91-XXXX-XXXXXX',
-        email: process.env.BUSINESS_EMAIL || 'contact@company.com',
+        address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+        phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+        email: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
         website: 'www.fusionforge.com',
         gst: process.env.BUSINESS_GST || 'GST-NUMBER'
       }

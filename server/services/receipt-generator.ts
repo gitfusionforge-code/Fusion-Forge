@@ -289,7 +289,7 @@ export async function sendAutomatedReceipt(receiptData: ReceiptData): Promise<bo
     });
 
     const mailOptions = {
-      from: process.env.BUSINESS_EMAIL || 'contact@company.com',
+      from: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
       to: receiptData.customerEmail,
       subject: `Receipt #${receiptData.orderNumber} - FusionForge PCs`,
       html: receiptHtml,

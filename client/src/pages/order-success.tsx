@@ -96,7 +96,7 @@ export default function OrderSuccess() {
                   })}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  Need immediate assistance? Call us at +91-XXXX-XXXXXX
+                  Need immediate assistance? Call us at +91 9363599577
                 </p>
               </div>
             </CardContent>

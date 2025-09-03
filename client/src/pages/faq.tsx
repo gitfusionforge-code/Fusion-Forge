@@ -194,12 +194,12 @@ export default function FAQ() {
               <div className="text-center">
                 <Phone className="h-8 w-8 text-tech-orange mx-auto mb-2" />
                 <div className="font-semibold">Call Us</div>
-                <div className="text-sm opacity-90">{import.meta.env.VITE_BUSINESS_PHONE || '+91-XXXX-XXXXXX'}</div>
+                <div className="text-sm opacity-90">{import.meta.env.VITE_BUSINESS_PHONE || '+91 9363599577'}</div>
               </div>
               <div className="text-center">
                 <Mail className="h-8 w-8 text-tech-orange mx-auto mb-2" />
                 <div className="font-semibold">Email Support</div>
-                <div className="text-sm opacity-90">{import.meta.env.VITE_BUSINESS_EMAIL || 'contact@company.com'}</div>
+                <div className="text-sm opacity-90">{import.meta.env.VITE_BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}</div>
               </div>
               <div className="text-center">
                 <MessageCircle className="h-8 w-8 text-tech-orange mx-auto mb-2" />

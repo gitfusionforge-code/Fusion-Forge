@@ -30,7 +30,7 @@ export async function sendEmailViaBrevo(emailData: EmailData): Promise<boolean> 
     console.log('📧 Sending email via Brevo SMTP to:', emailData.to);
 
     const mailOptions = {
-      from: process.env.BUSINESS_EMAIL || 'contact@company.com',
+      from: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
       to: emailData.to,
       subject: emailData.subject,
       html: emailData.html,
@@ -58,7 +58,7 @@ export async function sendReceiptViaBrevo(receiptData: any): Promise<boolean> {
     
     const success = await sendEmailViaBrevo({
       to: receiptData.customerEmail,
-      from: `"FusionForge PCs" <${process.env.BUSINESS_EMAIL || 'contact@company.com'}>`,
+      from: `"FusionForge PCs" <${process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}>`,
       subject: `Receipt #${receiptData.orderNumber} - FusionForge PCs`,
       html: receiptHtml,
       text: generateBrevoReceiptText(receiptData)
