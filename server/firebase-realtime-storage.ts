@@ -107,6 +107,9 @@ if (!getApps().length) {
 
 const database = getDatabase(app);
 
+// Export database for direct access
+export { database };
+
 // Log Firebase configuration for debugging
 if (process.env.NODE_ENV === 'development') {
   console.log('Firebase Realtime Database Config:', {

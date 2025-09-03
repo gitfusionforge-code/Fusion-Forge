@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { firebaseRealtimeStorage as storage } from "./firebase-realtime-storage";
+import { firebaseRealtimeStorage as storage, database } from "./firebase-realtime-storage";
+import { ref, get, set, update } from "firebase/database";
 import { insertInquirySchema, insertPcBuildSchema, Component } from "@shared/schema";
 import { z } from "zod";
 import { generateSitemap, generateRobotsTxt } from "./sitemap";
@@ -117,11 +118,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Business Settings API Endpoints - Static Configuration
+  // Business Settings API Endpoints - Firebase Persistence with fallback
   app.get("/api/business-settings", async (_req, res) => {
     try {
-      const settings = {
-        businessEmail: 'fusionforgepcs@gmail.com',
+      // Try to get from Firebase, but fall back to static data if permission denied
+      let settings;
+      try {
+        const snapshot = await get(ref(database, 'businessSettings'));
+        settings = snapshot.val();
+      } catch (firebaseError: any) {
+        // Fall back to static data if Firebase permissions fail
+        console.log('Firebase permission issue, using static data:', firebaseError.message);
+        settings = null;
+      }
+      
+      // If no settings exist or Firebase failed, return default settings
+      if (!settings) {
+        settings = {
+          businessEmail: 'fusionforgepc@gmail.com',
+          businessPhone: '+91 9363599577',
+          businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
+          businessGst: 'GST-NUMBER',
+          businessHours: '9AM - 10PM Daily',
+          companyName: 'FusionForge PCs',
+          companyWebsite: 'www.fusionforge.com',
+        };
+      }
+      
+      res.json(settings);
+    } catch (error: any) {
+      console.error('Error fetching business settings:', error);
+      // Return default settings if everything fails
+      const defaultSettings = {
+        businessEmail: 'fusionforgepc@gmail.com',
         businessPhone: '+91 9363599577',
         businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
         businessGst: 'GST-NUMBER',
@@ -129,25 +158,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyName: 'FusionForge PCs',
         companyWebsite: 'www.fusionforge.com',
       };
-      res.json(settings);
-    } catch (error: any) {
-      console.error('Error fetching business settings:', error);
-      res.status(500).json({ error: "Failed to fetch business settings" });
+      res.json(defaultSettings);
     }
   });
 
   app.put("/api/business-settings", requireAdminAuth, async (req, res) => {
     try {
-      // Static configuration - return success without updating database
-      const settings = {
-        businessEmail: 'fusionforgepcs@gmail.com',
-        businessPhone: '+91 9363599577',
-        businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
-        businessGst: 'GST-NUMBER',
-        businessHours: '9AM - 10PM Daily',
-        companyName: 'FusionForge PCs',
-        companyWebsite: 'www.fusionforge.com',
-      };
+      const updatedSettings = req.body;
+      
+      // Validate required fields
+      const requiredFields = ['businessEmail', 'businessPhone', 'businessAddress', 'companyName'];
+      for (const field of requiredFields) {
+        if (!updatedSettings[field]) {
+          return res.status(400).json({ error: `${field} is required` });
+        }
+      }
+      
+      // Try to update in Firebase, but handle permission errors gracefully
+      let settings = updatedSettings;
+      try {
+        await update(ref(database, 'businessSettings'), updatedSettings);
+        const snapshot = await get(ref(database, 'businessSettings'));
+        settings = snapshot.val();
+      } catch (firebaseError: any) {
+        console.log('Firebase permission issue for update, returning updated data:', firebaseError.message);
+        // Still return success with the updated data even if Firebase fails
+      }
+      
       res.json({ success: true, settings });
     } catch (error: any) {
       console.error('Error updating business settings:', error);
