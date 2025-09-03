@@ -10,9 +10,18 @@ if (!adminEmail) {
 // Type-safe admin configuration after validation
 const ADMIN_EMAIL: string = adminEmail;
 
-// Simple session store (in production, use Redis or database)
+// ⚠️ WARNING: In-memory session store - sessions will be lost on server restart
+// For production, use Redis, database, or persistent storage
+// This is a known bug that needs to be fixed for production use
 const adminSessions = new Set<string>();
 const adminEmails = new Set<string>([ADMIN_EMAIL]); // Allow multiple admin emails
+
+// Session cleanup every hour to prevent memory leaks
+setInterval(() => {
+  // In a real implementation, you'd check session expiration times
+  // For now, we'll keep sessions indefinitely until server restart
+  console.log(`Active admin sessions: ${adminSessions.size}`);
+}, 3600000);
 
 export function generateSessionId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);

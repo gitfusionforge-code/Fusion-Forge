@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { Cpu, Zap, Shield, Award } from "lucide-react";
-import fusionForgeLogo from "@assets/Fusion Forge Logo bgremoved_1750750872227.png";
+import fusionForgeLogo from "@assets/generated_images/Optimized_Fusion_Forge_logo_7b2e6c20.png";
 
 
 export default function HeroSection() {

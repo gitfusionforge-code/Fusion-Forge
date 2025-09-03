@@ -32,6 +32,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Placeholder image endpoint
+  app.get("/api/placeholder/:width/:height", (req, res) => {
+    const { width = 400, height = 300 } = req.params;
+    const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#f3f4f6"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-family="sans-serif" font-size="18">
+        ${width} × ${height}
+      </text>
+    </svg>`;
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    res.send(svg);
+  });
+
   // Manual Firebase seeding endpoint (development only)
   app.post("/api/seed-firebase", async (_req, res) => {
     if (process.env.NODE_ENV !== 'development') {
@@ -146,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             quantity: 1,
             price: 95000
           }]),
-          total: "₹95,000",
+          total: 95000,
           status: "processing",
           paymentMethod: "razorpay",
           shippingAddress: "123 Tech Street, Bangalore, Karnataka 560001"
@@ -161,7 +175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             quantity: 1,
             price: 175000
           }]),
-          total: "₹1,75,000",
+          total: 175000,
           status: "completed",
           paymentMethod: "razorpay",
           shippingAddress: "456 Business Avenue, Mumbai, Maharashtra 400001"
@@ -911,7 +925,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               customerName: 'Customer',
               customerEmail: 'customer@email.com',
               customerPhone: 'N/A',
-              amount: parseFloat(matchingOrder.total),
+              amount: (() => {
+                const total: any = matchingOrder.total;
+                if (typeof total === 'string') {
+                  return parseFloat(total.replace(/[₹,]/g, ''));
+                }
+                return typeof total === 'number' ? total : 0;
+              })(),
               paymentMethod: 'online_payment',
               paymentStatus: 'completed',
               items: itemsWithComponents,
@@ -1042,7 +1062,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: req.body.userId || "auth_" + Date.now(), // For authenticated users
         orderNumber: orderNumber,
         status: orderStatus,
-        total: orderData.totalPrice.toString(),
+        total: orderData.totalPrice,
         items: JSON.stringify(orderData.items),
         customerName: orderData.fullName,
         customerEmail: orderData.email,
@@ -1131,6 +1151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           if (!addressExists) {
             await storage.saveUserAddress({
+              id: `addr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
               userId: userId,
               fullName: orderData.fullName,
               phone: orderData.phone,
@@ -1588,7 +1609,13 @@ async function manualReceiptGeneration(orderId: number): Promise<boolean> {
       customerName: 'Customer',
       customerEmail: 'customer@email.com',
       customerPhone: 'N/A',
-      amount: parseFloat(order.total),
+      amount: (() => {
+        const total: any = order.total;
+        if (typeof total === 'string') {
+          return parseFloat(total.replace(/[₹,]/g, ''));
+        }
+        return typeof total === 'number' ? total : 0;
+      })(),
       paymentMethod: order.paymentMethod || 'manual',
       paymentStatus: 'completed',
       items: itemsWithComponents,

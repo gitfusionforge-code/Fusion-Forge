@@ -118,11 +118,11 @@ const BuildCard = memo(function BuildCard({
 
   return (
     <Card className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ease-in-out hover:-translate-y-1 flex flex-col h-full group min-h-[500px]">
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden h-48">
         <LazyImage 
           src={build.imageUrl || '/api/placeholder/400/300'} 
           alt={build.name} 
-          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           fallback="/api/placeholder/400/300"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

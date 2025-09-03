@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Home, Package, Phone } from 'lucide-react';
 import SEOHead from '@/components/enhanced-seo-head';
-import fusionForgeLogo from "@assets/Fusion Forge Logo_1750928679404.png";
+import fusionForgeLogo from "@assets/generated_images/Optimized_Fusion_Forge_logo_7b2e6c20.png";
 
 export default function OrderSuccess() {
   useEffect(() => {
