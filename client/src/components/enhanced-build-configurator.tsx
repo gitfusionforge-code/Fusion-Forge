@@ -819,27 +819,34 @@ export default function EnhancedBuildConfigurator() {
   const optimizeForBudget = () => {
     if (!autoOptimize) return;
 
-    // Define use case priorities
+    // Define use case priorities with better allocations for essential components
     const useCasePriorities = {
-      gaming: { gpu: 0.45, cpu: 0.25, ram: 0.15, storage: 0.08, others: 0.07 },
-      'content-creation': { cpu: 0.35, gpu: 0.3, ram: 0.2, storage: 0.1, others: 0.05 },
-      workstation: { cpu: 0.4, ram: 0.25, storage: 0.15, gpu: 0.15, others: 0.05 },
-      office: { cpu: 0.3, ram: 0.25, storage: 0.2, gpu: 0.1, others: 0.15 },
-      'ai-ml': { gpu: 0.4, cpu: 0.25, ram: 0.2, storage: 0.1, others: 0.05 }
+      gaming: { gpu: 0.40, cpu: 0.25, ram: 0.12, storage: 0.08, others: 0.15 },
+      'content-creation': { cpu: 0.30, gpu: 0.28, ram: 0.18, storage: 0.09, others: 0.15 },
+      workstation: { cpu: 0.35, ram: 0.22, storage: 0.13, gpu: 0.15, others: 0.15 },
+      office: { cpu: 0.25, ram: 0.20, storage: 0.15, gpu: 0.10, others: 0.30 },
+      'ai-ml': { gpu: 0.35, cpu: 0.25, ram: 0.18, storage: 0.07, others: 0.15 }
     };
 
     const priorities = useCasePriorities[useCase as keyof typeof useCasePriorities] || useCasePriorities.gaming;
     
-    // Calculate budget allocations
+    // Calculate budget allocations with minimum guarantees for essential components
+    const essentialMins = {
+      motherboard: 5000,  // Minimum for basic motherboard
+      psu: 3000,         // Minimum for basic PSU  
+      case: 2000,        // Minimum for basic case
+      cooler: 0          // Stock cooler is free
+    };
+    
     const allocations = {
       gpu: Math.floor(budget * priorities.gpu),
       cpu: Math.floor(budget * priorities.cpu),
       ram: Math.floor(budget * priorities.ram),
       storage: Math.floor(budget * priorities.storage),
-      motherboard: Math.floor(budget * priorities.others * 0.4),
-      psu: Math.floor(budget * priorities.others * 0.3),
-      case: Math.floor(budget * priorities.others * 0.2),
-      cooler: Math.floor(budget * priorities.others * 0.1)
+      motherboard: Math.max(Math.floor(budget * priorities.others * 0.4), essentialMins.motherboard),
+      psu: Math.max(Math.floor(budget * priorities.others * 0.3), essentialMins.psu),
+      case: Math.max(Math.floor(budget * priorities.others * 0.2), essentialMins.case),
+      cooler: Math.max(Math.floor(budget * priorities.others * 0.1), essentialMins.cooler)
     };
 
     const newConfig: BuildConfig = {
@@ -857,8 +864,15 @@ export default function EnhancedBuildConfigurator() {
     Object.entries(allocations).forEach(([componentType, allocation]) => {
       const componentList = components[componentType as keyof typeof components];
       
-      // Filter affordable components
-      const affordable = componentList.filter(comp => comp.price <= allocation * 1.2); // 20% tolerance
+      // Filter affordable components with generous tolerance
+      let affordable = componentList.filter(comp => comp.price <= allocation * 1.5); // 50% tolerance
+      
+      // Fallback: if no affordable options, select the cheapest component for essential parts
+      if (affordable.length === 0 && ['motherboard', 'psu', 'case', 'cooler'].includes(componentType)) {
+        affordable = [componentList.reduce((cheapest, current) => 
+          current.price < cheapest.price ? current : cheapest
+        )];
+      }
       
       if (affordable.length > 0) {
         // Find the best price-to-performance ratio within budget
