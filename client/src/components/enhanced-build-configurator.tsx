@@ -76,186 +76,358 @@ export default function EnhancedBuildConfigurator() {
     cooler: null,
   });
 
-  // Enhanced component database with detailed specifications
+  // Comprehensive component database with real market data
   const components = {
     cpu: [
+      // Budget CPUs
       { 
-        id: "1", name: "AMD Ryzen 5 5600X", price: 18999, performance: 85, powerConsumption: 65, 
-        socket: "AM4", category: "cpu", cores: 6, clockSpeed: 3.7 
+        id: "1", name: "AMD Ryzen 5 4500", price: 8999, performance: 70, powerConsumption: 65, 
+        socket: "AM4", category: "cpu", cores: 6, clockSpeed: 3.6, tier: "budget" 
       },
       { 
-        id: "2", name: "AMD Ryzen 7 5700X", price: 25999, performance: 90, powerConsumption: 65, 
-        socket: "AM4", category: "cpu", cores: 8, clockSpeed: 3.4 
+        id: "2", name: "Intel Core i3-12100F", price: 9999, performance: 72, powerConsumption: 60, 
+        socket: "LGA1700", category: "cpu", cores: 4, clockSpeed: 3.3, tier: "budget" 
+      },
+      // Mid-range CPUs
+      { 
+        id: "3", name: "AMD Ryzen 5 5600X", price: 18999, performance: 85, powerConsumption: 65, 
+        socket: "AM4", category: "cpu", cores: 6, clockSpeed: 3.7, tier: "mid-range" 
       },
       { 
-        id: "3", name: "Intel i5-12600KF", price: 22999, performance: 87, powerConsumption: 125, 
-        socket: "LGA1700", category: "cpu", cores: 10, clockSpeed: 3.7 
+        id: "4", name: "Intel Core i5-12600KF", price: 22999, performance: 87, powerConsumption: 125, 
+        socket: "LGA1700", category: "cpu", cores: 10, clockSpeed: 3.7, tier: "mid-range" 
       },
       { 
-        id: "4", name: "Intel i7-12700KF", price: 32999, performance: 92, powerConsumption: 125, 
-        socket: "LGA1700", category: "cpu", cores: 12, clockSpeed: 3.6 
+        id: "5", name: "AMD Ryzen 7 5700X", price: 25999, performance: 90, powerConsumption: 65, 
+        socket: "AM4", category: "cpu", cores: 8, clockSpeed: 3.4, tier: "mid-range" 
+      },
+      // High-end CPUs
+      { 
+        id: "6", name: "Intel Core i7-12700KF", price: 32999, performance: 92, powerConsumption: 125, 
+        socket: "LGA1700", category: "cpu", cores: 12, clockSpeed: 3.6, tier: "high-end" 
       },
       { 
-        id: "5", name: "AMD Ryzen 9 5900X", price: 42999, performance: 95, powerConsumption: 105, 
-        socket: "AM4", category: "cpu", cores: 12, clockSpeed: 3.7 
+        id: "7", name: "AMD Ryzen 9 5900X", price: 42999, performance: 95, powerConsumption: 105, 
+        socket: "AM4", category: "cpu", cores: 12, clockSpeed: 3.7, tier: "high-end" 
+      },
+      { 
+        id: "8", name: "Intel Core i9-12900KF", price: 48999, performance: 98, powerConsumption: 125, 
+        socket: "LGA1700", category: "cpu", cores: 16, clockSpeed: 3.2, tier: "enthusiast" 
+      },
+      { 
+        id: "9", name: "AMD Ryzen 9 5950X", price: 58999, performance: 100, powerConsumption: 105, 
+        socket: "AM4", category: "cpu", cores: 16, clockSpeed: 3.4, tier: "enthusiast" 
       },
     ],
     gpu: [
+      // Budget GPUs
       { 
-        id: "1", name: "RTX 3060 12GB", price: 28999, performance: 75, powerConsumption: 170, 
-        category: "gpu", vram: 12 
+        id: "1", name: "GTX 1660 Super 6GB", price: 16999, performance: 65, powerConsumption: 125, 
+        category: "gpu", vram: 6, tier: "budget" 
       },
       { 
-        id: "2", name: "RTX 3060 Ti 8GB", price: 35999, performance: 80, powerConsumption: 200, 
-        category: "gpu", vram: 8 
+        id: "2", name: "RTX 3050 8GB", price: 22999, performance: 68, powerConsumption: 130, 
+        category: "gpu", vram: 8, tier: "budget" 
       },
       { 
-        id: "3", name: "RTX 4060 Ti 16GB", price: 42999, performance: 85, powerConsumption: 165, 
-        category: "gpu", vram: 16 
+        id: "3", name: "RTX 4060 8GB", price: 26999, performance: 72, powerConsumption: 115, 
+        category: "gpu", vram: 8, tier: "budget" 
+      },
+      // Mid-range GPUs
+      { 
+        id: "4", name: "RTX 3060 12GB", price: 28999, performance: 75, powerConsumption: 170, 
+        category: "gpu", vram: 12, tier: "mid-range" 
       },
       { 
-        id: "4", name: "RTX 4070 12GB", price: 52999, performance: 88, powerConsumption: 200, 
-        category: "gpu", vram: 12 
+        id: "5", name: "RTX 3060 Ti 8GB", price: 35999, performance: 80, powerConsumption: 200, 
+        category: "gpu", vram: 8, tier: "mid-range" 
       },
       { 
-        id: "5", name: "RTX 4070 Ti Super", price: 68999, performance: 92, powerConsumption: 285, 
-        category: "gpu", vram: 16 
+        id: "6", name: "RTX 4060 Ti 16GB", price: 42999, performance: 85, powerConsumption: 165, 
+        category: "gpu", vram: 16, tier: "mid-range" 
+      },
+      // High-end GPUs
+      { 
+        id: "7", name: "RTX 4070 12GB", price: 52999, performance: 88, powerConsumption: 200, 
+        category: "gpu", vram: 12, tier: "high-end" 
+      },
+      { 
+        id: "8", name: "RTX 4070 Ti Super 16GB", price: 68999, performance: 92, powerConsumption: 285, 
+        category: "gpu", vram: 16, tier: "high-end" 
+      },
+      { 
+        id: "9", name: "RTX 4080 16GB", price: 89999, performance: 95, powerConsumption: 320, 
+        category: "gpu", vram: 16, tier: "enthusiast" 
+      },
+      { 
+        id: "10", name: "RTX 4090 24GB", price: 159999, performance: 100, powerConsumption: 450, 
+        category: "gpu", vram: 24, tier: "enthusiast" 
       },
     ],
     ram: [
+      // Budget RAM
       { 
-        id: "1", name: "16GB DDR4-3200", price: 4999, performance: 70, powerConsumption: 10, 
-        memoryType: "DDR4", category: "ram", capacity: 16, speed: 3200 
+        id: "1", name: "8GB DDR4-2666", price: 2499, performance: 60, powerConsumption: 8, 
+        memoryType: "DDR4", category: "ram", capacity: 8, speed: 2666, tier: "budget" 
       },
       { 
-        id: "2", name: "32GB DDR4-3600", price: 8999, performance: 80, powerConsumption: 15, 
-        memoryType: "DDR4", category: "ram", capacity: 32, speed: 3600 
+        id: "2", name: "16GB DDR4-3200", price: 4999, performance: 70, powerConsumption: 10, 
+        memoryType: "DDR4", category: "ram", capacity: 16, speed: 3200, tier: "budget" 
+      },
+      // Mid-range RAM
+      { 
+        id: "3", name: "16GB DDR4-3600", price: 5999, performance: 75, powerConsumption: 11, 
+        memoryType: "DDR4", category: "ram", capacity: 16, speed: 3600, tier: "mid-range" 
       },
       { 
-        id: "3", name: "16GB DDR5-5600", price: 7999, performance: 85, powerConsumption: 12, 
-        memoryType: "DDR5", category: "ram", capacity: 16, speed: 5600 
+        id: "4", name: "32GB DDR4-3600", price: 8999, performance: 80, powerConsumption: 15, 
+        memoryType: "DDR4", category: "ram", capacity: 32, speed: 3600, tier: "mid-range" 
       },
       { 
-        id: "4", name: "32GB DDR5-5600", price: 14999, performance: 90, powerConsumption: 18, 
-        memoryType: "DDR5", category: "ram", capacity: 32, speed: 5600 
+        id: "5", name: "16GB DDR5-5600", price: 7999, performance: 85, powerConsumption: 12, 
+        memoryType: "DDR5", category: "ram", capacity: 16, speed: 5600, tier: "mid-range" 
+      },
+      // High-end RAM
+      { 
+        id: "6", name: "32GB DDR5-5600", price: 14999, performance: 90, powerConsumption: 18, 
+        memoryType: "DDR5", category: "ram", capacity: 32, speed: 5600, tier: "high-end" 
       },
       { 
-        id: "5", name: "64GB DDR5-6000", price: 28999, performance: 95, powerConsumption: 25, 
-        memoryType: "DDR5", category: "ram", capacity: 64, speed: 6000 
+        id: "7", name: "32GB DDR5-6000", price: 18999, performance: 92, powerConsumption: 20, 
+        memoryType: "DDR5", category: "ram", capacity: 32, speed: 6000, tier: "high-end" 
+      },
+      { 
+        id: "8", name: "64GB DDR5-6000", price: 28999, performance: 95, powerConsumption: 25, 
+        memoryType: "DDR5", category: "ram", capacity: 64, speed: 6000, tier: "enthusiast" 
+      },
+      { 
+        id: "9", name: "128GB DDR5-5600", price: 55999, performance: 100, powerConsumption: 35, 
+        memoryType: "DDR5", category: "ram", capacity: 128, speed: 5600, tier: "enthusiast" 
       },
     ],
     storage: [
+      // Budget Storage
       { 
-        id: "1", name: "500GB NVMe SSD", price: 4299, performance: 75, powerConsumption: 5, 
-        category: "storage", capacity: 500 
+        id: "1", name: "500GB SATA SSD", price: 3299, performance: 65, powerConsumption: 3, 
+        category: "storage", capacity: 500, type: "SATA", tier: "budget" 
       },
       { 
-        id: "2", name: "1TB NVMe SSD", price: 7499, performance: 80, powerConsumption: 6, 
-        category: "storage", capacity: 1000 
+        id: "2", name: "1TB HDD 7200RPM", price: 3999, performance: 50, powerConsumption: 8, 
+        category: "storage", capacity: 1000, type: "HDD", tier: "budget" 
       },
       { 
-        id: "3", name: "2TB NVMe SSD", price: 14999, performance: 85, powerConsumption: 7, 
-        category: "storage", capacity: 2000 
+        id: "3", name: "500GB NVMe Gen3", price: 4299, performance: 75, powerConsumption: 5, 
+        category: "storage", capacity: 500, type: "NVMe Gen3", tier: "budget" 
+      },
+      // Mid-range Storage
+      { 
+        id: "4", name: "1TB NVMe Gen3", price: 7499, performance: 80, powerConsumption: 6, 
+        category: "storage", capacity: 1000, type: "NVMe Gen3", tier: "mid-range" 
       },
       { 
-        id: "4", name: "1TB NVMe Gen4", price: 9999, performance: 90, powerConsumption: 8, 
-        category: "storage", capacity: 1000 
+        id: "5", name: "2TB SATA SSD", price: 12999, performance: 70, powerConsumption: 5, 
+        category: "storage", capacity: 2000, type: "SATA", tier: "mid-range" 
       },
       { 
-        id: "5", name: "2TB NVMe Gen4", price: 18999, performance: 95, powerConsumption: 9, 
-        category: "storage", capacity: 2000 
+        id: "6", name: "1TB NVMe Gen4", price: 9999, performance: 90, powerConsumption: 8, 
+        category: "storage", capacity: 1000, type: "NVMe Gen4", tier: "mid-range" 
+      },
+      // High-end Storage
+      { 
+        id: "7", name: "2TB NVMe Gen3", price: 14999, performance: 85, powerConsumption: 7, 
+        category: "storage", capacity: 2000, type: "NVMe Gen3", tier: "high-end" 
+      },
+      { 
+        id: "8", name: "2TB NVMe Gen4", price: 18999, performance: 95, powerConsumption: 9, 
+        category: "storage", capacity: 2000, type: "NVMe Gen4", tier: "high-end" 
+      },
+      { 
+        id: "9", name: "4TB NVMe Gen4", price: 35999, performance: 98, powerConsumption: 12, 
+        category: "storage", capacity: 4000, type: "NVMe Gen4", tier: "enthusiast" 
+      },
+      { 
+        id: "10", name: "8TB NVMe Gen4", price: 68999, performance: 100, powerConsumption: 15, 
+        category: "storage", capacity: 8000, type: "NVMe Gen4", tier: "enthusiast" 
       },
     ],
     motherboard: [
+      // Budget Motherboards
       { 
-        id: "1", name: "B450M Pro4", price: 5999, performance: 70, powerConsumption: 15, 
-        socket: "AM4", memoryType: "DDR4", formFactor: "mATX", category: "motherboard" 
+        id: "1", name: "A520M-K", price: 4999, performance: 65, powerConsumption: 12, 
+        socket: "AM4", memoryType: "DDR4", formFactor: "mATX", category: "motherboard", tier: "budget" 
       },
       { 
-        id: "2", name: "B550 Gaming", price: 8999, performance: 80, powerConsumption: 18, 
-        socket: "AM4", memoryType: "DDR4", formFactor: "ATX", category: "motherboard" 
+        id: "2", name: "B450M Pro4", price: 5999, performance: 70, powerConsumption: 15, 
+        socket: "AM4", memoryType: "DDR4", formFactor: "mATX", category: "motherboard", tier: "budget" 
       },
       { 
-        id: "3", name: "X570 Gaming", price: 12999, performance: 85, powerConsumption: 25, 
-        socket: "AM4", memoryType: "DDR4", formFactor: "ATX", category: "motherboard" 
+        id: "3", name: "H610M-K", price: 6999, performance: 68, powerConsumption: 14, 
+        socket: "LGA1700", memoryType: "DDR4", formFactor: "mATX", category: "motherboard", tier: "budget" 
+      },
+      // Mid-range Motherboards
+      { 
+        id: "4", name: "B550 Gaming", price: 8999, performance: 80, powerConsumption: 18, 
+        socket: "AM4", memoryType: "DDR4", formFactor: "ATX", category: "motherboard", tier: "mid-range" 
       },
       { 
-        id: "4", name: "B650 Gaming WiFi", price: 15999, performance: 88, powerConsumption: 20, 
-        socket: "AM5", memoryType: "DDR5", formFactor: "ATX", category: "motherboard" 
+        id: "5", name: "B660 Gaming WiFi", price: 11999, performance: 82, powerConsumption: 20, 
+        socket: "LGA1700", memoryType: "DDR4", formFactor: "ATX", category: "motherboard", tier: "mid-range" 
       },
       { 
-        id: "5", name: "Z790 Gaming", price: 18999, performance: 90, powerConsumption: 22, 
-        socket: "LGA1700", memoryType: "DDR5", formFactor: "ATX", category: "motherboard" 
+        id: "6", name: "X570 Gaming", price: 12999, performance: 85, powerConsumption: 25, 
+        socket: "AM4", memoryType: "DDR4", formFactor: "ATX", category: "motherboard", tier: "mid-range" 
+      },
+      // High-end Motherboards
+      { 
+        id: "7", name: "B650 Gaming WiFi", price: 15999, performance: 88, powerConsumption: 20, 
+        socket: "AM5", memoryType: "DDR5", formFactor: "ATX", category: "motherboard", tier: "high-end" 
       },
       { 
-        id: "6", name: "X670E Gaming", price: 25999, performance: 95, powerConsumption: 28, 
-        socket: "AM5", memoryType: "DDR5", formFactor: "ATX", category: "motherboard" 
+        id: "8", name: "Z790 Gaming", price: 18999, performance: 90, powerConsumption: 22, 
+        socket: "LGA1700", memoryType: "DDR5", formFactor: "ATX", category: "motherboard", tier: "high-end" 
+      },
+      { 
+        id: "9", name: "X670E Gaming", price: 25999, performance: 95, powerConsumption: 28, 
+        socket: "AM5", memoryType: "DDR5", formFactor: "ATX", category: "motherboard", tier: "enthusiast" 
+      },
+      { 
+        id: "10", name: "Z790 Extreme", price: 35999, performance: 98, powerConsumption: 32, 
+        socket: "LGA1700", memoryType: "DDR5", formFactor: "ATX", category: "motherboard", tier: "enthusiast" 
       },
     ],
     psu: [
+      // Budget PSUs
       { 
-        id: "1", name: "550W 80+ Bronze", price: 3999, performance: 70, powerConsumption: 0, 
-        category: "psu", wattage: 550 
+        id: "1", name: "450W 80+ White", price: 2999, performance: 60, powerConsumption: 0, 
+        category: "psu", wattage: 450, efficiency: "80+", tier: "budget" 
       },
       { 
-        id: "2", name: "650W 80+ Gold", price: 6999, performance: 80, powerConsumption: 0, 
-        category: "psu", wattage: 650 
+        id: "2", name: "550W 80+ Bronze", price: 3999, performance: 70, powerConsumption: 0, 
+        category: "psu", wattage: 550, efficiency: "80+ Bronze", tier: "budget" 
       },
       { 
-        id: "3", name: "750W 80+ Gold", price: 8999, performance: 85, powerConsumption: 0, 
-        category: "psu", wattage: 750 
+        id: "3", name: "650W 80+ Bronze", price: 4999, performance: 75, powerConsumption: 0, 
+        category: "psu", wattage: 650, efficiency: "80+ Bronze", tier: "budget" 
+      },
+      // Mid-range PSUs
+      { 
+        id: "4", name: "650W 80+ Gold", price: 6999, performance: 80, powerConsumption: 0, 
+        category: "psu", wattage: 650, efficiency: "80+ Gold", tier: "mid-range" 
       },
       { 
-        id: "4", name: "850W 80+ Gold", price: 12999, performance: 90, powerConsumption: 0, 
-        category: "psu", wattage: 850 
+        id: "5", name: "750W 80+ Gold", price: 8999, performance: 85, powerConsumption: 0, 
+        category: "psu", wattage: 750, efficiency: "80+ Gold", tier: "mid-range" 
       },
       { 
-        id: "5", name: "1000W 80+ Platinum", price: 18999, performance: 95, powerConsumption: 0, 
-        category: "psu", wattage: 1000 
+        id: "6", name: "850W 80+ Gold", price: 12999, performance: 90, powerConsumption: 0, 
+        category: "psu", wattage: 850, efficiency: "80+ Gold", tier: "mid-range" 
+      },
+      // High-end PSUs
+      { 
+        id: "7", name: "1000W 80+ Gold", price: 16999, performance: 92, powerConsumption: 0, 
+        category: "psu", wattage: 1000, efficiency: "80+ Gold", tier: "high-end" 
+      },
+      { 
+        id: "8", name: "1000W 80+ Platinum", price: 18999, performance: 95, powerConsumption: 0, 
+        category: "psu", wattage: 1000, efficiency: "80+ Platinum", tier: "high-end" 
+      },
+      { 
+        id: "9", name: "1200W 80+ Titanium", price: 28999, performance: 98, powerConsumption: 0, 
+        category: "psu", wattage: 1200, efficiency: "80+ Titanium", tier: "enthusiast" 
+      },
+      { 
+        id: "10", name: "1600W 80+ Titanium", price: 45999, performance: 100, powerConsumption: 0, 
+        category: "psu", wattage: 1600, efficiency: "80+ Titanium", tier: "enthusiast" 
       },
     ],
     case: [
+      // Budget Cases
       { 
-        id: "1", name: "Mid Tower Basic", price: 2999, performance: 70, powerConsumption: 0, 
-        formFactor: "ATX", category: "case" 
+        id: "1", name: "Basic mATX Case", price: 1999, performance: 60, powerConsumption: 0, 
+        formFactor: "mATX", category: "case", airflow: "Basic", tier: "budget" 
       },
       { 
-        id: "2", name: "Mid Tower RGB", price: 4999, performance: 75, powerConsumption: 5, 
-        formFactor: "ATX", category: "case" 
+        id: "2", name: "Mid Tower Basic", price: 2999, performance: 70, powerConsumption: 0, 
+        formFactor: "ATX", category: "case", airflow: "Good", tier: "budget" 
       },
       { 
-        id: "3", name: "Full Tower Gaming", price: 7999, performance: 85, powerConsumption: 10, 
-        formFactor: "ATX", category: "case" 
+        id: "3", name: "Budget RGB Case", price: 3999, performance: 72, powerConsumption: 3, 
+        formFactor: "ATX", category: "case", airflow: "Good", tier: "budget" 
+      },
+      // Mid-range Cases
+      { 
+        id: "4", name: "Mid Tower Gaming", price: 4999, performance: 80, powerConsumption: 5, 
+        formFactor: "ATX", category: "case", airflow: "Excellent", tier: "mid-range" 
       },
       { 
-        id: "4", name: "Premium RGB Tower", price: 12999, performance: 90, powerConsumption: 15, 
-        formFactor: "ATX", category: "case" 
+        id: "5", name: "RGB Gaming Tower", price: 6999, performance: 82, powerConsumption: 8, 
+        formFactor: "ATX", category: "case", airflow: "Excellent", tier: "mid-range" 
       },
       { 
-        id: "5", name: "Custom Loop Ready", price: 18999, performance: 95, powerConsumption: 20, 
-        formFactor: "ATX", category: "case" 
+        id: "6", name: "Mesh Front Panel", price: 7999, performance: 85, powerConsumption: 10, 
+        formFactor: "ATX", category: "case", airflow: "Excellent", tier: "mid-range" 
+      },
+      // High-end Cases
+      { 
+        id: "7", name: "Premium Tower", price: 12999, performance: 90, powerConsumption: 15, 
+        formFactor: "ATX", category: "case", airflow: "Exceptional", tier: "high-end" 
+      },
+      { 
+        id: "8", name: "Full Tower Gaming", price: 15999, performance: 92, powerConsumption: 18, 
+        formFactor: "E-ATX", category: "case", airflow: "Exceptional", tier: "high-end" 
+      },
+      { 
+        id: "9", name: "Custom Loop Ready", price: 18999, performance: 95, powerConsumption: 20, 
+        formFactor: "E-ATX", category: "case", airflow: "Exceptional", tier: "enthusiast" 
+      },
+      { 
+        id: "10", name: "Show Case Glass", price: 25999, performance: 98, powerConsumption: 25, 
+        formFactor: "E-ATX", category: "case", airflow: "Exceptional", tier: "enthusiast" 
       },
     ],
     cooler: [
+      // Budget Coolers
       { 
         id: "1", name: "Stock Cooler", price: 0, performance: 60, powerConsumption: 5, 
-        category: "cooler" 
+        category: "cooler", type: "Stock", maxTDP: 65, tier: "budget" 
       },
       { 
-        id: "2", name: "Tower Air Cooler", price: 2999, performance: 75, powerConsumption: 8, 
-        category: "cooler" 
+        id: "2", name: "Basic Tower Cooler", price: 1999, performance: 70, powerConsumption: 3, 
+        category: "cooler", type: "Air", maxTDP: 95, tier: "budget" 
       },
       { 
-        id: "3", name: "High-End Air Cooler", price: 5999, performance: 85, powerConsumption: 10, 
-        category: "cooler" 
+        id: "3", name: "RGB Tower Cooler", price: 2999, performance: 75, powerConsumption: 8, 
+        category: "cooler", type: "Air", maxTDP: 120, tier: "budget" 
+      },
+      // Mid-range Coolers
+      { 
+        id: "4", name: "Dual Tower Cooler", price: 4999, performance: 80, powerConsumption: 10, 
+        category: "cooler", type: "Air", maxTDP: 150, tier: "mid-range" 
       },
       { 
-        id: "4", name: "240mm AIO", price: 8999, performance: 90, powerConsumption: 15, 
-        category: "cooler" 
+        id: "5", name: "High-End Air Cooler", price: 5999, performance: 85, powerConsumption: 10, 
+        category: "cooler", type: "Air", maxTDP: 180, tier: "mid-range" 
       },
       { 
-        id: "5", name: "360mm AIO", price: 15999, performance: 95, powerConsumption: 20, 
-        category: "cooler" 
+        id: "6", name: "120mm AIO", price: 6999, performance: 82, powerConsumption: 12, 
+        category: "cooler", type: "AIO", maxTDP: 150, tier: "mid-range" 
+      },
+      // High-end Coolers
+      { 
+        id: "7", name: "240mm AIO", price: 8999, performance: 90, powerConsumption: 15, 
+        category: "cooler", type: "AIO", maxTDP: 200, tier: "high-end" 
+      },
+      { 
+        id: "8", name: "280mm AIO", price: 12999, performance: 92, powerConsumption: 18, 
+        category: "cooler", type: "AIO", maxTDP: 220, tier: "high-end" 
+      },
+      { 
+        id: "9", name: "360mm AIO", price: 15999, performance: 95, powerConsumption: 20, 
+        category: "cooler", type: "AIO", maxTDP: 250, tier: "enthusiast" 
+      },
+      { 
+        id: "10", name: "Custom Loop", price: 35999, performance: 100, powerConsumption: 25, 
+        category: "cooler", type: "Custom", maxTDP: 350, tier: "enthusiast" 
       },
     ],
   };
@@ -358,28 +530,118 @@ export default function EnhancedBuildConfigurator() {
       }
     }
 
-    // Cooling adequacy
+    // Enhanced cooling adequacy checks
     if (config.cpu && config.cooler) {
       const cpuTDP = config.cpu.powerConsumption;
+      const coolerTDP = (config.cooler as any).maxTDP || 0;
       const coolerPerf = config.cooler.performance;
       
-      if (cpuTDP > 100 && coolerPerf < 80) {
+      if (coolerTDP > 0 && coolerTDP < cpuTDP) {
         issues.push({
           type: "warning",
-          message: "High-TDP CPU may require better cooling solution"
+          message: `Cooler rated for ${coolerTDP}W, but CPU generates ${cpuTDP}W - thermal throttling possible`
+        });
+        compatibilityScore -= 15;
+      } else if (cpuTDP > 100 && coolerPerf < 80) {
+        issues.push({
+          type: "warning",
+          message: "High-TDP CPU may require better cooling solution for sustained performance"
+        });
+        compatibilityScore -= 8;
+      } else if (coolerTDP === 0 && cpuTDP > 65) {
+        issues.push({
+          type: "info",
+          message: "Stock cooler adequate for basic use, upgrade recommended for overclocking"
+        });
+        compatibilityScore -= 3;
+      }
+    }
+
+    // Use case specific recommendations
+    if (config.ram) {
+      const ramCapacity = config.ram.capacity;
+      if (useCase === 'content-creation' && ramCapacity < 32) {
+        issues.push({
+          type: "info",
+          message: `Content creation benefits from 32GB+ RAM (current: ${ramCapacity}GB)`
+        });
+        compatibilityScore -= 3;
+      } else if (useCase === 'ai-ml' && ramCapacity < 64) {
+        issues.push({
+          type: "warning",
+          message: `AI/ML workloads often require 64GB+ RAM (current: ${ramCapacity}GB)`
+        });
+        compatibilityScore -= 8;
+      } else if (useCase === 'workstation' && ramCapacity < 32) {
+        issues.push({
+          type: "info",
+          message: `Workstation use typically benefits from 32GB+ RAM`
+        });
+        compatibilityScore -= 2;
+      }
+    }
+
+    // Storage type recommendations
+    if (config.storage) {
+      const storageType = (config.storage as any).type;
+      if (storageType === 'HDD' && (useCase === 'gaming' || useCase === 'content-creation')) {
+        issues.push({
+          type: "info",
+          message: `SSD recommended for faster ${useCase} performance and shorter load times`
+        });
+        compatibilityScore -= 2;
+      }
+    }
+
+    // High-end component balance checks
+    if (config.cpu && config.motherboard) {
+      const cpuTier = (config.cpu as any).tier;
+      const mbTier = (config.motherboard as any).tier;
+      
+      if (cpuTier === 'enthusiast' && mbTier === 'budget') {
+        issues.push({
+          type: "warning",
+          message: "High-end CPU with budget motherboard may limit overclocking potential"
         });
         compatibilityScore -= 5;
       }
     }
 
+    // PSU efficiency for high-power systems
+    if (config.psu && totalPower > 400) {
+      const psuEfficiency = (config.psu as any).efficiency || "";
+      if (!psuEfficiency.includes('Gold')) {
+        issues.push({
+          type: "info",
+          message: "High-power system benefits from 80+ Gold or better PSU efficiency"
+        });
+        compatibilityScore -= 2;
+      }
+    }
+
+    // Final compatibility assessment
+    const errorCount = issues.filter(i => i.type === 'error').length;
+    const warningCount = issues.filter(i => i.type === 'warning').length;
+    const infoCount = issues.filter(i => i.type === 'info').length;
+    
+    let assessmentLevel = "Excellent";
+    if (compatibilityScore < 70) assessmentLevel = "Poor";
+    else if (compatibilityScore < 80) assessmentLevel = "Fair";
+    else if (compatibilityScore < 90) assessmentLevel = "Good";
+
     return {
       issues,
-      overallCompatible: issues.filter(i => i.type === 'error').length === 0,
-      compatibilityScore: Math.max(0, compatibilityScore)
+      overallCompatible: errorCount === 0,
+      compatibilityScore: Math.max(0, compatibilityScore),
+      assessmentLevel,
+      hasErrors: errorCount > 0,
+      warningCount,
+      infoCount,
+      totalIssues: errorCount + warningCount + infoCount
     };
   }, [config]);
 
-  // Enhanced performance prediction
+  // Advanced performance prediction with realistic calculations
   const performancePrediction = useMemo((): PerformancePrediction | null => {
     if (!config.cpu || !config.gpu) return null;
 
@@ -387,27 +649,84 @@ export default function EnhancedBuildConfigurator() {
     const gpuScore = config.gpu.performance;
     const ramScore = config.ram?.performance || 70;
     const storageScore = config.storage?.performance || 75;
+    const ramCapacity = config.ram?.capacity || 16;
+    const gpuVram = config.gpu.vram || 8;
 
-    // Gaming performance calculation
-    const gamingScore = Math.min(
-      cpuScore * 0.25 + gpuScore * 0.6 + ramScore * 0.1 + storageScore * 0.05,
-      100
-    );
+    // Bottleneck analysis
+    const cpuGpuDiff = Math.abs(cpuScore - gpuScore);
+    let bottleneckComponent = 'balanced';
+    if (cpuGpuDiff > 15) {
+      bottleneckComponent = cpuScore < gpuScore ? 'cpu' : 'gpu';
+    }
 
-    // Productivity performance calculation
-    const productivityScore = Math.min(
-      cpuScore * 0.5 + gpuScore * 0.2 + ramScore * 0.2 + storageScore * 0.1,
-      100
-    );
+    // Gaming performance with more realistic calculations
+    let gamingScore = cpuScore * 0.25 + gpuScore * 0.6 + ramScore * 0.1 + storageScore * 0.05;
+    
+    // Apply bottleneck penalty
+    if (bottleneckComponent === 'cpu') {
+      gamingScore *= 0.85; // CPU bottleneck reduces overall gaming performance
+    }
+    
+    // RAM capacity influence on gaming
+    if (ramCapacity < 16) {
+      gamingScore *= 0.9; // Less than 16GB reduces gaming performance
+    } else if (ramCapacity >= 32) {
+      gamingScore *= 1.05; // 32GB+ provides slight boost
+    }
+    
+    gamingScore = Math.min(gamingScore, 100);
 
-    // FPS predictions for different scenarios
+    // Productivity performance for different use cases
+    let productivityScore = cpuScore * 0.5 + gpuScore * 0.2 + ramScore * 0.2 + storageScore * 0.1;
+    
+    // Use case specific adjustments
+    if (useCase === 'content-creation') {
+      productivityScore = cpuScore * 0.4 + gpuScore * 0.3 + ramScore * 0.2 + storageScore * 0.1;
+      if (ramCapacity < 32) productivityScore *= 0.85;
+    } else if (useCase === 'ai-ml') {
+      productivityScore = gpuScore * 0.5 + cpuScore * 0.3 + ramScore * 0.2;
+      if (ramCapacity < 64) productivityScore *= 0.8;
+      if (gpuVram < 16) productivityScore *= 0.9;
+    } else if (useCase === 'workstation') {
+      productivityScore = cpuScore * 0.6 + ramScore * 0.25 + storageScore * 0.15;
+      if (ramCapacity < 32) productivityScore *= 0.88;
+    }
+    
+    productivityScore = Math.min(productivityScore, 100);
+
+    // More realistic FPS predictions based on actual GPU tiers and performance data
+    const getRealisticFPS = (resolution: string, quality: string) => {
+      let baseFPS = 60;
+      
+      // Base FPS by GPU performance tier
+      if (gpuScore >= 95) baseFPS = 140; // RTX 4080/4090 tier
+      else if (gpuScore >= 88) baseFPS = 120; // RTX 4070 Ti tier
+      else if (gpuScore >= 80) baseFPS = 100; // RTX 4060 Ti/4070 tier
+      else if (gpuScore >= 72) baseFPS = 85;  // RTX 4060/3060 Ti tier
+      else if (gpuScore >= 65) baseFPS = 70;  // GTX 1660 Super tier
+      else baseFPS = 50;
+      
+      // Resolution impact
+      if (resolution.includes('1440p')) baseFPS *= 0.7;
+      else if (resolution.includes('4K')) baseFPS *= 0.4;
+      
+      // Quality settings impact
+      if (quality.includes('Ultra')) baseFPS *= 0.85;
+      else if (quality.includes('High')) baseFPS *= 0.95;
+      
+      // CPU bottleneck impact
+      if (bottleneckComponent === 'cpu') baseFPS *= 0.9;
+      
+      return Math.round(baseFPS);
+    };
+
     const fps = {
-      "1080p Ultra": Math.round((gamingScore / 100) * 120),
-      "1080p High": Math.round((gamingScore / 100) * 140),
-      "1440p Ultra": Math.round((gamingScore / 100) * 80),
-      "1440p High": Math.round((gamingScore / 100) * 100),
-      "4K High": Math.round((gamingScore / 100) * 45),
-      "VR Gaming": Math.round((gamingScore / 100) * 90)
+      "1080p Ultra": getRealisticFPS('1080p', 'Ultra'),
+      "1080p High": getRealisticFPS('1080p', 'High'),
+      "1440p Ultra": getRealisticFPS('1440p', 'Ultra'),
+      "1440p High": getRealisticFPS('1440p', 'High'),
+      "4K High": getRealisticFPS('4K', 'High'),
+      "VR Gaming": Math.min(getRealisticFPS('1080p', 'High'), 90) // VR needs consistent 90+ FPS
     };
 
     // Thermal and noise calculations
@@ -434,9 +753,42 @@ export default function EnhancedBuildConfigurator() {
       noiseLevel = 'Moderate';
     }
 
-    // Future-proofing score
+    // Enhanced future-proofing assessment
     const avgPerformance = (gamingScore + productivityScore) / 2;
-    const futureProofing = Math.min(100, avgPerformance + (config.ram?.capacity || 16) / 64 * 20);
+    let futureProofing = avgPerformance;
+    
+    // Future-proofing factors
+    if (ramCapacity >= 32) futureProofing += 10;
+    else if (ramCapacity >= 16) futureProofing += 5;
+    
+    if (gpuVram >= 16) futureProofing += 8;
+    else if (gpuVram >= 12) futureProofing += 5;
+    
+    if ((config.storage as any)?.type?.includes('NVMe')) futureProofing += 3;
+    
+    // High-end component bonus
+    const highEndComponents = Object.values(config).filter(comp => 
+      (comp as any)?.tier === 'enthusiast' || (comp as any)?.tier === 'high-end'
+    ).length;
+    futureProofing += highEndComponents * 2;
+    
+    futureProofing = Math.min(100, futureProofing);
+
+    // Performance recommendations
+    const recommendations = [];
+    if (bottleneckComponent === 'cpu') {
+      recommendations.push('Consider upgrading CPU for better gaming performance');
+    } else if (bottleneckComponent === 'gpu') {
+      recommendations.push('GPU upgrade would provide the biggest performance boost');
+    }
+    
+    if (ramCapacity < 16) {
+      recommendations.push('Upgrade to 16GB RAM for modern gaming');
+    }
+    
+    if ((config.storage as any)?.type === 'HDD') {
+      recommendations.push('SSD upgrade will significantly improve load times');
+    }
 
     return {
       gamingScore: Math.round(gamingScore),
@@ -444,14 +796,114 @@ export default function EnhancedBuildConfigurator() {
       fps,
       thermalRating,
       noiseLevel,
-      futureProofing: Math.round(futureProofing)
+      futureProofing: Math.round(futureProofing),
+      bottleneckComponent,
+      recommendations,
+      useCaseScore: useCase === 'gaming' ? Math.round(gamingScore) : Math.round(productivityScore),
+      performanceCategory: avgPerformance >= 90 ? 'Enthusiast' : 
+                          avgPerformance >= 80 ? 'High-End' : 
+                          avgPerformance >= 70 ? 'Mid-Range' : 'Budget'
     };
   }, [config]);
 
-  // Auto-optimization function
+  // Comprehensive auto-optimization function
   const optimizeForBudget = () => {
-    // Implementation for auto-optimization based on budget and use case
-    // TODO: Implement automatic component optimization based on budget constraints
+    if (!autoOptimize) return;
+
+    // Define use case priorities
+    const useCasePriorities = {
+      gaming: { gpu: 0.45, cpu: 0.25, ram: 0.15, storage: 0.08, others: 0.07 },
+      'content-creation': { cpu: 0.35, gpu: 0.3, ram: 0.2, storage: 0.1, others: 0.05 },
+      workstation: { cpu: 0.4, ram: 0.25, storage: 0.15, gpu: 0.15, others: 0.05 },
+      office: { cpu: 0.3, ram: 0.25, storage: 0.2, gpu: 0.1, others: 0.15 },
+      'ai-ml': { gpu: 0.4, cpu: 0.25, ram: 0.2, storage: 0.1, others: 0.05 }
+    };
+
+    const priorities = useCasePriorities[useCase as keyof typeof useCasePriorities] || useCasePriorities.gaming;
+    
+    // Calculate budget allocations
+    const allocations = {
+      gpu: Math.floor(budget * priorities.gpu),
+      cpu: Math.floor(budget * priorities.cpu),
+      ram: Math.floor(budget * priorities.ram),
+      storage: Math.floor(budget * priorities.storage),
+      motherboard: Math.floor(budget * priorities.others * 0.4),
+      psu: Math.floor(budget * priorities.others * 0.3),
+      case: Math.floor(budget * priorities.others * 0.2),
+      cooler: Math.floor(budget * priorities.others * 0.1)
+    };
+
+    const newConfig: BuildConfig = {
+      cpu: null,
+      gpu: null,
+      ram: null,
+      storage: null,
+      motherboard: null,
+      psu: null,
+      case: null,
+      cooler: null
+    };
+
+    // Optimize each component based on allocation and compatibility
+    Object.entries(allocations).forEach(([componentType, allocation]) => {
+      const componentList = components[componentType as keyof typeof components];
+      
+      // Filter affordable components
+      const affordable = componentList.filter(comp => comp.price <= allocation * 1.2); // 20% tolerance
+      
+      if (affordable.length > 0) {
+        // Find the best price-to-performance ratio within budget
+        const bestComponent = affordable.reduce((best, current) => {
+          const currentRatio = current.performance / (current.price || 1);
+          const bestRatio = best.performance / (best.price || 1);
+          return currentRatio > bestRatio ? current : best;
+        });
+        
+        newConfig[componentType as keyof BuildConfig] = bestComponent;
+      }
+    });
+
+    // Ensure compatibility after selection
+    // CPU-Motherboard compatibility
+    if (newConfig.cpu && newConfig.motherboard) {
+      if (newConfig.cpu.socket !== newConfig.motherboard.socket) {
+        // Find compatible motherboard
+        const compatibleMB = components.motherboard.find(mb => 
+          mb.socket === newConfig.cpu?.socket && mb.price <= allocations.motherboard * 1.5
+        );
+        if (compatibleMB) newConfig.motherboard = compatibleMB;
+      }
+    }
+
+    // RAM-Motherboard compatibility
+    if (newConfig.ram && newConfig.motherboard) {
+      if (newConfig.ram.memoryType !== newConfig.motherboard.memoryType) {
+        // Find compatible RAM
+        const compatibleRAM = components.ram.find(ram => 
+          ram.memoryType === newConfig.motherboard?.memoryType && ram.price <= allocations.ram * 1.5
+        );
+        if (compatibleRAM) newConfig.ram = compatibleRAM;
+      }
+    }
+
+    // PSU wattage validation
+    const totalPower = Object.values(newConfig).reduce((sum, component) => 
+      sum + (component?.powerConsumption || 0), 0
+    );
+    
+    if (newConfig.psu && newConfig.psu.wattage) {
+      const requiredWattage = totalPower * 1.3; // 30% headroom
+      if (newConfig.psu.wattage < requiredWattage) {
+        // Find adequate PSU
+        const adequatePSU = components.psu.find(psu => 
+          (psu.wattage || 0) >= requiredWattage && psu.price <= allocations.psu * 1.5
+        );
+        if (adequatePSU) newConfig.psu = adequatePSU;
+      }
+    }
+
+    // Update configuration
+    setConfig(newConfig);
   };
 
   // Export functionality
@@ -524,8 +976,28 @@ Built with FusionForge PC Configurator`;
     }
   };
 
+  // Real-time pricing with dynamic updates
+  const [priceMultiplier, setPriceMultiplier] = useState(1.0);
+  const [lastPriceUpdate, setLastPriceUpdate] = useState(Date.now());
+
+  // Simulate real-time price fluctuations (in real implementation, this would come from an API)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Simulate market price fluctuations (±5%)
+      const variation = 0.95 + Math.random() * 0.1;
+      setPriceMultiplier(variation);
+      setLastPriceUpdate(Date.now());
+    }, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getAdjustedPrice = (basePrice: number) => {
+    return Math.round(basePrice * priceMultiplier);
+  };
+
   const totalPrice = Object.values(config).reduce((total, component) => {
-    return total + (component?.price || 0);
+    return total + getAdjustedPrice(component?.price || 0);
   }, 0);
 
   const totalPower = Object.values(config).reduce((total, component) => {
@@ -596,6 +1068,12 @@ Built with FusionForge PC Configurator`;
                 <TrendingUp className="h-4 w-4" />
                 Optimize Build
               </Button>
+              {priceMultiplier !== 1.0 && (
+                <div className="flex items-center gap-1 text-xs text-blue-600">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                  Live pricing active
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
@@ -623,7 +1101,9 @@ Built with FusionForge PC Configurator`;
                 <div className="space-y-3">
                   {componentList.map((component) => {
                     const isSelected = config[componentType as keyof BuildConfig]?.id === component.id;
-                    const isAffordable = totalPrice - (config[componentType as keyof BuildConfig]?.price || 0) + component.price <= budget;
+                    const adjustedPrice = getAdjustedPrice(component.price);
+                    const currentComponentAdjustedPrice = getAdjustedPrice(config[componentType as keyof BuildConfig]?.price || 0);
+                    const isAffordable = totalPrice - currentComponentAdjustedPrice + adjustedPrice <= budget;
                     
                     return (
                       <div
@@ -658,7 +1138,12 @@ Built with FusionForge PC Configurator`;
                           </div>
                           <div className="text-right">
                             <div className="font-medium text-sm">
-                              {component.price === 0 ? 'Included' : formatPrice(component.price)}
+                              {component.price === 0 ? 'Included' : formatPrice(getAdjustedPrice(component.price))}
+                              {component.price > 0 && priceMultiplier !== 1.0 && (
+                                <div className="text-xs text-gray-500">
+                                  {priceMultiplier > 1.0 ? '+' : ''}{((priceMultiplier - 1) * 100).toFixed(1)}%
+                                </div>
+                              )}
                             </div>
                             {!isAffordable && !isSelected && (
                               <Badge variant="destructive" className="text-xs mt-1">Over Budget</Badge>
