@@ -1,7 +1,10 @@
 import { Link } from "wouter";
 import fusionForgeLogo from "@assets/Fusion Forge Logo bgremoved_1750750872227.png";
+import { useBusinessSettings } from "@/hooks/use-business-settings";
 
 export default function Footer() {
+  const { settings } = useBusinessSettings();
+  
   return (
     <footer className="bg-dark-slate text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,10 +94,10 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4 text-white">Contact Information</h4>
             <div className="space-y-2">
-              <p className="text-white">📧 {import.meta.env.VITE_BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}</p>
-              <p className="text-white">📞 {import.meta.env.VITE_BUSINESS_PHONE || '+91 9363599577'}</p>
-              <p className="text-white">📍 {import.meta.env.VITE_BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India'}</p>
-              <p className="text-white">⏰ Open: 9AM - 10PM Daily</p>
+              <p className="text-white">📧 {settings.businessEmail}</p>
+              <p className="text-white">📞 {settings.businessPhone}</p>
+              <p className="text-white">📍 {settings.businessAddress}</p>
+              <p className="text-white">⏰ {settings.businessHours}</p>
             </div>
           </div>
         </div>

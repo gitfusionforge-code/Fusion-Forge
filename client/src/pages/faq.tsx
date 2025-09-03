@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/enhanced-seo-head";
 import { Link } from "wouter";
 import { ChevronDown, ChevronUp, MessageCircle, Phone, Mail } from "lucide-react";
+import { useBusinessSettings } from "@/hooks/use-business-settings";
 
 export default function FAQ() {
   const [openItems, setOpenItems] = useState<number[]>([]);
+  const { settings } = useBusinessSettings();
 
   const toggleItem = (index: number) => {
     setOpenItems(prev => 
@@ -194,12 +196,12 @@ export default function FAQ() {
               <div className="text-center">
                 <Phone className="h-8 w-8 text-tech-orange mx-auto mb-2" />
                 <div className="font-semibold">Call Us</div>
-                <div className="text-sm opacity-90">{import.meta.env.VITE_BUSINESS_PHONE || '+91 9363599577'}</div>
+                <div className="text-sm opacity-90">{settings.businessPhone}</div>
               </div>
               <div className="text-center">
                 <Mail className="h-8 w-8 text-tech-orange mx-auto mb-2" />
                 <div className="font-semibold">Email Support</div>
-                <div className="text-sm opacity-90">{import.meta.env.VITE_BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}</div>
+                <div className="text-sm opacity-90">{settings.businessEmail}</div>
               </div>
               <div className="text-center">
                 <MessageCircle className="h-8 w-8 text-tech-orange mx-auto mb-2" />

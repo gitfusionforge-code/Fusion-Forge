@@ -18,6 +18,7 @@ import {
   generateSessionId, 
   isValidAdminSession 
 } from "./middleware/admin-auth";
+import { businessSettingsService } from "./services/business-settings-service";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -116,6 +117,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Business Settings API Endpoints
+  app.get("/api/business-settings", async (_req, res) => {
+    try {
+      const settings = await businessSettingsService.getBusinessSettings();
+      res.json(settings);
+    } catch (error: any) {
+      console.error('Error fetching business settings:', error);
+      res.status(500).json({ error: "Failed to fetch business settings" });
+    }
+  });
+
+  app.put("/api/business-settings", requireAdminAuth, async (req, res) => {
+    try {
+      const updateData = req.body;
+      const success = await businessSettingsService.updateBusinessSettings(updateData);
+      
+      if (success) {
+        const updatedSettings = await businessSettingsService.getBusinessSettings();
+        res.json({ success: true, settings: updatedSettings });
+      } else {
+        res.status(500).json({ error: "Failed to update business settings" });
+      }
+    } catch (error: any) {
+      console.error('Error updating business settings:', error);
+      res.status(500).json({ error: "Failed to update business settings" });
+    }
+  });
 
   // Seed sample admin data (inquiries and orders) for testing
   app.post("/api/admin/seed-data", requireAdminAuth, async (_req, res) => {

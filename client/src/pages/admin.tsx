@@ -34,6 +34,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import type { Inquiry, PcBuild, Order } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
+import BusinessSettingsManager from "@/components/admin/business-settings-manager";
 
 function AdminContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -1525,77 +1526,61 @@ Email: [Your Business Email]`);
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
-            {/* System Configuration */}
+            {/* Business Settings Manager */}
+            <BusinessSettingsManager />
+            
+            {/* System Information */}
             <Card>
               <CardHeader>
-                <CardTitle>System Configuration</CardTitle>
+                <CardTitle>System Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Email Configuration</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Business Email</label>
-                      <Input 
-                        value={import.meta.env.VITE_BUSINESS_EMAIL || "fusionforgepc@gmail.com"} 
-                        disabled 
-                        className="bg-gray-50"
-                        data-testid="input-business-email"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Service Status</label>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          import.meta.env.VITE_BUSINESS_EMAIL ? 'bg-green-500' : 'bg-orange-500'
-                        }`}></div>
-                        <span className="text-sm text-gray-600" data-testid="text-email-status">
-                          {import.meta.env.VITE_BUSINESS_EMAIL ? 'Active - Email Service Ready' : 'Setup Required - Missing Business Email'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium mb-4">System Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Environment</label>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          import.meta.env.MODE === 'development' ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}></div>
-                        <span className="text-sm text-gray-600 capitalize">
-                          {import.meta.env.MODE || 'Production'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Firebase Project</label>
-                      <span className="text-sm text-gray-600">
-                        {import.meta.env.VITE_FIREBASE_PROJECT_ID || 'Not configured'}
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Environment</label>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        import.meta.env.MODE === 'development' ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}></div>
+                      <span className="text-sm text-gray-600 capitalize">
+                        {import.meta.env.MODE || 'Production'}
                       </span>
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Database Status</label>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm text-gray-600">Firebase Realtime Database Connected</span>
-                      </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Firebase Project</label>
+                    <span className="text-sm text-gray-600">
+                      {import.meta.env.VITE_FIREBASE_PROJECT_ID || 'Not configured'}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Database Status</label>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm text-gray-600">Firebase Realtime Database Connected</span>
                     </div>
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Payment Gateway</label>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm text-gray-600">Razorpay Active</span>
-                      </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Payment Gateway</label>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-sm text-gray-600">Razorpay Active</span>
                     </div>
                   </div>
                 </div>
-                
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Inventory Management Tab (moved from settings) */}
+          <TabsContent value="inventory-settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Inventory Management</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div>
-                  <h3 className="text-lg font-medium mb-4">Inventory Management</h3>
+                  <h3 className="text-lg font-medium mb-4">Stock Management</h3>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Low Stock Threshold</label>
