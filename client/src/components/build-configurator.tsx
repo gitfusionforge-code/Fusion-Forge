@@ -36,6 +36,7 @@ interface BuildConfig {
 export default function BuildConfigurator() {
   const [budget, setBudget] = useState<string>("100000");
   const [useCase, setUseCase] = useState<string>("gaming");
+  const [selectedComponentType, setSelectedComponentType] = useState<string>("cpu");
   const [config, setConfig] = useState<BuildConfig>({
     cpu: null,
     gpu: null,
@@ -335,144 +336,145 @@ export default function BuildConfigurator() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <h3 className="text-lg font-semibold mb-4">Select Components</h3>
-              
-              <Tabs defaultValue="cpu" className="w-full">
-                <TabsList className="grid w-full grid-cols-7 h-auto">
-                  {Object.entries(componentLabels).map(([type, label]) => {
-                    const Icon = componentIcons[type as keyof typeof componentIcons];
-                    const selectedComponent = config[type as keyof BuildConfig];
-                    
-                    return (
-                      <TabsTrigger 
-                        key={type} 
-                        value={type} 
-                        className="flex flex-col items-center gap-1 p-3 relative"
-                        data-testid={`tab-${type}`}
-                      >
-                        <Icon className="h-4 w-4" />
-                        <span className="text-xs hidden sm:block">{label.split(' ')[0]}</span>
-                        {selectedComponent && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
-                            <CheckCircle className="h-2 w-2 text-white" />
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Select Components</h3>
+                <Select value={selectedComponentType} onValueChange={setSelectedComponentType}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(componentLabels).map(([type, label]) => {
+                      const Icon = componentIcons[type as keyof typeof componentIcons];
+                      const selectedComponent = config[type as keyof BuildConfig];
+                      
+                      return (
+                        <SelectItem key={type} value={type}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="h-4 w-4" />
+                            <span>{label}</span>
+                            {selectedComponent && (
+                              <CheckCircle className="h-3 w-3 text-green-600" />
+                            )}
                           </div>
-                        )}
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
-                
-                {Object.entries(componentLabels).map(([type, label]) => {
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-4">
+                {(() => {
+                  const type = selectedComponentType;
+                  const label = componentLabels[type as keyof typeof componentLabels];
                   const Icon = componentIcons[type as keyof typeof componentIcons];
                   const selectedComponent = config[type as keyof BuildConfig];
                   
                   return (
-                    <TabsContent key={type} value={type} className="mt-4" data-testid={`content-${type}`}>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Icon className="h-6 w-6 text-tech-orange" />
-                          <h4 className="text-xl font-semibold text-gray-800">{label}</h4>
-                          {selectedComponent && (
-                            <Badge className="ml-2 bg-green-100 text-green-800 border-green-300">
-                              Selected: {selectedComponent.name}
-                            </Badge>
-                          )}
+                    <div className="space-y-4" data-testid={`content-${type}`}>
+                      <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
+                        <Icon className="h-6 w-6 text-tech-orange" />
+                        <h4 className="text-xl font-semibold text-gray-800">{label}</h4>
+                        {selectedComponent && (
+                          <Badge className="ml-2 bg-green-100 text-green-800 border-green-300">
+                            Selected: {selectedComponent.name}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-3 mb-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Quick Select:</span>
+                          <Select value={selectedComponent?.id || ""} onValueChange={(value) => updateComponent(type as keyof BuildConfig, value)}>
+                            <SelectTrigger className="w-64">
+                              <SelectValue placeholder={`Choose ${label.toLowerCase()}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {components[type as keyof typeof components].map((component) => (
+                                <SelectItem key={component.id} value={component.id}>
+                                  {component.name} - {formatPrice(component.price)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-                        
-                        <div className="space-y-3 mb-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Quick Select:</span>
-                            <Select value={selectedComponent?.id || ""} onValueChange={(value) => updateComponent(type as keyof BuildConfig, value)}>
-                              <SelectTrigger className="w-64">
-                                <SelectValue placeholder={`Choose ${label.toLowerCase()}`} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {components[type as keyof typeof components].map((component) => (
-                                  <SelectItem key={component.id} value={component.id}>
-                                    {component.name} - {formatPrice(component.price)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {components[type as keyof typeof components].map((component) => {
-                            const isSelected = selectedComponent?.id === component.id;
-                            return (
-                              <div
-                                key={component.id}
-                                onClick={() => updateComponent(type as keyof BuildConfig, component.id)}
-                                className={`
-                                  relative p-3 border-2 rounded-lg cursor-pointer 
-                                  transition-all duration-200 ease-in-out
-                                  group overflow-hidden
-                                  ${isSelected 
-                                    ? 'border-tech-orange bg-orange-50 ring-1 ring-orange-200 shadow-md' 
-                                    : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50 hover:shadow-sm'
-                                  }
-                                `}
-                                data-testid={`component-${type}-${component.id}`}
-                              >
-                                {/* Selection indicator */}
-                                {isSelected && (
-                                  <div className="absolute top-2 right-2">
-                                    <CheckCircle className="h-4 w-4 text-tech-orange" />
-                                  </div>
-                                )}
-                                
-                                <div className="relative">
-                                  <div className="flex justify-between items-start mb-2">
-                                    <div className="flex-1 pr-4">
-                                      <h5 className={`font-semibold text-sm mb-1 leading-tight ${
-                                        isSelected ? 'text-orange-800' : 'text-gray-800 group-hover:text-orange-700'
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {components[type as keyof typeof components].map((component) => {
+                          const isSelected = selectedComponent?.id === component.id;
+                          return (
+                            <div
+                              key={component.id}
+                              onClick={() => updateComponent(type as keyof BuildConfig, component.id)}
+                              className={`
+                                relative p-3 border-2 rounded-lg cursor-pointer 
+                                transition-all duration-200 ease-in-out
+                                group overflow-hidden
+                                ${isSelected 
+                                  ? 'border-tech-orange bg-orange-50 ring-1 ring-orange-200 shadow-md' 
+                                  : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50 hover:shadow-sm'
+                                }
+                              `}
+                              data-testid={`component-${type}-${component.id}`}
+                            >
+                              {/* Selection indicator */}
+                              {isSelected && (
+                                <div className="absolute top-2 right-2">
+                                  <CheckCircle className="h-4 w-4 text-tech-orange" />
+                                </div>
+                              )}
+                              
+                              <div className="relative">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="flex-1 pr-4">
+                                    <h5 className={`font-semibold text-sm mb-1 leading-tight ${
+                                      isSelected ? 'text-orange-800' : 'text-gray-800 group-hover:text-orange-700'
+                                    }`}>
+                                      {component.name}
+                                    </h5>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className={`px-1.5 py-0.5 rounded text-xs ${
+                                        isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
                                       }`}>
-                                        {component.name}
-                                      </h5>
-                                      <div className="flex items-center gap-2 text-xs">
-                                        <span className={`px-1.5 py-0.5 rounded text-xs ${
-                                          isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
-                                        }`}>
-                                          {component.performance}% Perf
-                                        </span>
-                                        <span className={`px-1.5 py-0.5 rounded text-xs ${
-                                          isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
-                                        }`}>
-                                          {component.powerConsumption}W
-                                        </span>
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <span className={`font-bold text-sm ${
-                                        isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-orange-600'
+                                        {component.performance}% Perf
+                                      </span>
+                                      <span className={`px-1.5 py-0.5 rounded text-xs ${
+                                        isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
                                       }`}>
-                                        {formatPrice(component.price)}
+                                        {component.powerConsumption}W
                                       </span>
                                     </div>
                                   </div>
-                                  
-                                  {/* Compact performance bar */}
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                                    <div 
-                                      className={`h-full transition-all duration-300 ease-out rounded-full ${
-                                        isSelected 
-                                          ? 'bg-gradient-to-r from-orange-400 to-orange-600' 
-                                          : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
-                                      }`}
-                                      style={{ width: `${component.performance}%` }}
-                                    ></div>
+                                  <div className="text-right">
+                                    <span className={`font-bold text-sm ${
+                                      isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-orange-600'
+                                    }`}>
+                                      {formatPrice(component.price)}
+                                    </span>
                                   </div>
                                 </div>
+                                
+                                {/* Compact performance bar */}
+                                <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                  <div 
+                                    className={`h-full transition-all duration-300 ease-out rounded-full ${
+                                      isSelected 
+                                        ? 'bg-gradient-to-r from-orange-400 to-orange-600' 
+                                        : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
+                                    }`}
+                                    style={{ width: `${component.performance}%` }}
+                                  ></div>
+                                </div>
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </TabsContent>
+                    </div>
                   );
-                })}
-              </Tabs>
+                })()}
+              </div>
             </div>
 
             <div className="space-y-4">
