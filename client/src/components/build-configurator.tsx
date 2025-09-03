@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Cpu, HardDrive, MemoryStick, Zap, Monitor, Gamepad2, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Cpu, HardDrive, MemoryStick, Zap, Monitor, Gamepad2, AlertTriangle, CheckCircle, Info, Package } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { Link } from "wouter";
 
@@ -263,7 +264,7 @@ export default function BuildConfigurator() {
     storage: HardDrive,
     motherboard: Gamepad2,
     psu: Zap,
-    case: HardDrive,
+    case: Package,
   };
 
   const componentLabels = {
@@ -332,108 +333,138 @@ export default function BuildConfigurator() {
 
           <Separator />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Select Components</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <h3 className="text-lg font-semibold mb-4">Select Components</h3>
               
-              {Object.entries(componentLabels).map(([type, label]) => {
-                const Icon = componentIcons[type as keyof typeof componentIcons];
-                const selectedComponent = config[type as keyof BuildConfig];
+              <Tabs defaultValue="cpu" className="w-full">
+                <TabsList className="grid w-full grid-cols-7 h-auto">
+                  {Object.entries(componentLabels).map(([type, label]) => {
+                    const Icon = componentIcons[type as keyof typeof componentIcons];
+                    const selectedComponent = config[type as keyof BuildConfig];
+                    
+                    return (
+                      <TabsTrigger 
+                        key={type} 
+                        value={type} 
+                        className="flex flex-col items-center gap-1 p-3 relative"
+                        data-testid={`tab-${type}`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="text-xs hidden sm:block">{label.split(' ')[0]}</span>
+                        {selectedComponent && (
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full flex items-center justify-center">
+                            <CheckCircle className="h-2 w-2 text-white" />
+                          </div>
+                        )}
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
                 
-                return (
-                  <div key={type} className="space-y-3">
-                    <label className="flex items-center gap-2 text-base font-semibold text-gray-800">
-                      <Icon className="h-5 w-5 text-tech-orange" />
-                      {label}
-                      {selectedComponent && (
-                        <Badge className="ml-2 bg-green-100 text-green-800 border-green-300">
-                          Selected
-                        </Badge>
-                      )}
-                    </label>
-                    <div className="space-y-3 max-h-64 overflow-y-auto border rounded-lg p-3">
-                      {components[type as keyof typeof components].map((component) => {
-                        const isSelected = selectedComponent?.id === component.id;
-                        return (
-                          <div
-                            key={component.id}
-                            onClick={() => updateComponent(type as keyof BuildConfig, component.id)}
-                            className={`
-                              relative p-4 border-2 rounded-xl cursor-pointer 
-                              transition-all duration-300 ease-in-out
-                              transform hover:scale-102 active:scale-98
-                              group overflow-hidden
-                              ${isSelected 
-                                ? 'border-tech-orange bg-gradient-to-r from-orange-50 to-orange-100 ring-2 ring-orange-200 shadow-lg' 
-                                : 'border-gray-200 hover:border-orange-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-orange-50 hover:shadow-md'
-                              }
-                            `}
-                          >
-                            {/* Selection indicator */}
-                            {isSelected && (
-                              <div className="absolute top-3 right-3">
-                                <CheckCircle className="h-5 w-5 text-tech-orange animate-bounce" />
-                              </div>
-                            )}
-                            
-                            {/* Hover glow effect */}
-                            <div className={`
-                              absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 
-                              transition-opacity duration-300 pointer-events-none
-                              ${isSelected ? 'bg-orange-400' : 'bg-orange-300'}
-                            `}></div>
-                            
-                            <div className="relative flex justify-between items-center">
-                              <div className="flex-1 pr-6">
-                                <h4 className={`font-semibold text-sm mb-2 ${
-                                  isSelected ? 'text-orange-800' : 'text-gray-800 group-hover:text-orange-700'
-                                }`}>
-                                  {component.name}
-                                </h4>
-                                <div className="flex items-center gap-4 text-xs">
-                                  <div className={`flex items-center gap-1 ${
-                                    isSelected ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
-                                  }`}>
-                                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                                    <span>Performance: {component.performance}/100</span>
+                {Object.entries(componentLabels).map(([type, label]) => {
+                  const Icon = componentIcons[type as keyof typeof componentIcons];
+                  const selectedComponent = config[type as keyof BuildConfig];
+                  
+                  return (
+                    <TabsContent key={type} value={type} className="mt-4" data-testid={`content-${type}`}>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Icon className="h-6 w-6 text-tech-orange" />
+                          <h4 className="text-xl font-semibold text-gray-800">{label}</h4>
+                          {selectedComponent && (
+                            <Badge className="ml-2 bg-green-100 text-green-800 border-green-300">
+                              Selected: {selectedComponent.name}
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
+                          {components[type as keyof typeof components].map((component) => {
+                            const isSelected = selectedComponent?.id === component.id;
+                            return (
+                              <div
+                                key={component.id}
+                                onClick={() => updateComponent(type as keyof BuildConfig, component.id)}
+                                className={`
+                                  relative p-4 border-2 rounded-xl cursor-pointer 
+                                  transition-all duration-300 ease-in-out
+                                  transform hover:scale-102 active:scale-98
+                                  group overflow-hidden
+                                  ${isSelected 
+                                    ? 'border-tech-orange bg-gradient-to-r from-orange-50 to-orange-100 ring-2 ring-orange-200 shadow-lg' 
+                                    : 'border-gray-200 hover:border-orange-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-orange-50 hover:shadow-md'
+                                  }
+                                `}
+                                data-testid={`component-${type}-${component.id}`}
+                              >
+                                {/* Selection indicator */}
+                                {isSelected && (
+                                  <div className="absolute top-3 right-3">
+                                    <CheckCircle className="h-5 w-5 text-tech-orange animate-bounce" />
                                   </div>
-                                  <div className={`flex items-center gap-1 ${
-                                    isSelected ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
-                                  }`}>
-                                    <Zap className="w-3 h-3" />
-                                    <span>{component.powerConsumption}W</span>
+                                )}
+                                
+                                {/* Hover glow effect */}
+                                <div className={`
+                                  absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 
+                                  transition-opacity duration-300 pointer-events-none
+                                  ${isSelected ? 'bg-orange-400' : 'bg-orange-300'}
+                                `}></div>
+                                
+                                <div className="relative">
+                                  <div className="flex justify-between items-start mb-3">
+                                    <div className="flex-1 pr-6">
+                                      <h5 className={`font-semibold text-sm mb-2 ${
+                                        isSelected ? 'text-orange-800' : 'text-gray-800 group-hover:text-orange-700'
+                                      }`}>
+                                        {component.name}
+                                      </h5>
+                                      <div className="flex items-center gap-3 text-xs mb-2">
+                                        <div className={`flex items-center gap-1 ${
+                                          isSelected ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
+                                        }`}>
+                                          <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                                          <span>Perf: {component.performance}/100</span>
+                                        </div>
+                                        <div className={`flex items-center gap-1 ${
+                                          isSelected ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
+                                        }`}>
+                                          <Zap className="w-3 h-3" />
+                                          <span>{component.powerConsumption}W</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <span className={`font-bold text-lg ${
+                                        isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-orange-600'
+                                      }`}>
+                                        {formatPrice(component.price)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Performance bar */}
+                                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div 
+                                      className={`h-full transition-all duration-500 ease-out rounded-full ${
+                                        isSelected 
+                                          ? 'bg-gradient-to-r from-orange-400 to-orange-600' 
+                                          : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
+                                      }`}
+                                      style={{ width: `${component.performance}%` }}
+                                    ></div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <span className={`font-bold text-lg ${
-                                  isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-orange-600'
-                                }`}>
-                                  {formatPrice(component.price)}
-                                </span>
-                              </div>
-                            </div>
-                            
-                            {/* Performance bar */}
-                            <div className="mt-3">
-                              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                <div 
-                                  className={`h-full transition-all duration-500 ease-out rounded-full ${
-                                    isSelected 
-                                      ? 'bg-gradient-to-r from-orange-400 to-orange-600' 
-                                      : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
-                                  }`}
-                                  style={{ width: `${component.performance}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  );
+                })}
+              </Tabs>
             </div>
 
             <div className="space-y-4">
