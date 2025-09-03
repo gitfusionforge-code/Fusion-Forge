@@ -379,7 +379,25 @@ export default function BuildConfigurator() {
                           )}
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Quick Select:</span>
+                            <Select value={selectedComponent?.id || ""} onValueChange={(value) => updateComponent(type as keyof BuildConfig, value)}>
+                              <SelectTrigger className="w-64">
+                                <SelectValue placeholder={`Choose ${label.toLowerCase()}`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {components[type as keyof typeof components].map((component) => (
+                                  <SelectItem key={component.id} value={component.id}>
+                                    {component.name} - {formatPrice(component.price)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                           {components[type as keyof typeof components].map((component) => {
                             const isSelected = selectedComponent?.id === component.id;
                             return (
@@ -387,56 +405,46 @@ export default function BuildConfigurator() {
                                 key={component.id}
                                 onClick={() => updateComponent(type as keyof BuildConfig, component.id)}
                                 className={`
-                                  relative p-4 border-2 rounded-xl cursor-pointer 
-                                  transition-all duration-300 ease-in-out
-                                  transform hover:scale-102 active:scale-98
+                                  relative p-3 border-2 rounded-lg cursor-pointer 
+                                  transition-all duration-200 ease-in-out
                                   group overflow-hidden
                                   ${isSelected 
-                                    ? 'border-tech-orange bg-gradient-to-r from-orange-50 to-orange-100 ring-2 ring-orange-200 shadow-lg' 
-                                    : 'border-gray-200 hover:border-orange-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-orange-50 hover:shadow-md'
+                                    ? 'border-tech-orange bg-orange-50 ring-1 ring-orange-200 shadow-md' 
+                                    : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50 hover:shadow-sm'
                                   }
                                 `}
                                 data-testid={`component-${type}-${component.id}`}
                               >
                                 {/* Selection indicator */}
                                 {isSelected && (
-                                  <div className="absolute top-3 right-3">
-                                    <CheckCircle className="h-5 w-5 text-tech-orange animate-bounce" />
+                                  <div className="absolute top-2 right-2">
+                                    <CheckCircle className="h-4 w-4 text-tech-orange" />
                                   </div>
                                 )}
                                 
-                                {/* Hover glow effect */}
-                                <div className={`
-                                  absolute inset-0 rounded-xl opacity-0 group-hover:opacity-20 
-                                  transition-opacity duration-300 pointer-events-none
-                                  ${isSelected ? 'bg-orange-400' : 'bg-orange-300'}
-                                `}></div>
-                                
                                 <div className="relative">
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div className="flex-1 pr-6">
-                                      <h5 className={`font-semibold text-sm mb-2 ${
+                                  <div className="flex justify-between items-start mb-2">
+                                    <div className="flex-1 pr-4">
+                                      <h5 className={`font-semibold text-sm mb-1 leading-tight ${
                                         isSelected ? 'text-orange-800' : 'text-gray-800 group-hover:text-orange-700'
                                       }`}>
                                         {component.name}
                                       </h5>
-                                      <div className="flex items-center gap-3 text-xs mb-2">
-                                        <div className={`flex items-center gap-1 ${
-                                          isSelected ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <span className={`px-1.5 py-0.5 rounded text-xs ${
+                                          isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
                                         }`}>
-                                          <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                                          <span>Perf: {component.performance}/100</span>
-                                        </div>
-                                        <div className={`flex items-center gap-1 ${
-                                          isSelected ? 'text-orange-600' : 'text-gray-500 group-hover:text-orange-600'
+                                          {component.performance}% Perf
+                                        </span>
+                                        <span className={`px-1.5 py-0.5 rounded text-xs ${
+                                          isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
                                         }`}>
-                                          <Zap className="w-3 h-3" />
-                                          <span>{component.powerConsumption}W</span>
-                                        </div>
+                                          {component.powerConsumption}W
+                                        </span>
                                       </div>
                                     </div>
                                     <div className="text-right">
-                                      <span className={`font-bold text-lg ${
+                                      <span className={`font-bold text-sm ${
                                         isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-orange-600'
                                       }`}>
                                         {formatPrice(component.price)}
@@ -444,10 +452,10 @@ export default function BuildConfigurator() {
                                     </div>
                                   </div>
                                   
-                                  {/* Performance bar */}
-                                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                  {/* Compact performance bar */}
+                                  <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
                                     <div 
-                                      className={`h-full transition-all duration-500 ease-out rounded-full ${
+                                      className={`h-full transition-all duration-300 ease-out rounded-full ${
                                         isSelected 
                                           ? 'bg-gradient-to-r from-orange-400 to-orange-600' 
                                           : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
