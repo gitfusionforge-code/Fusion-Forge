@@ -1088,87 +1088,130 @@ Built with FusionForge PC Configurator`;
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Component Selection */}
-        <div className="lg:col-span-2 space-y-6">
-          {Object.entries(components).map(([componentType, componentList]) => (
-            <Card key={componentType}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 capitalize">
-                  {componentType === 'cpu' && <Cpu className="h-5 w-5" />}
-                  {componentType === 'gpu' && <Monitor className="h-5 w-5" />}
-                  {componentType === 'ram' && <MemoryStick className="h-5 w-5" />}
-                  {componentType === 'storage' && <HardDrive className="h-5 w-5" />}
-                  {componentType === 'psu' && <Zap className="h-5 w-5" />}
-                  {componentType === 'motherboard' && <Settings className="h-5 w-5" />}
-                  {componentType === 'case' && <Monitor className="h-5 w-5" />}
-                  {componentType === 'cooler' && <Thermometer className="h-5 w-5" />}
-                  {componentType.replace('_', ' ')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {componentList.map((component) => {
-                    const isSelected = config[componentType as keyof BuildConfig]?.id === component.id;
-                    const adjustedPrice = getAdjustedPrice(component.price);
-                    const currentComponentAdjustedPrice = getAdjustedPrice(config[componentType as keyof BuildConfig]?.price || 0);
-                    const isAffordable = totalPrice - currentComponentAdjustedPrice + adjustedPrice <= budget;
-                    
-                    return (
-                      <div
-                        key={component.id}
-                        className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                          isSelected 
-                            ? 'border-blue-500 bg-blue-50' 
-                            : isAffordable 
-                              ? 'border-gray-200 hover:border-gray-300' 
-                              : 'border-red-200 bg-red-50 opacity-60'
-                        }`}
-                        onClick={() => {
-                          if (isAffordable || isSelected) {
-                            setConfig(prev => ({
-                              ...prev,
-                              [componentType]: isSelected ? null : component
-                            }));
+        <div className="xl:col-span-3">
+          <Card className="p-6">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <Settings className="h-6 w-6 text-blue-600" />
+                Component Selection
+              </CardTitle>
+              <p className="text-gray-600 text-sm">Choose components for your build using the dropdowns below</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Object.entries(components).map(([componentType, componentList]) => {
+                  const selectedComponent = config[componentType as keyof BuildConfig];
+                  const getIcon = () => {
+                    switch(componentType) {
+                      case 'cpu': return <Cpu className="h-5 w-5" />;
+                      case 'gpu': return <Monitor className="h-5 w-5" />;
+                      case 'ram': return <MemoryStick className="h-5 w-5" />;
+                      case 'storage': return <HardDrive className="h-5 w-5" />;
+                      case 'psu': return <Zap className="h-5 w-5" />;
+                      case 'motherboard': return <Settings className="h-5 w-5" />;
+                      case 'case': return <Monitor className="h-5 w-5" />;
+                      case 'cooler': return <Thermometer className="h-5 w-5" />;
+                      default: return <Settings className="h-5 w-5" />;
+                    }
+                  };
+
+                  return (
+                    <div key={componentType} className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          {getIcon()}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-base capitalize">
+                            {componentType.replace('_', ' ')}
+                          </h3>
+                          {selectedComponent && (
+                            <p className="text-sm text-green-600 font-medium">
+                              Selected: {selectedComponent.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <Select 
+                        value={selectedComponent?.id || "none"} 
+                        onValueChange={(value) => {
+                          if (value === "none") {
+                            setConfig(prev => ({ ...prev, [componentType]: null }));
+                          } else {
+                            const component = componentList.find(c => c.id === value);
+                            if (component) {
+                              const adjustedPrice = getAdjustedPrice(component.price);
+                              const currentComponentAdjustedPrice = getAdjustedPrice(selectedComponent?.price || 0);
+                              const isAffordable = totalPrice - currentComponentAdjustedPrice + adjustedPrice <= budget;
+                              
+                              if (isAffordable) {
+                                setConfig(prev => ({ ...prev, [componentType]: component }));
+                              }
+                            }
                           }
                         }}
                       >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm">{component.name}</h4>
-                            <div className="flex items-center gap-4 mt-1 text-xs text-gray-600">
-                              <span>Performance: {component.performance}/100</span>
-                              <span>Power: {component.powerConsumption}W</span>
-                              {(component as any).cores && <span>Cores: {(component as any).cores}</span>}
-                              {(component as any).vram && <span>VRAM: {(component as any).vram}GB</span>}
-                              {(component as any).capacity && <span>Size: {(component as any).capacity}GB</span>}
-                              {(component as any).wattage && <span>Wattage: {(component as any).wattage}W</span>}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-medium text-sm">
-                              {component.price === 0 ? 'Included' : formatPrice(getAdjustedPrice(component.price))}
-                              {component.price > 0 && priceMultiplier !== 1.0 && (
-                                <div className="text-xs text-gray-500">
-                                  {priceMultiplier > 1.0 ? '+' : ''}{((priceMultiplier - 1) * 100).toFixed(1)}%
+                        <SelectTrigger className="w-full h-12 border-2 hover:border-blue-300 transition-colors">
+                          <SelectValue placeholder={`Choose ${componentType.replace('_', ' ')}`} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-64">
+                          <SelectItem value="none" className="text-gray-500 italic">
+                            None selected
+                          </SelectItem>
+                          {componentList.map((component) => {
+                            const adjustedPrice = getAdjustedPrice(component.price);
+                            const currentComponentAdjustedPrice = getAdjustedPrice(selectedComponent?.price || 0);
+                            const isAffordable = totalPrice - currentComponentAdjustedPrice + adjustedPrice <= budget;
+                            
+                            return (
+                              <SelectItem 
+                                key={component.id} 
+                                value={component.id}
+                                disabled={!isAffordable && !selectedComponent}
+                                className={`cursor-pointer ${!isAffordable && !selectedComponent ? 'opacity-50' : ''}`}
+                              >
+                                <div className="flex justify-between items-center w-full">
+                                  <div className="flex-1">
+                                    <div className="font-medium">{component.name}</div>
+                                    <div className="text-xs text-gray-500 flex gap-2">
+                                      <span>Perf: {component.performance}%</span>
+                                      <span>Power: {component.powerConsumption}W</span>
+                                      {(component as any).cores && <span>Cores: {(component as any).cores}</span>}
+                                      {(component as any).vram && <span>VRAM: {(component as any).vram}GB</span>}
+                                      {(component as any).capacity && <span>{(component as any).capacity}GB</span>}
+                                      {(component as any).wattage && <span>{(component as any).wattage}W</span>}
+                                    </div>
+                                  </div>
+                                  <div className="text-right ml-3">
+                                    <div className={`font-bold text-sm ${
+                                      !isAffordable && !selectedComponent ? 'text-red-600' : 'text-blue-600'
+                                    }`}>
+                                      {component.price === 0 ? 'Included' : formatPrice(adjustedPrice)}
+                                    </div>
+                                    {component.price > 0 && priceMultiplier !== 1.0 && (
+                                      <div className="text-xs text-gray-500">
+                                        {priceMultiplier > 1.0 ? '+' : ''}{((priceMultiplier - 1) * 100).toFixed(1)}%
+                                      </div>
+                                    )}
+                                    {!isAffordable && !selectedComponent && (
+                                      <div className="text-xs text-red-500 font-medium">Over Budget</div>
+                                    )}
+                                  </div>
                                 </div>
-                              )}
-                            </div>
-                            {!isAffordable && !isSelected && (
-                              <Badge variant="destructive" className="text-xs mt-1">Over Budget</Badge>
-                            )}
-                            {isSelected && (
-                              <Badge className="text-xs mt-1">Selected</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Summary and Analysis */}
