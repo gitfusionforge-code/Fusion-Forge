@@ -49,6 +49,11 @@ interface CompatibilityCheck {
   issues: Array<{type: 'error' | 'warning' | 'info', message: string}>;
   overallCompatible: boolean;
   compatibilityScore: number;
+  assessmentLevel?: string;
+  hasErrors?: boolean;
+  warningCount?: number;
+  infoCount?: number;
+  totalIssues?: number;
 }
 
 interface PerformancePrediction {
@@ -58,6 +63,10 @@ interface PerformancePrediction {
   thermalRating: 'Excellent' | 'Good' | 'Fair' | 'Poor';
   noiseLevel: 'Silent' | 'Quiet' | 'Moderate' | 'Loud';
   futureProofing: number;
+  bottleneckComponent?: string;
+  recommendations?: string[];
+  useCaseScore?: number;
+  performanceCategory?: string;
 }
 
 export default function EnhancedBuildConfigurator() {
@@ -559,23 +568,23 @@ export default function EnhancedBuildConfigurator() {
 
     // Use case specific recommendations
     if (config.ram) {
-      const ramCapacity = config.ram.capacity;
-      if (useCase === 'content-creation' && ramCapacity < 32) {
+      const ramCapacity = config.ram.capacity || 0;
+      if (useCase === 'content-creation' && ramCapacity > 0 && ramCapacity < 32) {
         issues.push({
           type: "info",
           message: `Content creation benefits from 32GB+ RAM (current: ${ramCapacity}GB)`
         });
         compatibilityScore -= 3;
-      } else if (useCase === 'ai-ml' && ramCapacity < 64) {
+      } else if (useCase === 'ai-ml' && ramCapacity > 0 && ramCapacity < 64) {
         issues.push({
           type: "warning",
           message: `AI/ML workloads often require 64GB+ RAM (current: ${ramCapacity}GB)`
         });
         compatibilityScore -= 8;
-      } else if (useCase === 'workstation' && ramCapacity < 32) {
+      } else if (useCase === 'workstation' && ramCapacity > 0 && ramCapacity < 32) {
         issues.push({
           type: "info",
-          message: `Workstation use typically benefits from 32GB+ RAM`
+          message: `Workstation use typically benefits from 32GB+ RAM (current: ${ramCapacity}GB)`
         });
         compatibilityScore -= 2;
       }
