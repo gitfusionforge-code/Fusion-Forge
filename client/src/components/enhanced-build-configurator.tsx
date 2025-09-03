@@ -823,31 +823,31 @@ export default function EnhancedBuildConfigurator() {
     const useCaseProfiles = {
       gaming: {
         priorities: { gpu: 0.45, cpu: 0.25, ram: 0.12, storage: 0.08, support: 0.10 },
-        minSpecs: { ramCapacity: 16, storageSize: 500, gpuVram: 6 },
+        minSpecs: { ramCapacity: 16, storageSize: 500, gpuVram: 6, cpuCores: 4 },
         balanceTarget: 'gpu-focused', // GPU should be highest tier
         futureProofing: 0.7
       },
       'content-creation': {
         priorities: { cpu: 0.35, gpu: 0.25, ram: 0.20, storage: 0.12, support: 0.08 },
-        minSpecs: { ramCapacity: 32, storageSize: 1000, cpuCores: 8 },
+        minSpecs: { ramCapacity: 32, storageSize: 1000, cpuCores: 8, gpuVram: 8 },
         balanceTarget: 'cpu-focused',
         futureProofing: 0.8
       },
       workstation: {
         priorities: { cpu: 0.40, ram: 0.25, storage: 0.15, gpu: 0.12, support: 0.08 },
-        minSpecs: { ramCapacity: 32, storageSize: 1000, cpuCores: 12 },
+        minSpecs: { ramCapacity: 32, storageSize: 1000, cpuCores: 12, gpuVram: 6 },
         balanceTarget: 'balanced',
         futureProofing: 0.9
       },
       office: {
         priorities: { cpu: 0.25, ram: 0.20, storage: 0.15, gpu: 0.08, support: 0.32 },
-        minSpecs: { ramCapacity: 16, storageSize: 500, cpuCores: 4 },
+        minSpecs: { ramCapacity: 16, storageSize: 500, cpuCores: 4, gpuVram: 4 },
         balanceTarget: 'efficiency',
         futureProofing: 0.5
       },
       'ai-ml': {
         priorities: { gpu: 0.50, cpu: 0.20, ram: 0.18, storage: 0.07, support: 0.05 },
-        minSpecs: { ramCapacity: 32, storageSize: 1000, gpuVram: 16 },
+        minSpecs: { ramCapacity: 32, storageSize: 1000, gpuVram: 16, cpuCores: 8 },
         balanceTarget: 'gpu-memory',
         futureProofing: 0.9
       }
@@ -877,7 +877,7 @@ export default function EnhancedBuildConfigurator() {
           ['budget', 'mid-range', 'high-end'].includes((comp as any).tier) :
           true; // High-end and enthusiast can use any tier
         
-        const budgetFit = comp.price <= allocation * 2.0; // More generous budget tolerance
+        const budgetFit = comp.price <= allocation * 3.0; // Very generous budget tolerance to use full budget
         
         return tierMatch && budgetFit;
       });
@@ -896,9 +896,18 @@ export default function EnhancedBuildConfigurator() {
         candidates = candidates.filter(comp => (comp as any).capacity >= requirements.minCapacity);
       }
       
-      // Fallback to any available component if no candidates
+      // Fallback to any available component if no candidates - be more aggressive
       if (candidates.length === 0) {
-        candidates = componentList.filter(comp => comp.price <= allocation * 3.0);
+        candidates = componentList.filter(comp => comp.price <= allocation * 5.0);
+      }
+      
+      // Second fallback - if still no candidates, use all available components in tier
+      if (candidates.length === 0) {
+        candidates = componentList.filter(comp => 
+          targetTier === 'budget' ? comp.price <= budget * 0.3 :
+          targetTier === 'mid-range' ? comp.price <= budget * 0.5 :
+          comp.price <= budget * 0.8
+        );
       }
       
       // Ultimate fallback for essential components
@@ -926,12 +935,13 @@ export default function EnhancedBuildConfigurator() {
     };
     
     // STAGE 1: Essential Components First (motherboard, psu, case, cooler)
-    const essentialBudget = Math.max(budget * 0.15, 15000); // At least 15k for essentials
+    // Use aggressive budget allocation to utilize full budget
+    const essentialBudget = Math.max(budget * 0.20, 20000); // Increased to 20% for better components
     const supportAllocations = {
-      motherboard: essentialBudget * 0.4,
-      psu: essentialBudget * 0.3,
-      case: essentialBudget * 0.2,
-      cooler: essentialBudget * 0.1
+      motherboard: essentialBudget * 0.35,
+      psu: essentialBudget * 0.35, 
+      case: essentialBudget * 0.20,
+      cooler: essentialBudget * 0.10
     };
     
     const newConfig: BuildConfig = {
@@ -1047,17 +1057,61 @@ export default function EnhancedBuildConfigurator() {
       }
     }
     
-    // Final budget check and adjustments
+    // Final budget optimization - use remaining budget for upgrades
     const finalTotalPrice = Object.values(newConfig).reduce((total, component) => 
       total + (component?.price || 0), 0
     );
     
+    const remainingBudgetAfterSelection = budget - finalTotalPrice;
+    
+    // If we have significant remaining budget, upgrade components intelligently
+    if (remainingBudgetAfterSelection > budget * 0.1) { // More than 10% budget left
+      const upgradePriority = profile.balanceTarget === 'gpu-focused' ? 
+        ['gpu', 'cpu', 'ram', 'storage', 'motherboard', 'psu'] :
+        profile.balanceTarget === 'cpu-focused' ?
+        ['cpu', 'gpu', 'ram', 'storage', 'motherboard', 'psu'] :
+        ['cpu', 'gpu', 'ram', 'storage', 'motherboard', 'psu'];
+      
+      for (const componentType of upgradePriority) {
+        const currentComponent = newConfig[componentType as keyof BuildConfig];
+        if (!currentComponent) continue;
+        
+        const componentList = components[componentType as keyof typeof components];
+        const currentTotalPrice = Object.values(newConfig).reduce((total, component) => 
+          total + (component?.price || 0), 0
+        );
+        
+        const availableForUpgrade = budget - currentTotalPrice + currentComponent.price;
+        
+        const upgradeOption = componentList
+          .filter(comp => comp.price > currentComponent.price && comp.price <= availableForUpgrade)
+          .reduce((best, current) => {
+            if (!best) return current;
+            const currentScore = current.performance / (current.price / 1000);
+            const bestScore = best.performance / (best.price / 1000);
+            return currentScore > bestScore ? current : best;
+          }, null as any);
+        
+        if (upgradeOption && upgradeOption.performance > currentComponent.performance) {
+          newConfig[componentType as keyof BuildConfig] = upgradeOption;
+        }
+      }
+    }
+    
     // If over budget, downgrade least important components
-    if (finalTotalPrice > budget * 1.1) { // 10% tolerance
+    const overBudgetAmount = Object.values(newConfig).reduce((total, component) => 
+      total + (component?.price || 0), 0
+    ) - budget;
+    
+    if (overBudgetAmount > 0) {
       const downgradePriority = ['cooler', 'case', 'storage', 'ram', 'cpu', 'gpu', 'motherboard', 'psu'];
       
       for (const componentType of downgradePriority) {
-        if (finalTotalPrice <= budget * 1.1) break;
+        const currentTotalPrice = Object.values(newConfig).reduce((total, component) => 
+          total + (component?.price || 0), 0
+        );
+        
+        if (currentTotalPrice <= budget) break;
         
         const currentComponent = newConfig[componentType as keyof BuildConfig];
         if (!currentComponent) continue;
@@ -1066,10 +1120,11 @@ export default function EnhancedBuildConfigurator() {
         const cheaperOption = componentList
           .filter(comp => comp.price < currentComponent.price && comp.performance >= currentComponent.performance * 0.8)
           .reduce((best, current) => {
+            if (!best) return current;
             const currentScore = current.performance / (current.price / 1000);
             const bestScore = best.performance / (best.price / 1000);
             return currentScore > bestScore ? current : best;
-          });
+          }, null as any);
         
         if (cheaperOption) {
           newConfig[componentType as keyof BuildConfig] = cheaperOption;
