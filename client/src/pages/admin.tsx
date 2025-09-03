@@ -31,6 +31,7 @@ import {
   ShoppingCart,
   Database
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import type { Inquiry, PcBuild, Order } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
 
@@ -62,6 +63,7 @@ function AdminContent() {
     mousePad: ''
   });
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -81,6 +83,19 @@ function AdminContent() {
     queryKey: ["/api/orders"],
     enabled: adminSessionReady,
   });
+
+  // Maintenance Mode Query
+  const { data: maintenanceModeSetting } = useQuery({
+    queryKey: ["/api/admin/settings/maintenanceMode"],
+    enabled: adminSessionReady,
+  });
+
+  // Update local state when maintenance mode setting changes
+  useEffect(() => {
+    if (maintenanceModeSetting) {
+      setMaintenanceMode(maintenanceModeSetting.value === 'true');
+    }
+  }, [maintenanceModeSetting]);
 
   const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery<any[]>({
     queryKey: ["/api/users"],
@@ -182,6 +197,48 @@ FusionForge PCs Team`);
       });
     }
   });
+
+  // Mutation to toggle maintenance mode
+  const toggleMaintenanceMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          key: 'maintenanceMode', 
+          value: enabled.toString() 
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update maintenance mode');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/settings/maintenanceMode'] });
+      toast({
+        title: "Maintenance Mode Updated",
+        description: `Maintenance mode has been ${maintenanceMode ? 'disabled' : 'enabled'}.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update maintenance mode.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handle maintenance mode toggle
+  const handleMaintenanceToggle = (checked: boolean) => {
+    setMaintenanceMode(checked);
+    toggleMaintenanceMutation.mutate(checked);
+  };
 
   // Mutation to update PC build stock
   const updateStockMutation = useMutation({
@@ -1617,9 +1674,17 @@ FusionForge PCs Team`);
                         <label className="block text-sm font-medium text-gray-700">Maintenance Mode</label>
                         <p className="text-xs text-gray-500">Temporarily disable customer access</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm text-gray-600">Disabled</span>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${maintenanceMode ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                          <span className="text-sm text-gray-600">{maintenanceMode ? 'Enabled' : 'Disabled'}</span>
+                        </div>
+                        <Switch 
+                          checked={maintenanceMode}
+                          onCheckedChange={handleMaintenanceToggle}
+                          disabled={toggleMaintenanceMutation.isPending}
+                          data-testid="switch-maintenance-mode"
+                        />
                       </div>
                     </div>
                     
