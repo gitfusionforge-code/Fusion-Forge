@@ -39,12 +39,24 @@ export default function Home() {
           {isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white rounded-xl shadow-lg h-96 animate-pulse">
-                  <div className="w-full h-48 bg-gray-200 rounded-t-xl"></div>
-                  <div className="p-6 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-full"></div>
-                    <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 ease-in-out hover:-translate-y-1 flex flex-col h-full group min-h-[500px]">
+                  <div className="relative overflow-hidden h-48">
+                    <div className="w-full h-full bg-gray-200 animate-pulse"></div>
+                  </div>
+                  <div className="p-6 space-y-3 flex-grow">
+                    <div className="h-6 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                    <div className="mt-4 space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-4/5 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-3/5 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-4/5 animate-pulse"></div>
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      <div className="h-10 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
                   </div>
                 </div>
               ))}

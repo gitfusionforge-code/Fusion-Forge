@@ -24,8 +24,7 @@ export default function HeroSection() {
                   loading="eager"
                   decoding="async"
                   className="h-16 w-16 object-contain"
-                  width="64"
-                  height="64"
+                  style={{ width: '64px', height: '64px' }}
                 />
                 <div>
                   <h1 className="text-2xl lg:text-3xl font-bold text-white">
