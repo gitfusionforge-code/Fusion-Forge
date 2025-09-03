@@ -1526,18 +1526,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Backup Routes (Admin only)
-  app.post("/api/admin/backup", requireAdminAuth, async (req, res) => {
-    try {
-      const { handleBackupOperations } = await import('./routes/backup');
-      await handleBackupOperations(req, res);
-    } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        error: 'Backup operation failed' 
-      });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;

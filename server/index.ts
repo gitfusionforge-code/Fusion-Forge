@@ -57,14 +57,6 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
   
-  // Initialize backup scheduler for PostgreSQL backup database
-  try {
-    const { backupScheduler } = await import('./services/backup-scheduler');
-    backupScheduler.startScheduledBackups();
-    console.log('✅ Backup scheduler initialized');
-  } catch (error) {
-    console.warn('⚠️ Failed to initialize backup scheduler:', error);
-  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

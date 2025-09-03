@@ -33,8 +33,6 @@ import {
 } from "lucide-react";
 import type { Inquiry, PcBuild, Order } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
-import { BackupManager } from "@/components/BackupManager";
-import { BackupSettings } from "@/components/admin/BackupSettings";
 
 function AdminContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -448,7 +446,7 @@ FusionForge PCs Team`);
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -468,10 +466,6 @@ FusionForge PCs Team`);
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Users
-            </TabsTrigger>
-            <TabsTrigger value="backup" className="flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Backup
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -1491,9 +1485,6 @@ FusionForge PCs Team`);
           </TabsContent>
 
           {/* Database Backup Tab */}
-          <TabsContent value="backup" className="space-y-6">
-            <BackupManager />
-          </TabsContent>
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
@@ -1612,18 +1603,6 @@ FusionForge PCs Team`);
               </CardContent>
             </Card>
 
-            {/* Backup Management Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
-                  Database Backup Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BackupSettings />
-              </CardContent>
-            </Card>
 
             {/* Additional Admin Settings */}
             <Card>
