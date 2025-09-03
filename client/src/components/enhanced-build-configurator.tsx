@@ -815,43 +815,128 @@ export default function EnhancedBuildConfigurator() {
     };
   }, [config]);
 
-  // Comprehensive auto-optimization function
+  // Advanced Multi-Stage Auto-Optimization System
   const optimizeForBudget = () => {
     if (!autoOptimize) return;
 
-    // Define use case priorities with better allocations for essential components
-    const useCasePriorities = {
-      gaming: { gpu: 0.40, cpu: 0.25, ram: 0.12, storage: 0.08, others: 0.15 },
-      'content-creation': { cpu: 0.30, gpu: 0.28, ram: 0.18, storage: 0.09, others: 0.15 },
-      workstation: { cpu: 0.35, ram: 0.22, storage: 0.13, gpu: 0.15, others: 0.15 },
-      office: { cpu: 0.25, ram: 0.20, storage: 0.15, gpu: 0.10, others: 0.30 },
-      'ai-ml': { gpu: 0.35, cpu: 0.25, ram: 0.18, storage: 0.07, others: 0.15 }
+    // Advanced use case configurations with specific requirements
+    const useCaseProfiles = {
+      gaming: {
+        priorities: { gpu: 0.45, cpu: 0.25, ram: 0.12, storage: 0.08, support: 0.10 },
+        minSpecs: { ramCapacity: 16, storageSize: 500, gpuVram: 6 },
+        balanceTarget: 'gpu-focused', // GPU should be highest tier
+        futureProofing: 0.7
+      },
+      'content-creation': {
+        priorities: { cpu: 0.35, gpu: 0.25, ram: 0.20, storage: 0.12, support: 0.08 },
+        minSpecs: { ramCapacity: 32, storageSize: 1000, cpuCores: 8 },
+        balanceTarget: 'cpu-focused',
+        futureProofing: 0.8
+      },
+      workstation: {
+        priorities: { cpu: 0.40, ram: 0.25, storage: 0.15, gpu: 0.12, support: 0.08 },
+        minSpecs: { ramCapacity: 32, storageSize: 1000, cpuCores: 12 },
+        balanceTarget: 'balanced',
+        futureProofing: 0.9
+      },
+      office: {
+        priorities: { cpu: 0.25, ram: 0.20, storage: 0.15, gpu: 0.08, support: 0.32 },
+        minSpecs: { ramCapacity: 16, storageSize: 500, cpuCores: 4 },
+        balanceTarget: 'efficiency',
+        futureProofing: 0.5
+      },
+      'ai-ml': {
+        priorities: { gpu: 0.50, cpu: 0.20, ram: 0.18, storage: 0.07, support: 0.05 },
+        minSpecs: { ramCapacity: 32, storageSize: 1000, gpuVram: 16 },
+        balanceTarget: 'gpu-memory',
+        futureProofing: 0.9
+      }
     };
 
-    const priorities = useCasePriorities[useCase as keyof typeof useCasePriorities] || useCasePriorities.gaming;
+    const profile = useCaseProfiles[useCase as keyof typeof useCaseProfiles] || useCaseProfiles.gaming;
     
-    // Calculate budget allocations with minimum guarantees for essential components
-    const essentialMins = {
-      motherboard: 5000,  // Minimum for basic motherboard
-      psu: 3000,         // Minimum for basic PSU  
-      case: 2000,        // Minimum for basic case
-      cooler: 0          // Stock cooler is free
+    // Dynamic budget calculation with tier analysis
+    const getBudgetTier = (budget: number) => {
+      if (budget >= 150000) return 'enthusiast';
+      if (budget >= 80000) return 'high-end';
+      if (budget >= 50000) return 'mid-range';
+      return 'budget';
     };
     
-    const allocations = {
-      gpu: Math.floor(budget * priorities.gpu),
-      cpu: Math.floor(budget * priorities.cpu),
-      ram: Math.floor(budget * priorities.ram),
-      storage: Math.floor(budget * priorities.storage),
-      motherboard: Math.max(Math.floor(budget * priorities.others * 0.4), essentialMins.motherboard),
-      psu: Math.max(Math.floor(budget * priorities.others * 0.3), essentialMins.psu),
-      case: Math.max(Math.floor(budget * priorities.others * 0.2), essentialMins.case),
-      cooler: Math.max(Math.floor(budget * priorities.others * 0.1), essentialMins.cooler)
+    const targetTier = getBudgetTier(budget);
+    
+    // Smart component selection function
+    const selectOptimalComponent = (componentType: string, allocation: number, requirements: any = {}) => {
+      const componentList = components[componentType as keyof typeof components];
+      
+      // Filter by tier preference and budget
+      let candidates = componentList.filter(comp => {
+        const tierMatch = targetTier === 'budget' ? 
+          ['budget', 'mid-range'].includes((comp as any).tier) :
+          targetTier === 'mid-range' ?
+          ['budget', 'mid-range', 'high-end'].includes((comp as any).tier) :
+          true; // High-end and enthusiast can use any tier
+        
+        const budgetFit = comp.price <= allocation * 2.0; // More generous budget tolerance
+        
+        return tierMatch && budgetFit;
+      });
+      
+      // Apply specific requirements
+      if (requirements.minCapacity && componentType === 'ram') {
+        candidates = candidates.filter(comp => (comp as any).capacity >= requirements.minCapacity);
+      }
+      if (requirements.minVram && componentType === 'gpu') {
+        candidates = candidates.filter(comp => (comp as any).vram >= requirements.minVram);
+      }
+      if (requirements.minCores && componentType === 'cpu') {
+        candidates = candidates.filter(comp => (comp as any).cores >= requirements.minCores);
+      }
+      if (requirements.minCapacity && componentType === 'storage') {
+        candidates = candidates.filter(comp => (comp as any).capacity >= requirements.minCapacity);
+      }
+      
+      // Fallback to any available component if no candidates
+      if (candidates.length === 0) {
+        candidates = componentList.filter(comp => comp.price <= allocation * 3.0);
+      }
+      
+      // Ultimate fallback for essential components
+      if (candidates.length === 0 && ['motherboard', 'psu', 'case', 'cooler'].includes(componentType)) {
+        candidates = [componentList.reduce((cheapest, current) => 
+          current.price < cheapest.price ? current : cheapest
+        )];
+      }
+      
+      if (candidates.length === 0) return null;
+      
+      // Advanced scoring system
+      const scoreComponent = (comp: any) => {
+        const performanceScore = comp.performance / 100;
+        const valueScore = comp.performance / (comp.price / 1000); // Performance per ₹1000
+        const tierBonus = (comp.tier === targetTier) ? 0.2 : 0;
+        const futureProofBonus = (comp.tier === 'high-end' || comp.tier === 'enthusiast') ? profile.futureProofing * 0.1 : 0;
+        
+        return (performanceScore * 0.4) + (valueScore * 0.4) + tierBonus + futureProofBonus;
+      };
+      
+      return candidates.reduce((best, current) => {
+        return scoreComponent(current) > scoreComponent(best) ? current : best;
+      });
     };
-
+    
+    // STAGE 1: Essential Components First (motherboard, psu, case, cooler)
+    const essentialBudget = Math.max(budget * 0.15, 15000); // At least 15k for essentials
+    const supportAllocations = {
+      motherboard: essentialBudget * 0.4,
+      psu: essentialBudget * 0.3,
+      case: essentialBudget * 0.2,
+      cooler: essentialBudget * 0.1
+    };
+    
     const newConfig: BuildConfig = {
       cpu: null,
-      gpu: null,
+      gpu: null, 
       ram: null,
       storage: null,
       motherboard: null,
@@ -859,72 +944,139 @@ export default function EnhancedBuildConfigurator() {
       case: null,
       cooler: null
     };
-
-    // Optimize each component based on allocation and compatibility
-    Object.entries(allocations).forEach(([componentType, allocation]) => {
-      const componentList = components[componentType as keyof typeof components];
-      
-      // Filter affordable components with generous tolerance
-      let affordable = componentList.filter(comp => comp.price <= allocation * 1.5); // 50% tolerance
-      
-      // Fallback: if no affordable options, select the cheapest component for essential parts
-      if (affordable.length === 0 && ['motherboard', 'psu', 'case', 'cooler'].includes(componentType)) {
-        affordable = [componentList.reduce((cheapest, current) => 
-          current.price < cheapest.price ? current : cheapest
-        )];
-      }
-      
-      if (affordable.length > 0) {
-        // Find the best price-to-performance ratio within budget
-        const bestComponent = affordable.reduce((best, current) => {
-          const currentRatio = current.performance / (current.price || 1);
-          const bestRatio = best.performance / (best.price || 1);
-          return currentRatio > bestRatio ? current : best;
-        });
-        
-        newConfig[componentType as keyof BuildConfig] = bestComponent;
-      }
+    
+    // Select essentials first
+    newConfig.motherboard = selectOptimalComponent('motherboard', supportAllocations.motherboard);
+    newConfig.psu = selectOptimalComponent('psu', supportAllocations.psu);
+    newConfig.case = selectOptimalComponent('case', supportAllocations.case);
+    newConfig.cooler = selectOptimalComponent('cooler', supportAllocations.cooler);
+    
+    // STAGE 2: Performance Components with Remaining Budget
+    const usedEssentialBudget = (newConfig.motherboard?.price || 0) + 
+                               (newConfig.psu?.price || 0) + 
+                               (newConfig.case?.price || 0) + 
+                               (newConfig.cooler?.price || 0);
+    
+    const remainingBudget = budget - usedEssentialBudget;
+    
+    const performanceAllocations = {
+      gpu: remainingBudget * (profile.priorities.gpu / (profile.priorities.gpu + profile.priorities.cpu + profile.priorities.ram + profile.priorities.storage)),
+      cpu: remainingBudget * (profile.priorities.cpu / (profile.priorities.gpu + profile.priorities.cpu + profile.priorities.ram + profile.priorities.storage)),
+      ram: remainingBudget * (profile.priorities.ram / (profile.priorities.gpu + profile.priorities.cpu + profile.priorities.ram + profile.priorities.storage)),
+      storage: remainingBudget * (profile.priorities.storage / (profile.priorities.gpu + profile.priorities.cpu + profile.priorities.ram + profile.priorities.storage))
+    };
+    
+    // Select performance components with requirements
+    newConfig.cpu = selectOptimalComponent('cpu', performanceAllocations.cpu, { 
+      minCores: profile.minSpecs.cpuCores 
     });
-
-    // Ensure compatibility after selection
-    // CPU-Motherboard compatibility
-    if (newConfig.cpu && newConfig.motherboard) {
-      if (newConfig.cpu.socket !== newConfig.motherboard.socket) {
-        // Find compatible motherboard
-        const compatibleMB = components.motherboard.find(mb => 
-          mb.socket === newConfig.cpu?.socket && mb.price <= allocations.motherboard * 1.5
+    newConfig.gpu = selectOptimalComponent('gpu', performanceAllocations.gpu, { 
+      minVram: profile.minSpecs.gpuVram 
+    });
+    newConfig.ram = selectOptimalComponent('ram', performanceAllocations.ram, { 
+      minCapacity: profile.minSpecs.ramCapacity 
+    });
+    newConfig.storage = selectOptimalComponent('storage', performanceAllocations.storage, { 
+      minCapacity: profile.minSpecs.storageSize 
+    });
+    
+    // STAGE 3: Advanced Compatibility and Balance Optimization
+    
+    // CPU-Motherboard Socket Compatibility
+    if (newConfig.cpu && newConfig.motherboard && newConfig.cpu.socket !== newConfig.motherboard.socket) {
+      const compatibleMB = components.motherboard
+        .filter(mb => mb.socket === newConfig.cpu?.socket)
+        .reduce((best, current) => {
+          const currentScore = current.performance / (current.price / 1000);
+          const bestScore = best.performance / (best.price / 1000);
+          return currentScore > bestScore ? current : best;
+        });
+      if (compatibleMB) newConfig.motherboard = compatibleMB;
+    }
+    
+    // RAM-Motherboard Memory Type Compatibility
+    if (newConfig.ram && newConfig.motherboard && newConfig.ram.memoryType !== newConfig.motherboard.memoryType) {
+      const compatibleRAM = components.ram
+        .filter(ram => ram.memoryType === newConfig.motherboard?.memoryType && (ram as any).capacity >= profile.minSpecs.ramCapacity)
+        .reduce((best, current) => {
+          const currentScore = current.performance / (current.price / 1000);
+          const bestScore = best.performance / (best.price / 1000);
+          return currentScore > bestScore ? current : best;
+        });
+      if (compatibleRAM) newConfig.ram = compatibleRAM;
+    }
+    
+    // PSU Wattage Adequacy Check
+    const calculateTotalPower = () => {
+      return Object.values(newConfig).reduce((sum, component) => 
+        sum + (component?.powerConsumption || 0), 0
+      );
+    };
+    
+    const totalPower = calculateTotalPower();
+    const requiredWattage = Math.max(totalPower * 1.4, 450); // 40% headroom, minimum 450W
+    
+    if (!newConfig.psu || !newConfig.psu.wattage || newConfig.psu.wattage < requiredWattage) {
+      const adequatePSU = components.psu
+        .filter(psu => (psu.wattage || 0) >= requiredWattage)
+        .reduce((best, current) => {
+          const efficiencyBonus = (current as any).efficiency?.includes('Gold') ? 0.1 : 
+                                  (current as any).efficiency?.includes('Bronze') ? 0.05 : 0;
+          const currentScore = (current.performance / (current.price / 1000)) + efficiencyBonus;
+          const bestScore = (best.performance / (best.price / 1000)) + 
+            ((best as any).efficiency?.includes('Gold') ? 0.1 : (best as any).efficiency?.includes('Bronze') ? 0.05 : 0);
+          return currentScore > bestScore ? current : best;
+        });
+      if (adequatePSU) newConfig.psu = adequatePSU;
+    }
+    
+    // STAGE 4: Performance Balance Optimization
+    if (profile.balanceTarget === 'gpu-focused' && newConfig.cpu && newConfig.gpu) {
+      // For gaming: ensure GPU is higher tier than CPU to avoid GPU bottleneck
+      const cpuTier = (newConfig.cpu as any).tier;
+      const gpuTier = (newConfig.gpu as any).tier;
+      
+      const tierRanking = { 'budget': 1, 'mid-range': 2, 'high-end': 3, 'enthusiast': 4 };
+      
+      if (tierRanking[cpuTier as keyof typeof tierRanking] > tierRanking[gpuTier as keyof typeof tierRanking]) {
+        // Try to upgrade GPU or downgrade CPU for better balance
+        const betterGPU = components.gpu.find(gpu => 
+          (gpu as any).tier === cpuTier && gpu.price <= performanceAllocations.gpu * 1.5
         );
-        if (compatibleMB) newConfig.motherboard = compatibleMB;
+        if (betterGPU) newConfig.gpu = betterGPU;
       }
     }
-
-    // RAM-Motherboard compatibility
-    if (newConfig.ram && newConfig.motherboard) {
-      if (newConfig.ram.memoryType !== newConfig.motherboard.memoryType) {
-        // Find compatible RAM
-        const compatibleRAM = components.ram.find(ram => 
-          ram.memoryType === newConfig.motherboard?.memoryType && ram.price <= allocations.ram * 1.5
-        );
-        if (compatibleRAM) newConfig.ram = compatibleRAM;
-      }
-    }
-
-    // PSU wattage validation
-    const totalPower = Object.values(newConfig).reduce((sum, component) => 
-      sum + (component?.powerConsumption || 0), 0
+    
+    // Final budget check and adjustments
+    const finalTotalPrice = Object.values(newConfig).reduce((total, component) => 
+      total + (component?.price || 0), 0
     );
     
-    if (newConfig.psu && newConfig.psu.wattage) {
-      const requiredWattage = totalPower * 1.3; // 30% headroom
-      if (newConfig.psu.wattage < requiredWattage) {
-        // Find adequate PSU
-        const adequatePSU = components.psu.find(psu => 
-          (psu.wattage || 0) >= requiredWattage && psu.price <= allocations.psu * 1.5
-        );
-        if (adequatePSU) newConfig.psu = adequatePSU;
+    // If over budget, downgrade least important components
+    if (finalTotalPrice > budget * 1.1) { // 10% tolerance
+      const downgradePriority = ['cooler', 'case', 'storage', 'ram', 'cpu', 'gpu', 'motherboard', 'psu'];
+      
+      for (const componentType of downgradePriority) {
+        if (finalTotalPrice <= budget * 1.1) break;
+        
+        const currentComponent = newConfig[componentType as keyof BuildConfig];
+        if (!currentComponent) continue;
+        
+        const componentList = components[componentType as keyof typeof components];
+        const cheaperOption = componentList
+          .filter(comp => comp.price < currentComponent.price && comp.performance >= currentComponent.performance * 0.8)
+          .reduce((best, current) => {
+            const currentScore = current.performance / (current.price / 1000);
+            const bestScore = best.performance / (best.price / 1000);
+            return currentScore > bestScore ? current : best;
+          });
+        
+        if (cheaperOption) {
+          newConfig[componentType as keyof BuildConfig] = cheaperOption;
+        }
       }
     }
-
+    
     // Update configuration
     setConfig(newConfig);
   };
@@ -1042,7 +1194,7 @@ Built with FusionForge PC Configurator`;
             </span>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Auto-Optimize</label>
+                <label className="text-sm font-medium">Smart Auto-Optimize</label>
                 <Switch checked={autoOptimize} onCheckedChange={setAutoOptimize} />
               </div>
               <Button 
@@ -1052,6 +1204,11 @@ Built with FusionForge PC Configurator`;
               >
                 Advanced Settings
               </Button>
+              {autoOptimize && (
+                <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                  AI-powered optimization enabled
+                </div>
+              )}
             </div>
           </CardTitle>
         </CardHeader>
