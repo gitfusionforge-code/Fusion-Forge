@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Cpu, HardDrive, MemoryStick, Zap, Monitor, Gamepad2, AlertTriangle, CheckCircle, Info, Package } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { Link } from "wouter";
@@ -334,36 +333,44 @@ export default function BuildConfigurator() {
 
           <Separator />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Select Components</h3>
-                <Select value={selectedComponentType} onValueChange={setSelectedComponentType}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(componentLabels).map(([type, label]) => {
-                      const Icon = componentIcons[type as keyof typeof componentIcons];
-                      const selectedComponent = config[type as keyof BuildConfig];
-                      
-                      return (
-                        <SelectItem key={type} value={type}>
-                          <div className="flex items-center gap-2">
-                            <Icon className="h-4 w-4" />
-                            <span>{label}</span>
-                            {selectedComponent && (
-                              <CheckCircle className="h-3 w-3 text-green-600" />
-                            )}
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-4">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="xl:col-span-3">
+              <Card className="p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <Package className="h-6 w-6 text-tech-orange" />
+                    Component Selection
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-600">Category:</span>
+                    <Select value={selectedComponentType} onValueChange={setSelectedComponentType}>
+                      <SelectTrigger className="w-56 bg-white border-2 border-gray-200 hover:border-tech-orange transition-colors">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="z-50">
+                        {Object.entries(componentLabels).map(([type, label]) => {
+                          const Icon = componentIcons[type as keyof typeof componentIcons];
+                          const selectedComponent = config[type as keyof BuildConfig];
+                          
+                          return (
+                            <SelectItem key={type} value={type} className="cursor-pointer">
+                              <div className="flex items-center gap-3 py-1">
+                                <Icon className="h-4 w-4 text-tech-orange" />
+                                <span className="font-medium">{label}</span>
+                                {selectedComponent && (
+                                  <div className="ml-auto">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  </div>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
                 {(() => {
                   const type = selectedComponentType;
                   const label = componentLabels[type as keyof typeof componentLabels];
@@ -371,36 +378,43 @@ export default function BuildConfigurator() {
                   const selectedComponent = config[type as keyof BuildConfig];
                   
                   return (
-                    <div className="space-y-4" data-testid={`content-${type}`}>
-                      <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
-                        <Icon className="h-6 w-6 text-tech-orange" />
-                        <h4 className="text-xl font-semibold text-gray-800">{label}</h4>
-                        {selectedComponent && (
-                          <Badge className="ml-2 bg-green-100 text-green-800 border-green-300">
-                            Selected: {selectedComponent.name}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="space-y-3 mb-4">
+                    <div className="space-y-6" data-testid={`content-${type}`}>
+                      <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Quick Select:</span>
-                          <Select value={selectedComponent?.id || ""} onValueChange={(value) => updateComponent(type as keyof BuildConfig, value)}>
-                            <SelectTrigger className="w-64">
-                              <SelectValue placeholder={`Choose ${label.toLowerCase()}`} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {components[type as keyof typeof components].map((component) => (
-                                <SelectItem key={component.id} value={component.id}>
-                                  {component.name} - {formatPrice(component.price)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-tech-orange rounded-lg">
+                              <Icon className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="text-lg font-bold text-gray-800">{label}</h4>
+                              <p className="text-sm text-gray-600">
+                                {selectedComponent ? `Selected: ${selectedComponent.name}` : `Choose your ${label.toLowerCase()}`}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-gray-600">Quick Pick:</span>
+                            <Select value={selectedComponent?.id || ""} onValueChange={(value) => updateComponent(type as keyof BuildConfig, value)}>
+                              <SelectTrigger className="w-48 bg-white border border-orange-300">
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {components[type as keyof typeof components].map((component) => (
+                                  <SelectItem key={component.id} value={component.id}>
+                                    <div className="flex justify-between items-center w-full">
+                                      <span className="font-medium">{component.name}</span>
+                                      <span className="text-tech-orange font-bold ml-2">{formatPrice(component.price)}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {components[type as keyof typeof components].map((component) => {
                           const isSelected = selectedComponent?.id === component.id;
                           return (
@@ -408,63 +422,68 @@ export default function BuildConfigurator() {
                               key={component.id}
                               onClick={() => updateComponent(type as keyof BuildConfig, component.id)}
                               className={`
-                                relative p-3 border-2 rounded-lg cursor-pointer 
-                                transition-all duration-200 ease-in-out
-                                group overflow-hidden
+                                relative p-4 rounded-xl cursor-pointer transition-all duration-300
+                                border-2 group hover:shadow-lg transform hover:scale-[1.02]
                                 ${isSelected 
-                                  ? 'border-tech-orange bg-orange-50 ring-1 ring-orange-200 shadow-md' 
-                                  : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50 hover:shadow-sm'
+                                  ? 'border-tech-orange bg-gradient-to-br from-orange-50 to-orange-100 shadow-lg scale-[1.02]' 
+                                  : 'border-gray-200 bg-white hover:border-orange-300 hover:bg-orange-50/30'
                                 }
                               `}
                               data-testid={`component-${type}-${component.id}`}
                             >
                               {/* Selection indicator */}
                               {isSelected && (
-                                <div className="absolute top-2 right-2">
-                                  <CheckCircle className="h-4 w-4 text-tech-orange" />
+                                <div className="absolute -top-2 -right-2 w-8 h-8 bg-tech-orange rounded-full flex items-center justify-center shadow-lg">
+                                  <CheckCircle className="h-5 w-5 text-white" />
                                 </div>
                               )}
                               
-                              <div className="relative">
-                                <div className="flex justify-between items-start mb-2">
-                                  <div className="flex-1 pr-4">
-                                    <h5 className={`font-semibold text-sm mb-1 leading-tight ${
+                              <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <h5 className={`font-bold text-base mb-2 leading-tight ${
                                       isSelected ? 'text-orange-800' : 'text-gray-800 group-hover:text-orange-700'
                                     }`}>
                                       {component.name}
                                     </h5>
-                                    <div className="flex items-center gap-2 text-xs">
-                                      <span className={`px-1.5 py-0.5 rounded text-xs ${
-                                        isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
+                                    <div className="flex flex-wrap gap-2">
+                                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        isSelected ? 'bg-orange-200 text-orange-800' : 'bg-gray-100 text-gray-700'
                                       }`}>
-                                        {component.performance}% Perf
+                                        {component.performance}% Performance
                                       </span>
-                                      <span className={`px-1.5 py-0.5 rounded text-xs ${
-                                        isSelected ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'
+                                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        isSelected ? 'bg-orange-200 text-orange-800' : 'bg-gray-100 text-gray-700'
                                       }`}>
-                                        {component.powerConsumption}W
+                                        <Zap className="inline w-3 h-3 mr-1" />{component.powerConsumption}W
                                       </span>
                                     </div>
                                   </div>
-                                  <div className="text-right">
-                                    <span className={`font-bold text-sm ${
-                                      isSelected ? 'text-orange-700' : 'text-gray-700 group-hover:text-orange-600'
+                                  <div className="text-right ml-3">
+                                    <div className={`text-lg font-bold ${
+                                      isSelected ? 'text-orange-700' : 'text-gray-800 group-hover:text-orange-600'
                                     }`}>
                                       {formatPrice(component.price)}
-                                    </span>
+                                    </div>
                                   </div>
                                 </div>
                                 
-                                {/* Compact performance bar */}
-                                <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                                  <div 
-                                    className={`h-full transition-all duration-300 ease-out rounded-full ${
-                                      isSelected 
-                                        ? 'bg-gradient-to-r from-orange-400 to-orange-600' 
-                                        : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
-                                    }`}
-                                    style={{ width: `${component.performance}%` }}
-                                  ></div>
+                                {/* Performance bar */}
+                                <div className="space-y-1">
+                                  <div className="flex justify-between text-xs text-gray-600">
+                                    <span>Performance</span>
+                                    <span>{component.performance}%</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className={`h-full rounded-full transition-all duration-500 ${
+                                        isSelected 
+                                          ? 'bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600' 
+                                          : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover:from-orange-300 group-hover:to-orange-500'
+                                      }`}
+                                      style={{ width: `${component.performance}%` }}
+                                    ></div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -474,7 +493,7 @@ export default function BuildConfigurator() {
                     </div>
                   );
                 })()}
-              </div>
+              </Card>
             </div>
 
             <div className="space-y-4">
