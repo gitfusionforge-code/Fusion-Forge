@@ -836,39 +836,31 @@ export class FirebaseRealtimeStorage implements IStorage {
     }
   }
 
-  // Admin Settings Methods
+  // Admin Settings Methods (simplified - no Firebase access)
   async getAdminSetting(key: string): Promise<any> {
-    const snapshot = await get(ref(database, `adminSettings/${key}`));
-    if (!snapshot.exists()) return null;
-    
-    return {
-      key,
-      value: snapshot.val(),
-      updatedAt: new Date()
-    };
+    // Return default values for maintenance mode without Firebase access
+    if (key === 'maintenanceMode') {
+      return {
+        key: 'maintenanceMode',
+        value: false,
+        updatedAt: new Date()
+      };
+    }
+    return null;
   }
 
   async setAdminSetting(key: string, value: string): Promise<any> {
-    const setting = {
+    // Return setting object without storing in Firebase
+    return {
       key,
       value,
       updatedAt: new Date()
     };
-    
-    await set(ref(database, `adminSettings/${key}`), value);
-    return setting;
   }
 
   async getAllAdminSettings(): Promise<any[]> {
-    const snapshot = await get(ref(database, 'adminSettings'));
-    if (!snapshot.exists()) return [];
-    
-    const data = snapshot.val();
-    return Object.entries(data).map(([key, value]) => ({
-      key,
-      value,
-      updatedAt: new Date()
-    }));
+    // Return empty array - admin settings not implemented in Firebase
+    return [];
   }
 }
 

@@ -86,15 +86,15 @@ function AdminContent() {
   });
 
   // Maintenance Mode Query
-  const { data: maintenanceModeSetting } = useQuery({
+  const { data: maintenanceModeSetting } = useQuery<{key: string, value: boolean | string, updatedAt: string}>({
     queryKey: ["/api/admin/settings/maintenanceMode"],
     enabled: adminSessionReady,
   });
 
   // Update local state when maintenance mode setting changes
   useEffect(() => {
-    if (maintenanceModeSetting) {
-      setMaintenanceMode(maintenanceModeSetting.value === 'true');
+    if (maintenanceModeSetting && maintenanceModeSetting.value !== undefined) {
+      setMaintenanceMode(maintenanceModeSetting.value === 'true' || maintenanceModeSetting.value === true);
     }
   }, [maintenanceModeSetting]);
 
