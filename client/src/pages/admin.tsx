@@ -162,30 +162,8 @@ function AdminContent() {
       queryClient.invalidateQueries({ queryKey: ['/api/inquiries'] });
       toast({
         title: "Email Sent Successfully",
-        description: "Customer has been notified and status updated to completed.",
+        description: "Customer has been notified via email with their custom PC quote.",
       });
-      
-      // Find the inquiry to get customer email
-      const inquiry = inquiries.find(i => i.id === inquiryId);
-      if (inquiry) {
-        // Open default email client
-        const subject = encodeURIComponent(`Follow-up: Your Custom PC Build Quote - ${inquiry.name}`);
-        const body = encodeURIComponent(`Hi ${inquiry.name},
-
-I hope this email finds you well. I wanted to follow up on the custom PC build quote we sent you earlier.
-
-Our team has prepared a comprehensive solution that meets your requirements:
-- Budget Range: ${inquiry.budget}
-- Use Case: ${inquiry.useCase}
-
-If you have any questions about the quote or would like to discuss any modifications, please don't hesitate to reach out. We're here to help you build the perfect PC for your needs.
-
-Best regards,
-FusionForge PCs Team`);
-        
-        const mailtoLink = `mailto:${inquiry.email}?subject=${subject}&body=${body}`;
-        window.open(mailtoLink, '_blank');
-      }
       
       setSelectedInquiry(null); // Close the modal
     },
