@@ -6,7 +6,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Shield, AlertTriangle, Loader2 } from "lucide-react";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "admin@company.com";
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+
+if (!ADMIN_EMAIL) {
+  throw new Error('Missing required admin email. Please set VITE_ADMIN_EMAIL environment variable.');
+}
 
 interface AdminSessionContextType {
   adminSessionReady: boolean;

@@ -7,6 +7,8 @@ interface LazyImageProps {
   className?: string;
   fallback?: string;
   placeholder?: string;
+  width?: number;
+  height?: number;
 }
 
 export default function LazyImage({ 
@@ -14,7 +16,9 @@ export default function LazyImage({
   alt, 
   className, 
   fallback = "/images/placeholder.svg",
-  placeholder = "/images/loading.svg"
+  placeholder = "/images/loading.svg",
+  width,
+  height
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -56,10 +60,13 @@ export default function LazyImage({
         alt={alt}
         onLoad={handleLoad}
         onError={handleError}
+        width={width}
+        height={height}
         className={cn(
           "w-full h-full object-cover transition-opacity duration-300",
           isLoaded ? "opacity-100" : "opacity-0"
         )}
+        style={{ aspectRatio: width && height ? `${width}/${height}` : undefined }}
       />
       {!isLoaded && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">

@@ -22,8 +22,7 @@ class RazorpayService {
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     
     if (!keyId || !keySecret) {
-      console.warn('Razorpay not configured: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET environment variables.');
-      return;
+      throw new Error('Razorpay not configured: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET environment variables. Payment processing will not work.');
     }
     
     this.razorpay = new Razorpay({
