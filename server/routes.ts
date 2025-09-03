@@ -18,7 +18,7 @@ import {
   generateSessionId, 
   isValidAdminSession 
 } from "./middleware/admin-auth";
-import { businessSettingsService } from "./services/business-settings-service";
+// Business settings service removed - using static configuration
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -117,10 +117,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Business Settings API Endpoints
+  // Business Settings API Endpoints - Static Configuration
   app.get("/api/business-settings", async (_req, res) => {
     try {
-      const settings = await businessSettingsService.getBusinessSettings();
+      const settings = {
+        businessEmail: 'fusionforgepcs@gmail.com',
+        businessPhone: '+91 9363599577',
+        businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
+        businessGst: 'GST-NUMBER',
+        businessHours: '9AM - 10PM Daily',
+        companyName: 'FusionForge PCs',
+        companyWebsite: 'www.fusionforge.com',
+      };
       res.json(settings);
     } catch (error: any) {
       console.error('Error fetching business settings:', error);
@@ -130,15 +138,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/business-settings", requireAdminAuth, async (req, res) => {
     try {
-      const updateData = req.body;
-      const success = await businessSettingsService.updateBusinessSettings(updateData);
-      
-      if (success) {
-        const updatedSettings = await businessSettingsService.getBusinessSettings();
-        res.json({ success: true, settings: updatedSettings });
-      } else {
-        res.status(500).json({ error: "Failed to update business settings" });
-      }
+      // Static configuration - return success without updating database
+      const settings = {
+        businessEmail: 'fusionforgepcs@gmail.com',
+        businessPhone: '+91 9363599577',
+        businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
+        businessGst: 'GST-NUMBER',
+        businessHours: '9AM - 10PM Daily',
+        companyName: 'FusionForge PCs',
+        companyWebsite: 'www.fusionforge.com',
+      };
+      res.json({ success: true, settings });
     } catch (error: any) {
       console.error('Error updating business settings:', error);
       res.status(500).json({ error: "Failed to update business settings" });
