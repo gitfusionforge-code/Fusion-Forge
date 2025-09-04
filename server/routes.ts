@@ -20,10 +20,13 @@ import {
   isValidAdminSession 
 } from "./middleware/admin-auth";
 import { webhookRateLimit } from "./middleware/webhook-auth";
-// Business settings service removed - using static configuration
+import { loadBusinessSettings, saveBusinessSettings, initializeBusinessSettings } from "./business-settings-storage";
 
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize business settings storage
+  initializeBusinessSettings();
+  
   // Health check and API routes
   
   // Health check endpoint
@@ -122,44 +125,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Business Settings API Endpoints - Firebase Persistence with fallback
   app.get("/api/business-settings", async (_req, res) => {
     try {
-      // Try to get from Firebase, but fall back to static data if permission denied
-      let settings;
-      try {
-        const snapshot = await get(ref(database, 'businessSettings'));
-        settings = snapshot.val();
-      } catch (firebaseError: any) {
-        // Fall back to static data if Firebase permissions fail
-        console.log('Firebase permission issue, using static data:', firebaseError.message);
-        settings = null;
-      }
-      
-      // If no settings exist or Firebase failed, return default settings
-      if (!settings) {
-        settings = {
-          businessEmail: 'fusionforgepc@gmail.com',
-          businessPhone: '+91 9363599577',
-          businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
-          businessGst: 'GST-NUMBER',
-          businessHours: '9AM - 10PM Daily',
-          companyName: 'FusionForge PCs',
-          companyWebsite: 'www.fusionforge.com',
-        };
-      }
-      
+      const settings = loadBusinessSettings();
       res.json(settings);
     } catch (error: any) {
       console.error('Error fetching business settings:', error);
-      // Return default settings if everything fails
-      const defaultSettings = {
-        businessEmail: 'fusionforgepc@gmail.com',
-        businessPhone: '+91 9363599577',
-        businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
-        businessGst: 'GST-NUMBER',
-        businessHours: '9AM - 10PM Daily',
-        companyName: 'FusionForge PCs',
-        companyWebsite: 'www.fusionforge.com',
-      };
-      res.json(defaultSettings);
+      res.status(500).json({ error: "Failed to fetch business settings" });
     }
   });
 
@@ -167,42 +137,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updatedSettings = req.body;
       
-      // Validate required fields
-      const requiredFields = ['businessEmail', 'businessPhone', 'businessAddress', 'companyName'];
-      for (const field of requiredFields) {
-        if (!updatedSettings[field]) {
-          return res.status(400).json({ error: `${field} is required` });
-        }
-      }
+      // Save settings to local file storage
+      saveBusinessSettings(updatedSettings);
       
-      // Try to update in Firebase - fail if permissions are denied
-      try {
-        await update(ref(database, 'businessSettings'), updatedSettings);
-        const snapshot = await get(ref(database, 'businessSettings'));
-        const settings = snapshot.val() || updatedSettings;
-        res.json({ success: true, settings });
-      } catch (firebaseError: any) {
-        console.error('Firebase permission issue for business settings update:', firebaseError.message);
-        
-        // Return specific error for permission issues
-        if (firebaseError.code === 'PERMISSION_DENIED' || firebaseError.message.includes('Permission denied')) {
-          return res.status(403).json({ 
-            error: "Database permissions denied", 
-            message: "Unable to save settings due to Firebase security rules. Please check database permissions.",
-            details: firebaseError.message
-          });
-        }
-        
-        // For other Firebase errors, return 500
-        return res.status(500).json({ 
-          error: "Database update failed", 
-          message: "Unable to save settings to database.",
-          details: firebaseError.message
-        });
-      }
+      // Return the saved settings
+      const settings = loadBusinessSettings();
+      res.json({ success: true, settings });
     } catch (error: any) {
       console.error('Error updating business settings:', error);
-      res.status(500).json({ error: "Failed to update business settings" });
+      res.status(500).json({ 
+        error: "Failed to update business settings", 
+        message: error.message || "Unable to save settings."
+      });
     }
   });
 
