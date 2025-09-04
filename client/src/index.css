@@ -1,4 +1,4 @@
-/* Critical performance optimizations - fonts must be imported first */
+/* Critical performance optimizations - fonts must be imported first with font-display swap to prevent layout shifts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -10,10 +10,34 @@
   box-sizing: border-box;
 }
 
-/* Reduce layout shifts with stable font loading */
+/* Reduce layout shifts with stable font loading and image sizing */
 img {
   max-width: 100%;
   height: auto;
+  /* Prevent layout shifts by reserving space */
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* Font loading optimization to prevent FOIT/FOUT */
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+  src: local('Inter');
+}
+
+/* Prevent cumulative layout shift for all images */
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Optimize animations for better performance */

@@ -303,12 +303,27 @@ export class FirebaseRealtimeStorage implements IStorage {
       
       return inquiries;
     } catch (error: any) {
-      console.error('Critical error fetching inquiries from Firebase:', error);
+      // Enhanced error logging for production debugging
+      console.error('Critical error fetching inquiries from Firebase:', {
+        error: error.message,
+        code: error.code,
+        timestamp: new Date().toISOString(),
+        operation: 'getInquiries',
+        stack: error.stack
+      });
       
       // Check if it's a permission error specifically
       if (error.code === 'PERMISSION_DENIED') {
-        console.error('Firebase permission denied for inquiries - check security rules');
+        console.error('⚠️ Firebase permission denied for inquiries - check security rules');
+        console.warn('Production Impact: Admin panel may show empty inquiries list');
         throw new Error('Database access denied. Check Firebase security configuration.');
+      }
+      
+      // Log specific Firebase error types for better debugging
+      if (error.code === 'NETWORK_ERROR') {
+        console.warn('⚠️ Firebase network connectivity issue detected');
+      } else if (error.code === 'TIMEOUT') {
+        console.warn('⚠️ Firebase request timeout - consider optimizing queries');
       }
       
       // Return empty array for other errors to prevent admin panel crashes

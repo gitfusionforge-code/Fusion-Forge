@@ -33,7 +33,7 @@ export default function LazyImage({
           observer.disconnect();
         }
       },
-      { threshold: 0.1, rootMargin: "50px" }
+      { threshold: 0.01, rootMargin: "200px" } // Load images earlier to improve LCP
     );
 
     if (imgRef.current) {
@@ -52,8 +52,14 @@ export default function LazyImage({
     setIsLoaded(true);
   };
 
+  // Calculate aspect ratio to prevent layout shifts
+  const aspectRatio = width && height ? `${width}/${height}` : '16/9';
+
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div 
+      className={cn("relative overflow-hidden bg-gray-100", className)}
+      style={{ aspectRatio }}
+    >
       <img
         ref={imgRef}
         src={isInView ? (hasError ? fallback : src) : placeholder}
@@ -63,14 +69,15 @@ export default function LazyImage({
         width={width}
         height={height}
         className={cn(
-          "w-full h-full object-cover transition-opacity duration-300",
-          isLoaded ? "opacity-100" : "opacity-0"
+          "absolute inset-0 w-full h-full object-cover transition-opacity duration-200",
+          isLoaded ? "opacity-100" : "opacity-50" // Start at 50% opacity instead of 0 to reduce CLS
         )}
-        style={{ aspectRatio: width && height ? `${width}/${height}` : undefined }}
+        loading="lazy"
+        decoding="async"
       />
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       )}
     </div>

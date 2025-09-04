@@ -38,18 +38,48 @@ export function verifyRazorpayWebhook(req: Request, res: Response, next: NextFun
   }
 }
 
-// Rate limiting for webhook endpoints
+// Rate limiting for webhook endpoints - In-memory implementation for production
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
 export function webhookRateLimit(req: Request, res: Response, next: NextFunction) {
-  // Simple rate limiting - in production, use a proper rate limiter
-  const ip = req.ip;
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const now = Date.now();
-  
-  // Allow 60 requests per minute per IP
   const rateLimitWindow = 60 * 1000; // 1 minute
-  const maxRequests = 60;
+  const maxRequests = 10; // Reduced for webhooks - they should be infrequent
   
-  // In a real implementation, you'd use Redis or similar for distributed rate limiting
-  // For now, this is a basic in-memory approach
+  // Clean up expired entries
+  const expiredKeys: string[] = [];
+  rateLimitStore.forEach((value, key) => {
+    if (now > value.resetTime) {
+      expiredKeys.push(key);
+    }
+  });
+  expiredKeys.forEach(key => rateLimitStore.delete(key));
   
-  next(); // Skip rate limiting in this implementation
+  // Get or create rate limit data for this IP
+  let limitData = rateLimitStore.get(ip);
+  if (!limitData || now > limitData.resetTime) {
+    limitData = { count: 0, resetTime: now + rateLimitWindow };
+    rateLimitStore.set(ip, limitData);
+  }
+  
+  // Check if limit exceeded
+  if (limitData.count >= maxRequests) {
+    console.warn(`Webhook rate limit exceeded for IP: ${ip}`);
+    return res.status(429).json({ 
+      error: 'Too many requests', 
+      retryAfter: Math.ceil((limitData.resetTime - now) / 1000) 
+    });
+  }
+  
+  // Increment count and proceed
+  limitData.count++;
+  rateLimitStore.set(ip, limitData);
+  
+  // Add rate limit headers
+  res.setHeader('X-RateLimit-Limit', maxRequests);
+  res.setHeader('X-RateLimit-Remaining', Math.max(0, maxRequests - limitData.count));
+  res.setHeader('X-RateLimit-Reset', limitData.resetTime);
+  
+  next();
 }

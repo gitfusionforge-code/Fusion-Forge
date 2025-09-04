@@ -19,6 +19,7 @@ import {
   generateSessionId, 
   isValidAdminSession 
 } from "./middleware/admin-auth";
+import { webhookRateLimit } from "./middleware/webhook-auth";
 // Business settings service removed - using static configuration
 
 
@@ -709,7 +710,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const sessionId = generateSessionId();
-      createAdminSession(sessionId);
+      createAdminSession(sessionId, email);
       
       // Set session cookie
       res.cookie('admin_session', sessionId, {
@@ -1068,9 +1069,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Razorpay webhook endpoint for automatic receipt generation
-  app.post("/api/webhook/razorpay", async (req, res) => {
-    await handleRazorpayWebhook(req, res);
-  });
+  app.post("/api/webhook/razorpay", 
+    webhookRateLimit,
+    async (req, res) => {
+      await handleRazorpayWebhook(req, res);
+    }
+  );
 
   // Admin endpoint to manually generate receipt for an order
   app.post("/api/admin/orders/:id/receipt", requireAdminAuth, async (req, res) => {
