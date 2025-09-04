@@ -699,18 +699,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { email } = req.body;
+      console.log('Admin login attempt for email:', email);
       
       if (!email) {
+        console.log('Admin login failed: No email provided');
         return res.status(400).json({ error: "Email required" });
       }
       
       const isValid = verifyAdminEmail(email);
+      console.log('Email verification result:', isValid);
       if (!isValid) {
+        console.log('Admin login failed: Invalid email');
         return res.status(401).json({ error: "Invalid admin email" });
       }
       
+      console.log('Generating session ID...');
       const sessionId = generateSessionId();
+      console.log('Session ID generated successfully');
+      
+      console.log('Creating admin session...');
       createAdminSession(sessionId, email);
+      console.log('Admin session created successfully');
       
       // Set session cookie
       res.cookie('admin_session', sessionId, {
@@ -720,9 +729,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sameSite: 'strict'
       });
       
+      console.log('Admin login successful for:', email);
       res.json({ success: true, message: "Login successful" });
     } catch (error) {
-      res.status(500).json({ error: "Login failed" });
+      console.error('Admin login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ error: "Login failed", details: errorMessage });
     }
   });
 

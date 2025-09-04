@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import crypto from "crypto";
 
 // Admin configuration validation
 const adminEmail = process.env.ADMIN_EMAIL;
@@ -43,7 +44,6 @@ setInterval(() => {
 
 export function generateSessionId(): string {
   // Use crypto.randomBytes for cryptographically secure random values
-  const crypto = require('crypto');
   const randomBytes = crypto.randomBytes(32);
   return randomBytes.toString('hex') + Date.now().toString(36);
 }
