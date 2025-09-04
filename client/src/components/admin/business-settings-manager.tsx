@@ -51,7 +51,13 @@ export default function BusinessSettingsManager() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to update settings');
+        // Parse detailed error from backend
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.error || 'Failed to update settings';
+        const error = new Error(errorMessage);
+        (error as any).status = response.status;
+        (error as any).details = errorData.details;
+        throw error;
       }
       
       return response.json();
@@ -69,9 +75,21 @@ export default function BusinessSettingsManager() {
       }
     },
     onError: (error: any) => {
+      let title = 'Update Failed';
+      let description = error.message || 'Failed to update business settings.';
+      
+      // Handle specific permission errors
+      if (error.status === 403) {
+        title = 'Permission Denied';
+        description = 'Unable to save settings due to database permissions. Please contact system administrator.';
+      } else if (error.status === 500) {
+        title = 'Database Error';
+        description = 'Settings could not be saved to the database. Please try again later.';
+      }
+      
       toast({
-        title: 'Update Failed',
-        description: error.message || 'Failed to update business settings.',
+        title,
+        description,
         variant: 'destructive',
       });
     },

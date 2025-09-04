@@ -175,18 +175,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Try to update in Firebase, but handle permission errors gracefully
-      let settings = updatedSettings;
+      // Try to update in Firebase - fail if permissions are denied
       try {
         await update(ref(database, 'businessSettings'), updatedSettings);
         const snapshot = await get(ref(database, 'businessSettings'));
-        settings = snapshot.val();
+        const settings = snapshot.val() || updatedSettings;
+        res.json({ success: true, settings });
       } catch (firebaseError: any) {
-        console.log('Firebase permission issue for update, returning updated data:', firebaseError.message);
-        // Still return success with the updated data even if Firebase fails
+        console.error('Firebase permission issue for business settings update:', firebaseError.message);
+        
+        // Return specific error for permission issues
+        if (firebaseError.code === 'PERMISSION_DENIED' || firebaseError.message.includes('Permission denied')) {
+          return res.status(403).json({ 
+            error: "Database permissions denied", 
+            message: "Unable to save settings due to Firebase security rules. Please check database permissions.",
+            details: firebaseError.message
+          });
+        }
+        
+        // For other Firebase errors, return 500
+        return res.status(500).json({ 
+          error: "Database update failed", 
+          message: "Unable to save settings to database.",
+          details: firebaseError.message
+        });
       }
-      
-      res.json({ success: true, settings });
     } catch (error: any) {
       console.error('Error updating business settings:', error);
       res.status(500).json({ error: "Failed to update business settings" });
