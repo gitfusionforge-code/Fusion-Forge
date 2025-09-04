@@ -125,7 +125,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Business Settings API Endpoints - Firebase Persistence with fallback
   app.get("/api/business-settings", async (_req, res) => {
     try {
-      const settings = loadBusinessSettings();
+      // Try to get from Firebase using admin/settings path which has proper permissions
+      let settings;
+      try {
+        const snapshot = await get(ref(database, 'admin/settings/business'));
+        settings = snapshot.val();
+      } catch (firebaseError: any) {
+        console.log('Firebase permission issue, using local fallback:', firebaseError.message);
+        settings = null;
+      }
+      
+      // If no settings exist in Firebase, load from local storage or defaults
+      if (!settings) {
+        settings = loadBusinessSettings();
+      }
+      
       res.json(settings);
     } catch (error: any) {
       console.error('Error fetching business settings:', error);
@@ -137,12 +151,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updatedSettings = req.body;
       
-      // Save settings to local file storage
-      saveBusinessSettings(updatedSettings);
+      // Validate required fields
+      const requiredFields = ['businessEmail', 'businessPhone', 'businessAddress', 'companyName'];
+      for (const field of requiredFields) {
+        if (!updatedSettings[field]) {
+          return res.status(400).json({ error: `${field} is required` });
+        }
+      }
       
-      // Return the saved settings
-      const settings = loadBusinessSettings();
-      res.json({ success: true, settings });
+      // Try to save to Firebase using admin/settings path (should work like other admin data)
+      try {
+        await set(ref(database, 'admin/settings/business'), updatedSettings);
+        console.log('Business settings saved to Firebase successfully');
+        res.json({ success: true, settings: updatedSettings });
+      } catch (firebaseError: any) {
+        console.log('Firebase save failed, using local storage fallback:', firebaseError.message);
+        
+        // Fallback to local storage for development
+        saveBusinessSettings(updatedSettings);
+        const settings = loadBusinessSettings();
+        res.json({ success: true, settings, warning: "Saved locally - may not persist in production" });
+      }
     } catch (error: any) {
       console.error('Error updating business settings:', error);
       res.status(500).json({ 

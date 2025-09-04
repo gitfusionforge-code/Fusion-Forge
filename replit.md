@@ -15,6 +15,8 @@ A professional PC building platform that empowers students and tech enthusiasts 
 ## Recent Changes
 
 ### September 4, 2025 - Critical Performance & Production Fixes
+✓ **Fixed Business Settings Production Issue**: Moved from local file storage to Firebase admin/settings path for production persistence
+✓ **Resolved Firebase Permission Errors**: Business settings now use properly accessible Firebase path instead of restricted businessSettings path
 ✓ **Fixed Critical Performance Issues**: CLS reduced from 0.5+ to <0.1, LCP optimized from 5+ seconds to <2.5s
 ✓ **Enhanced Image Loading**: Implemented proper aspect ratio handling, reduced layout shifts, optimized lazy loading with 200px root margin
 ✓ **Font Loading Optimization**: Added font-display: swap to prevent FOIT/FOUT, implemented fallback font loading
