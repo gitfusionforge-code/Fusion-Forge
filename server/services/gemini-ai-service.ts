@@ -135,7 +135,7 @@ export class GeminiAIService {
     ).join('\n');
 
     const lowStockWarnings = lowStockData.builds.length > 0 || lowStockData.components.length > 0 
-      ? `\nLOW STOCK ALERTS:\n${lowStockData.builds.map(b => `- ${b.name}: Only ${b.stockQuantity} left`).join('\n')}\n${lowStockData.components.map(c => `- ${c.name}: Only ${c.stockQuantity} left`).join('\n')}`
+      ? `\nLOW STOCK ALERTS:\n${lowStockData.builds.map((b: any) => `- ${b.name}: Only ${b.stockQuantity} left`).join('\n')}\n${lowStockData.components.map((c: any) => `- ${c.name}: Only ${c.stockQuantity} left`).join('\n')}`
       : '';
 
     return `You are FusionForge AI Assistant, an expert in custom PC building and computer hardware. You work for FusionForge PCs, a premium PC building company in India.
