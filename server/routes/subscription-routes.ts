@@ -304,13 +304,13 @@ router.post('/admin/:id/:action', async (req, res) => {
     
     switch (action) {
       case 'pause':
-        updatedSubscription = await subscriptionService.pauseSubscription(subscriptionId);
+        updatedSubscription = await subscriptionManagementService.pauseSubscription(subscriptionId);
         break;
       case 'resume':
-        updatedSubscription = await subscriptionService.resumeSubscription(subscriptionId);
+        updatedSubscription = await subscriptionManagementService.resumeSubscription(subscriptionId);
         break;
       case 'cancel':
-        updatedSubscription = await subscriptionService.cancelSubscription(subscriptionId, reason);
+        updatedSubscription = await subscriptionManagementService.cancelSubscription(subscriptionId, reason);
         break;
       default:
         return res.status(400).json({ error: 'Invalid action' });
