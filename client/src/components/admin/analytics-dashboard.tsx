@@ -50,62 +50,27 @@ export default function AnalyticsDashboard() {
   const { data: funnelData } = useQuery({
     queryKey: ['analytics', 'funnel', dateRange],
     queryFn: async () => {
-      // This would call the conversion funnel analytics service
-      return [
-        { stepName: 'Landing Page', stepOrder: 1, totalUsers: 1250, conversions: 1250, conversionRate: 100, dropOffRate: 0, averageTimeToNext: 45 },
-        { stepName: 'Browse Builds', stepOrder: 2, totalUsers: 950, conversions: 950, conversionRate: 76, dropOffRate: 24, averageTimeToNext: 120 },
-        { stepName: 'View Details', stepOrder: 3, totalUsers: 720, conversions: 720, conversionRate: 57.6, dropOffRate: 24.2, averageTimeToNext: 180 },
-        { stepName: 'Add to Cart', stepOrder: 4, totalUsers: 450, conversions: 450, conversionRate: 36, dropOffRate: 37.5, averageTimeToNext: 90 },
-        { stepName: 'Checkout', stepOrder: 5, totalUsers: 320, conversions: 320, conversionRate: 25.6, dropOffRate: 28.9, averageTimeToNext: 300 },
-        { stepName: 'Purchase', stepOrder: 6, totalUsers: 180, conversions: 180, conversionRate: 14.4, dropOffRate: 43.8, averageTimeToNext: 0 }
-      ] as FunnelStep[];
+      const response = await fetch(`/api/analytics/funnel?dateRange=${dateRange}`);
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 
   const { data: abTests } = useQuery({
     queryKey: ['analytics', 'ab-tests'],
     queryFn: async () => {
-      return [
-        {
-          id: 'homepage_hero_cta',
-          name: 'Homepage CTA Button Test',
-          status: 'running',
-          variants: [
-            { variantId: 'control', name: 'Original Button', participants: 520, conversionRate: 12.3, isWinner: false },
-            { variantId: 'variant_a', name: 'Urgency Button', participants: 543, conversionRate: 15.7, isWinner: true }
-          ],
-          startDate: '2025-01-01',
-        },
-        {
-          id: 'product_card_layout',
-          name: 'PC Build Card Layout',
-          status: 'completed',
-          variants: [
-            { variantId: 'control', name: 'Vertical Layout', participants: 325, conversionRate: 8.9, isWinner: true },
-            { variantId: 'variant_a', name: 'Horizontal Layout', participants: 331, conversionRate: 6.2, isWinner: false }
-          ],
-          startDate: '2024-12-15',
-          endDate: '2025-01-05'
-        }
-      ] as ABTest[];
+      const response = await fetch('/api/analytics/ab-tests');
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 
   const { data: heatmapData } = useQuery({
     queryKey: ['analytics', 'heatmap', selectedPage],
     queryFn: async () => {
-      // Generate sample heatmap data based on page
-      const data: HeatmapData[] = [];
-      for (let i = 0; i < 50; i++) {
-        data.push({
-          x: Math.random() * 1200,
-          y: Math.random() * 800,
-          intensity: Math.random() * 100,
-          page: selectedPage,
-          element: Math.random() > 0.7 ? 'button' : Math.random() > 0.5 ? 'link' : 'text'
-        });
-      }
-      return data;
+      const response = await fetch(`/api/analytics/heatmap?page=${encodeURIComponent(selectedPage)}`);
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 

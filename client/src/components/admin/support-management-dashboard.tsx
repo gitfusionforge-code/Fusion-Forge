@@ -75,48 +75,9 @@ export default function SupportManagementDashboard() {
   const { data: tickets = [] } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: async () => {
-      return [
-        {
-          id: 'ticket_001',
-          userId: 'user_123',
-          userEmail: 'customer@example.com',
-          userName: 'John Doe',
-          subject: 'PC Build not booting properly',
-          description: 'My recently purchased Gaming Beast Pro is having boot issues. It powers on but displays a black screen.',
-          category: 'technical',
-          priority: 'high',
-          status: 'open',
-          assignedAgent: 'Agent Smith',
-          responses: [
-            {
-              id: 'resp_001',
-              authorType: 'admin',
-              authorName: 'Agent Smith',
-              message: 'Thank you for contacting us. Let me help you troubleshoot this issue. Can you please check if all power cables are properly connected?',
-              timestamp: Date.now() - 3600000,
-              isInternal: false
-            }
-          ],
-          createdAt: Date.now() - 7200000,
-          updatedAt: Date.now() - 3600000,
-          customerSatisfaction: undefined
-        },
-        {
-          id: 'ticket_002',
-          userId: 'user_456',
-          userEmail: 'business@company.com',
-          userName: 'Sarah Johnson',
-          subject: 'Bulk order inquiry',
-          description: 'We need 20 office PCs for our new branch. Looking for a custom quote with enterprise support.',
-          category: 'sales',
-          priority: 'medium',
-          status: 'in_progress',
-          assignedAgent: 'Sales Manager',
-          responses: [],
-          createdAt: Date.now() - 86400000,
-          updatedAt: Date.now() - 86400000
-        }
-      ] as SupportTicket[];
+      const response = await fetch('/api/admin/support/tickets');
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 
@@ -124,37 +85,9 @@ export default function SupportManagementDashboard() {
   const { data: chatSessions = [] } = useQuery({
     queryKey: ['chat-sessions'],
     queryFn: async () => {
-      return [
-        {
-          id: 'chat_001',
-          userId: 'user_789',
-          userEmail: 'mike@example.com',
-          userName: 'Mike Wilson',
-          status: 'active',
-          priority: 'medium',
-          assignedAgent: 'Agent Johnson',
-          messages: [
-            {
-              id: 'msg_001',
-              senderId: 'user_789',
-              senderType: 'user',
-              message: 'Hi, I have a question about GPU compatibility',
-              timestamp: Date.now() - 600000,
-              isRead: true
-            },
-            {
-              id: 'msg_002',
-              senderId: 'agent_001',
-              senderType: 'admin',
-              message: 'Hello! I\'d be happy to help with GPU compatibility questions. What specific components are you looking at?',
-              timestamp: Date.now() - 300000,
-              isRead: true
-            }
-          ],
-          createdAt: Date.now() - 900000,
-          lastActivity: Date.now() - 300000
-        }
-      ] as ChatSession[];
+      const response = await fetch('/api/admin/support/chat-sessions');
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 

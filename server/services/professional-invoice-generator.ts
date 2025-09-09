@@ -15,7 +15,7 @@ export async function sendProfessionalInvoice(receiptData: ReceiptData): Promise
     
     const success = await sendEmailViaBrevo({
       to: receiptData.customerEmail,
-      from: `"FusionForge PCs" <${process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com'}>`,
+      from: `"FusionForge PCs" <${process.env.BUSINESS_EMAIL || 'contact@company.com'}>`,
       subject: `Invoice #${receiptData.orderNumber} - FusionForge PCs`,
       html: invoiceHtml,
       text: `Invoice #${receiptData.orderNumber} for ₹${receiptData.amount.toLocaleString('en-IN')}`

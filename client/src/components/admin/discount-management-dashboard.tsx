@@ -79,65 +79,9 @@ export default function DiscountManagementDashboard() {
   const { data: discountCodes = [] } = useQuery({
     queryKey: ['discount-codes'],
     queryFn: async () => {
-      return [
-        {
-          id: 'disc_001',
-          code: 'WELCOME10',
-          name: 'Welcome Discount',
-          description: '10% off for new customers',
-          type: 'percentage',
-          value: 10,
-          minimumOrderValue: 25000,
-          maximumDiscount: 5000,
-          applicableCategories: [],
-          usageLimit: 1000,
-          usageCount: 245,
-          usagePerCustomer: 1,
-          validFrom: Date.now() - 86400000 * 30,
-          validUntil: Date.now() + 86400000 * 60,
-          isActive: true,
-          stackable: false,
-          createdAt: Date.now() - 86400000 * 30
-        },
-        {
-          id: 'disc_002',
-          code: 'GAMING20',
-          name: 'Gaming PC Special',
-          description: '20% off on gaming PCs above ₹50,000',
-          type: 'percentage',
-          value: 20,
-          minimumOrderValue: 50000,
-          maximumDiscount: 15000,
-          applicableCategories: ['Gaming Beast', 'Performance Gamers'],
-          usageLimit: 500,
-          usageCount: 127,
-          usagePerCustomer: 1,
-          validFrom: Date.now() - 86400000 * 15,
-          validUntil: Date.now() + 86400000 * 15,
-          isActive: true,
-          stackable: false,
-          createdAt: Date.now() - 86400000 * 15
-        },
-        {
-          id: 'disc_003',
-          code: 'FREESHIP',
-          name: 'Free Shipping',
-          description: 'Free shipping on orders above ₹30,000',
-          type: 'free_shipping',
-          value: 0,
-          minimumOrderValue: 30000,
-          maximumDiscount: 2000,
-          applicableCategories: [],
-          usageLimit: undefined,
-          usageCount: 89,
-          usagePerCustomer: undefined,
-          validFrom: Date.now() - 86400000 * 60,
-          validUntil: Date.now() + 86400000 * 120,
-          isActive: true,
-          stackable: true,
-          createdAt: Date.now() - 86400000 * 60
-        }
-      ] as DiscountCode[];
+      const response = await fetch('/api/admin/discount-codes');
+      if (!response.ok) return [];
+      return response.json();
     }
   });
 
