@@ -102,12 +102,16 @@ export default function About() {
               </p>
             </div>
           </div>
-          <div>
-            <img 
-              src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400" 
-              alt="PC building workshop" 
-              className="rounded-xl shadow-lg w-full h-auto" 
-            />
+          <div className="flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 rounded-xl shadow-lg p-8">
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-8 mb-6">
+                <div className="text-4xl font-bold text-white mb-2">FusionForge</div>
+                <div className="text-blue-200">PC Building Excellence</div>
+              </div>
+              <p className="text-gray-600 max-w-sm">
+                Professional PC assembly with precision, quality, and performance in mind.
+              </p>
+            </div>
           </div>
         </div>
 
