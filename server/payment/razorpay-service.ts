@@ -67,22 +67,27 @@ class RazorpayService {
         throw new Error('RAZORPAY_KEY_SECRET environment variable is not set');
       }
       
-      console.log('Payment verification details:');
-      console.log('Order ID:', verification.razorpay_order_id);
-      console.log('Payment ID:', verification.razorpay_payment_id);
-      console.log('Received Signature:', verification.razorpay_signature);
-      console.log('Key Secret (first 5 chars):', keySecret.substring(0, 5) + '...');
+      // Only log verification details in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Payment verification - Order ID:', verification.razorpay_order_id);
+        console.log('Payment verification - Payment ID:', verification.razorpay_payment_id);
+      }
       
       const payloadToSign = `${verification.razorpay_order_id}|${verification.razorpay_payment_id}`;
-      console.log('Payload to sign:', payloadToSign);
       
       const expectedSignature = crypto
         .createHmac('sha256', keySecret)
         .update(payloadToSign)
         .digest('hex');
       
-      console.log('Expected Signature:', expectedSignature);
-      console.log('Signatures match:', expectedSignature === verification.razorpay_signature);
+      const isValid = expectedSignature === verification.razorpay_signature;
+      
+      // Log result without exposing signatures in production
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Payment signature validation:', isValid ? 'VALID' : 'INVALID');
+      } else {
+        console.log('Payment verification completed:', isValid ? 'SUCCESS' : 'FAILED');
+      }
 
       return expectedSignature === verification.razorpay_signature;
     } catch (error) {
