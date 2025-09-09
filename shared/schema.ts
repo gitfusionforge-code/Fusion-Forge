@@ -115,6 +115,59 @@ export interface AdminSetting {
   updatedAt: Date;
 }
 
+export interface Subscription {
+  id: string;
+  userId: string;
+  planId: string;
+  planName: string;
+  status: 'active' | 'paused' | 'cancelled' | 'expired' | 'pending';
+  billingCycle: 'monthly' | 'quarterly' | 'yearly';
+  basePrice: number;
+  discountPercentage: number;
+  finalPrice: number;
+  items: Array<{
+    buildId: number;
+    buildName: string;
+    category: string;
+    quantity: number;
+    unitPrice: number;
+  }>;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
+  nextBillingDate: Date;
+  lastPaymentDate?: Date;
+  lastPaymentId?: string;
+  customerEmail: string;
+  customerName: string;
+  shippingAddress: string;
+  paymentMethod: string;
+  razorpaySubscriptionId?: string;
+  totalDelivered: number;
+  successfulPayments: number;
+  failedPayments: number;
+  createdAt: Date;
+  updatedAt: Date;
+  cancelledAt?: Date;
+  cancellationReason?: string;
+}
+
+export interface SubscriptionOrder {
+  id: string;
+  subscriptionId: string;
+  userId: string;
+  orderNumber: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'failed';
+  amount: number;
+  items: string; // JSON string of items
+  paymentId?: string;
+  billingPeriod: string;
+  deliveryDate?: Date;
+  trackingNumber?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Zod schemas for validation
 export const insertPcBuildSchema = z.object({
   name: z.string().min(1),
@@ -212,6 +265,43 @@ export const insertAdminSettingSchema = z.object({
   value: z.string().min(1),
 });
 
+export const insertSubscriptionSchema = z.object({
+  userId: z.string().min(1),
+  planId: z.string().min(1),
+  planName: z.string().min(1),
+  status: z.enum(['active', 'paused', 'cancelled', 'expired', 'pending']).default('pending'),
+  billingCycle: z.enum(['monthly', 'quarterly', 'yearly']),
+  basePrice: z.number().min(0),
+  discountPercentage: z.number().min(0).max(100).default(0),
+  finalPrice: z.number().min(0),
+  items: z.array(z.object({
+    buildId: z.number(),
+    buildName: z.string(),
+    category: z.string(),
+    quantity: z.number().min(1),
+    unitPrice: z.number().min(0),
+  })),
+  customerEmail: z.string().email(),
+  customerName: z.string().min(1),
+  shippingAddress: z.string().min(1),
+  paymentMethod: z.string().min(1),
+  razorpaySubscriptionId: z.string().optional(),
+});
+
+export const insertSubscriptionOrderSchema = z.object({
+  subscriptionId: z.string().min(1),
+  userId: z.string().min(1),
+  orderNumber: z.string().min(1),
+  status: z.enum(['pending', 'processing', 'shipped', 'delivered', 'failed']).default('pending'),
+  amount: z.number().min(0),
+  items: z.string().min(1),
+  paymentId: z.string().optional(),
+  billingPeriod: z.string().min(1),
+  deliveryDate: z.date().optional(),
+  trackingNumber: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 // Type exports
 export type InsertPcBuild = z.infer<typeof insertPcBuildSchema>;
 export type InsertComponent = z.infer<typeof insertComponentSchema>;
@@ -221,3 +311,5 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type InsertSavedBuild = z.infer<typeof insertSavedBuildSchema>;
 export type InsertUserAddress = z.infer<typeof insertUserAddressSchema>;
 export type InsertAdminSetting = z.infer<typeof insertAdminSettingSchema>;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
+export type InsertSubscriptionOrder = z.infer<typeof insertSubscriptionOrderSchema>;
