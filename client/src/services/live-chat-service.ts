@@ -65,6 +65,13 @@ class LiveChatService {
           localStorage.removeItem(key);
         }
       });
+      
+      // Also clear any old message cache that might contain duplicate IDs
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('chat') || key.includes('message')) {
+          localStorage.removeItem(key);
+        }
+      });
     } catch (error) {
       // Silently handle localStorage errors
     }
@@ -255,7 +262,7 @@ class LiveChatService {
     if (!session) throw new Error('Chat session not found');
 
     const chatMessage: ChatMessage = {
-      id: `msg_${Date.now()}`,
+      id: `msg_${Date.now()}_${++this.messageCounter}`,
       senderId,
       senderType,
       message,

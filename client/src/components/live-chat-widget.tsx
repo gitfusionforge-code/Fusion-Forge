@@ -29,6 +29,7 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
   const [agentTyping, setAgentTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
   
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,9 +40,12 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Initialize chat session when widget opens
+  // Clear any cached data and initialize chat session when widget opens
   useEffect(() => {
     if (isOpen && user && !sessionId) {
+      // Clear any existing messages before starting new session
+      setMessages([]);
+      setForceUpdate(prev => prev + 1);
       initializeChatSession();
     }
   }, [isOpen, user]);
@@ -62,6 +66,9 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
     if (!user) return;
 
     try {
+      // Force clear messages before initializing new session
+      setMessages([]);
+      
       const newSessionId = await liveChatService.startChatSession(
         user.uid,
         user.email || '',
@@ -72,10 +79,11 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
       setSessionId(newSessionId);
       setIsConnected(true);
 
-      // Load initial messages
+      // Load initial messages (these will have new IDs)
       const session = liveChatService.getChatSession(newSessionId);
       if (session) {
-        setMessages(session.messages);
+        setMessages([...session.messages]); // Force new array reference
+        setForceUpdate(prev => prev + 1);
       }
 
     } catch (error) {
@@ -87,14 +95,20 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
     if (!currentMessage.trim() || !sessionId || !user) return;
 
     try {
-      const message = await liveChatService.sendMessage(
+      await liveChatService.sendMessage(
         sessionId,
         user.uid,
         currentMessage.trim(),
         'user'
       );
 
-      setMessages(prev => [...prev, message]);
+      // Reload messages from session instead of manually adding to prevent duplicates
+      const session = liveChatService.getChatSession(sessionId);
+      if (session) {
+        setMessages([...session.messages]); // Create a new array to force re-render
+        setForceUpdate(prev => prev + 1); // Force React to re-render with new keys
+      }
+      
       setCurrentMessage('');
 
       // Show typing indicator briefly
