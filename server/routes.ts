@@ -20,6 +20,7 @@ import {
   isValidAdminSession 
 } from "./middleware/admin-auth";
 import { subscriptionRoutes } from "./routes/subscription-routes";
+import { chatRoutes } from "./routes/chat-routes";
 import { webhookRateLimit } from "./middleware/webhook-auth";
 import { loadBusinessSettings, saveBusinessSettings, initializeBusinessSettings } from "./business-settings-storage";
 
@@ -41,6 +42,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Subscription routes
   app.use("/api/subscription", subscriptionRoutes);
+
+  // Chat AI routes
+  app.use("/api/chat", chatRoutes);
 
   // Placeholder image endpoint
   app.get("/api/placeholder/:width/:height", (req, res) => {
