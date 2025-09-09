@@ -14,7 +14,11 @@ import type {
   SavedBuild, 
   InsertSavedBuild,
   UserAddress,
-  InsertUserAddress
+  InsertUserAddress,
+  Subscription,
+  InsertSubscription,
+  SubscriptionOrder,
+  InsertSubscriptionOrder
 } from "../shared/schema";
 
 export interface IStorage {
@@ -78,6 +82,26 @@ export interface IStorage {
     orders: Order[];
     savedBuilds: SavedBuild[];
   }): Promise<void>;
+
+  // Subscription Management
+  getUserSubscriptions(userId: string): Promise<Subscription[]>;
+  getAllSubscriptions(): Promise<Subscription[]>;
+  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription>;
+  updateSubscriptionStatus(id: string, status: 'active' | 'paused' | 'cancelled' | 'expired' | 'pending'): Promise<Subscription>;
+  getSubscriptionById(id: string): Promise<Subscription | undefined>;
+  cancelSubscription(id: string, reason?: string): Promise<Subscription>;
+  pauseSubscription(id: string): Promise<Subscription>;
+  resumeSubscription(id: string): Promise<Subscription>;
+  getActiveSubscriptions(): Promise<Subscription[]>;
+  getSubscriptionsDueBilling(date?: Date): Promise<Subscription[]>;
+
+  // Subscription Orders Management
+  getSubscriptionOrders(subscriptionId: string): Promise<SubscriptionOrder[]>;
+  getUserSubscriptionOrders(userId: string): Promise<SubscriptionOrder[]>;
+  createSubscriptionOrder(order: InsertSubscriptionOrder): Promise<SubscriptionOrder>;
+  updateSubscriptionOrderStatus(id: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'failed'): Promise<SubscriptionOrder>;
+  getSubscriptionOrderById(id: string): Promise<SubscriptionOrder | undefined>;
 }
 
 // Firebase configuration for server-side access
@@ -907,6 +931,280 @@ export class FirebaseRealtimeStorage implements IStorage {
   async getAllAdminSettings(): Promise<any[]> {
     // Return empty array - admin settings not implemented in Firebase
     return [];
+  }
+
+  // Subscription Management Methods
+  async getUserSubscriptions(userId: string): Promise<Subscription[]> {
+    const snapshot = await get(ref(database, `subscriptions`));
+    if (!snapshot.exists()) return [];
+    
+    const allSubscriptions = snapshot.val();
+    const userSubscriptions: Subscription[] = [];
+    
+    for (const subscriptionId in allSubscriptions) {
+      const subscription = allSubscriptions[subscriptionId];
+      if (subscription && subscription.userId === userId) {
+        userSubscriptions.push(subscription);
+      }
+    }
+    
+    return userSubscriptions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getAllSubscriptions(): Promise<Subscription[]> {
+    const snapshot = await get(ref(database, 'subscriptions'));
+    if (!snapshot.exists()) return [];
+    
+    const data = snapshot.val();
+    return Object.values(data).filter(Boolean) as Subscription[];
+  }
+
+  async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Calculate billing dates
+    const now = new Date();
+    const currentPeriodStart = now;
+    let currentPeriodEnd: Date;
+    let nextBillingDate: Date;
+    
+    switch (subscription.billingCycle) {
+      case 'monthly':
+        currentPeriodEnd = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        nextBillingDate = currentPeriodEnd;
+        break;
+      case 'quarterly':
+        currentPeriodEnd = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+        nextBillingDate = currentPeriodEnd;
+        break;
+      case 'yearly':
+        currentPeriodEnd = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+        nextBillingDate = currentPeriodEnd;
+        break;
+    }
+    
+    const newSubscription: Subscription = {
+      ...subscription,
+      id: subscriptionId,
+      currentPeriodStart,
+      currentPeriodEnd,
+      nextBillingDate,
+      totalDelivered: 0,
+      successfulPayments: 0,
+      failedPayments: 0,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    await set(ref(database, `subscriptions/${subscriptionId}`), newSubscription);
+    return newSubscription;
+  }
+
+  async updateSubscription(id: string, subscription: Partial<InsertSubscription>): Promise<Subscription> {
+    const subscriptionRef = ref(database, `subscriptions/${id}`);
+    const snapshot = await get(subscriptionRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error("Subscription not found");
+    }
+    
+    const updatedData = {
+      ...subscription,
+      updatedAt: new Date()
+    };
+    
+    await update(subscriptionRef, updatedData);
+    
+    const updatedSnapshot = await get(subscriptionRef);
+    return updatedSnapshot.val();
+  }
+
+  async updateSubscriptionStatus(id: string, status: 'active' | 'paused' | 'cancelled' | 'expired' | 'pending'): Promise<Subscription> {
+    const subscriptionRef = ref(database, `subscriptions/${id}`);
+    const snapshot = await get(subscriptionRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error("Subscription not found");
+    }
+    
+    const updateData: any = {
+      status,
+      updatedAt: new Date()
+    };
+    
+    if (status === 'cancelled') {
+      updateData.cancelledAt = new Date();
+    }
+    
+    await update(subscriptionRef, updateData);
+    
+    const updatedSnapshot = await get(subscriptionRef);
+    return updatedSnapshot.val();
+  }
+
+  async getSubscriptionById(id: string): Promise<Subscription | undefined> {
+    const snapshot = await get(ref(database, `subscriptions/${id}`));
+    return snapshot.exists() ? snapshot.val() : undefined;
+  }
+
+  async cancelSubscription(id: string, reason?: string): Promise<Subscription> {
+    const subscriptionRef = ref(database, `subscriptions/${id}`);
+    const snapshot = await get(subscriptionRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error("Subscription not found");
+    }
+    
+    const updateData = {
+      status: 'cancelled' as const,
+      cancelledAt: new Date(),
+      cancellationReason: reason,
+      updatedAt: new Date()
+    };
+    
+    await update(subscriptionRef, updateData);
+    
+    const updatedSnapshot = await get(subscriptionRef);
+    return updatedSnapshot.val();
+  }
+
+  async pauseSubscription(id: string): Promise<Subscription> {
+    return this.updateSubscriptionStatus(id, 'paused');
+  }
+
+  async resumeSubscription(id: string): Promise<Subscription> {
+    const subscriptionRef = ref(database, `subscriptions/${id}`);
+    const snapshot = await get(subscriptionRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error("Subscription not found");
+    }
+    
+    const subscription = snapshot.val();
+    
+    // Calculate new billing dates when resuming
+    const now = new Date();
+    let nextBillingDate: Date;
+    
+    switch (subscription.billingCycle) {
+      case 'monthly':
+        nextBillingDate = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        break;
+      case 'quarterly':
+        nextBillingDate = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+        break;
+      case 'yearly':
+        nextBillingDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+        break;
+      default:
+        nextBillingDate = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        break;
+    }
+    
+    const updateData = {
+      status: 'active' as const,
+      nextBillingDate,
+      currentPeriodStart: now,
+      currentPeriodEnd: nextBillingDate,
+      updatedAt: new Date()
+    };
+    
+    await update(subscriptionRef, updateData);
+    
+    const updatedSnapshot = await get(subscriptionRef);
+    return updatedSnapshot.val();
+  }
+
+  async getActiveSubscriptions(): Promise<Subscription[]> {
+    const allSubscriptions = await this.getAllSubscriptions();
+    return allSubscriptions.filter(sub => sub.status === 'active');
+  }
+
+  async getSubscriptionsDueBilling(date?: Date): Promise<Subscription[]> {
+    const targetDate = date || new Date();
+    const allSubscriptions = await this.getAllSubscriptions();
+    
+    return allSubscriptions.filter(sub => 
+      sub.status === 'active' && 
+      new Date(sub.nextBillingDate) <= targetDate
+    );
+  }
+
+  // Subscription Orders Management Methods
+  async getSubscriptionOrders(subscriptionId: string): Promise<SubscriptionOrder[]> {
+    const snapshot = await get(ref(database, `subscriptionOrders`));
+    if (!snapshot.exists()) return [];
+    
+    const allOrders = snapshot.val();
+    const subscriptionOrders: SubscriptionOrder[] = [];
+    
+    for (const orderId in allOrders) {
+      const order = allOrders[orderId];
+      if (order && order.subscriptionId === subscriptionId) {
+        subscriptionOrders.push(order);
+      }
+    }
+    
+    return subscriptionOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async getUserSubscriptionOrders(userId: string): Promise<SubscriptionOrder[]> {
+    const snapshot = await get(ref(database, `subscriptionOrders`));
+    if (!snapshot.exists()) return [];
+    
+    const allOrders = snapshot.val();
+    const userOrders: SubscriptionOrder[] = [];
+    
+    for (const orderId in allOrders) {
+      const order = allOrders[orderId];
+      if (order && order.userId === userId) {
+        userOrders.push(order);
+      }
+    }
+    
+    return userOrders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async createSubscriptionOrder(order: InsertSubscriptionOrder): Promise<SubscriptionOrder> {
+    const orderId = `sub_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const newOrder: SubscriptionOrder = {
+      ...order,
+      id: orderId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    await set(ref(database, `subscriptionOrders/${orderId}`), newOrder);
+    return newOrder;
+  }
+
+  async updateSubscriptionOrderStatus(id: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'failed'): Promise<SubscriptionOrder> {
+    const orderRef = ref(database, `subscriptionOrders/${id}`);
+    const snapshot = await get(orderRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error("Subscription order not found");
+    }
+    
+    const updateData: any = {
+      status,
+      updatedAt: new Date()
+    };
+    
+    if (status === 'delivered') {
+      updateData.deliveryDate = new Date();
+    }
+    
+    await update(orderRef, updateData);
+    
+    const updatedSnapshot = await get(orderRef);
+    return updatedSnapshot.val();
+  }
+
+  async getSubscriptionOrderById(id: string): Promise<SubscriptionOrder | undefined> {
+    const snapshot = await get(ref(database, `subscriptionOrders/${id}`));
+    return snapshot.exists() ? snapshot.val() : undefined;
   }
 }
 
