@@ -195,12 +195,10 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
             <div className="flex items-center space-x-2">
               <Headphones className="h-5 w-5" />
               <div>
-                <h3 className="font-semibold text-sm">FusionForge Support</h3>
+                <h3 className="font-semibold text-sm">FusionForge AI Assistant</h3>
                 <div className="flex items-center space-x-1">
-                  <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                  <span className="text-xs opacity-90">
-                    {isConnected ? 'Online' : 'Connecting...'}
-                  </span>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs opacity-90">AI Powered</span>
                 </div>
               </div>
             </div>
@@ -220,8 +218,8 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
           {messages.length === 0 && (
             <div className="text-center text-gray-500 py-8">
               <Bot className="h-12 w-12 mx-auto mb-4 text-blue-500" />
-              <p className="text-sm">Welcome to FusionForge Support!</p>
-              <p className="text-xs text-gray-400 mt-1">Ask us anything about PC builds, pricing, or technical support.</p>
+              <p className="text-sm">Welcome to FusionForge AI Assistant!</p>
+              <p className="text-xs text-gray-400 mt-1">I can help with PC builds, components, pricing, and technical support. Ask me anything!</p>
             </div>
           )}
 

@@ -391,7 +391,7 @@ class LiveChatService {
   // Notify admin about escalation
   private async notifyAdminEscalation(sessionId: string, reason: string): Promise<void> {
     try {
-      await fetch('/api/admin/chat/escalation', {
+      await fetch('/api/chat/admin/escalation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
