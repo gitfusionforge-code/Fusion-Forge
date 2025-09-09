@@ -27,7 +27,7 @@ import { loadBusinessSettings, saveBusinessSettings, initializeBusinessSettings 
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize business settings storage
-  initializeBusinessSettings();
+  await initializeBusinessSettings();
   
   // Health check and API routes
   
@@ -145,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If no settings exist in Firebase, load from local storage or defaults
       if (!settings) {
-        settings = loadBusinessSettings();
+        settings = await loadBusinessSettings();
       }
       
       res.json(settings);
@@ -176,8 +176,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Firebase save failed, using local storage fallback:', firebaseError.message);
         
         // Fallback to local storage for development
-        saveBusinessSettings(updatedSettings);
-        const settings = loadBusinessSettings();
+        await saveBusinessSettings(updatedSettings);
+        const settings = await loadBusinessSettings();
         res.json({ success: true, settings, warning: "Saved locally - may not persist in production" });
       }
     } catch (error: any) {

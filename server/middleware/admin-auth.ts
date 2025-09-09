@@ -102,15 +102,35 @@ export function refreshAdminSession(sessionId: string): boolean {
 export function requireAdminAuth(req: Request, res: Response, next: NextFunction) {
   const sessionId = req.cookies?.admin_session;
   
-  if (!sessionId || !isValidAdminSession(sessionId)) {
+  // Enhanced security checks
+  if (!sessionId) {
     return res.status(401).json({ 
       error: "Unauthorized", 
-      message: "Admin authentication required or session expired" 
+      message: "Admin authentication required" 
+    });
+  }
+  
+  if (!isValidAdminSession(sessionId)) {
+    // Clear invalid session cookie
+    res.clearCookie('admin_session', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    
+    return res.status(401).json({ 
+      error: "Unauthorized", 
+      message: "Session expired or invalid" 
     });
   }
   
   // Refresh session on each valid request
   refreshAdminSession(sessionId);
+  
+  // Add security headers
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
   
   next();
 }

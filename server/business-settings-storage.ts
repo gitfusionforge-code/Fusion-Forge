@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import { ref, get, set } from 'firebase/database';
+import { database } from './firebase-realtime-storage';
 
 interface BusinessSettings {
   businessEmail: string;
@@ -11,7 +11,7 @@ interface BusinessSettings {
   companyWebsite: string;
 }
 
-const SETTINGS_FILE = path.join(process.cwd(), 'data', 'business-settings.json');
+const SETTINGS_PATH = 'admin/settings';
 
 // Default business settings - Use environment variables or configure in production
 const DEFAULT_SETTINGS: BusinessSettings = {
@@ -24,39 +24,28 @@ const DEFAULT_SETTINGS: BusinessSettings = {
   companyWebsite: process.env.COMPANY_WEBSITE || 'www.yourcompany.com',
 };
 
-// Ensure data directory exists
-function ensureDataDirectory() {
-  const dataDir = path.dirname(SETTINGS_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-}
 
 // Load business settings from file
-export function loadBusinessSettings(): BusinessSettings {
+export async function loadBusinessSettings(): Promise<BusinessSettings> {
   try {
-    ensureDataDirectory();
+    const snapshot = await get(ref(database, SETTINGS_PATH));
     
-    if (fs.existsSync(SETTINGS_FILE)) {
-      const data = fs.readFileSync(SETTINGS_FILE, 'utf8');
-      const settings = JSON.parse(data);
-      
+    if (snapshot.exists()) {
+      const settings = snapshot.val();
       // Ensure all required fields exist, merge with defaults if needed
       return { ...DEFAULT_SETTINGS, ...settings };
     }
-  } catch (error) {
-    console.error('Error loading business settings from file:', error);
+  } catch (error: any) {
+    console.error('Firebase permission issue, using local fallback:', error.message);
   }
   
-  // Return default settings if file doesn't exist or on error
+  // Return default settings if Firebase access fails or data doesn't exist
   return DEFAULT_SETTINGS;
 }
 
 // Save business settings to file
-export function saveBusinessSettings(settings: BusinessSettings): void {
+export async function saveBusinessSettings(settings: BusinessSettings): Promise<void> {
   try {
-    ensureDataDirectory();
-    
     // Validate required fields
     const requiredFields = ['businessEmail', 'businessPhone', 'businessAddress', 'companyName'];
     for (const field of requiredFields) {
@@ -65,23 +54,25 @@ export function saveBusinessSettings(settings: BusinessSettings): void {
       }
     }
     
-    const data = JSON.stringify(settings, null, 2);
-    fs.writeFileSync(SETTINGS_FILE, data, 'utf8');
-    console.log('Business settings saved successfully');
-  } catch (error) {
-    console.error('Error saving business settings to file:', error);
-    throw error;
+    await set(ref(database, SETTINGS_PATH), settings);
+    console.log('Business settings saved successfully to Firebase');
+  } catch (error: any) {
+    console.error('Error saving business settings to Firebase:', error);
+    throw new Error('Failed to save business settings. Please try again.');
   }
 }
 
 // Initialize settings file with defaults if it doesn't exist
-export function initializeBusinessSettings(): void {
+export async function initializeBusinessSettings(): Promise<void> {
   try {
-    if (!fs.existsSync(SETTINGS_FILE)) {
-      saveBusinessSettings(DEFAULT_SETTINGS);
-      console.log('Business settings initialized with default values');
+    const snapshot = await get(ref(database, SETTINGS_PATH));
+    
+    if (!snapshot.exists()) {
+      await saveBusinessSettings(DEFAULT_SETTINGS);
+      console.log('Business settings initialized with default values in Firebase');
     }
   } catch (error) {
     console.error('Error initializing business settings:', error);
+    // Silently continue with defaults if Firebase is not accessible
   }
 }
