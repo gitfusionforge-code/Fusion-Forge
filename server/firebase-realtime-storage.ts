@@ -1206,6 +1206,36 @@ export class FirebaseRealtimeStorage implements IStorage {
     const snapshot = await get(ref(database, `subscriptionOrders/${id}`));
     return snapshot.exists() ? snapshot.val() : undefined;
   }
+
+  // Admin method to get all subscriptions
+  async getAllSubscriptions(): Promise<Subscription[]> {
+    try {
+      const snapshot = await get(ref(database, 'subscriptions'));
+      const subscriptions = snapshot.val() || {};
+      
+      return Object.entries(subscriptions)
+        .map(([id, subscription]: [string, any]) => ({ id, ...subscription }))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } catch (error) {
+      console.error('Error fetching all subscriptions:', error);
+      throw error;
+    }
+  }
+
+  // Admin method to get all subscription orders
+  async getAllSubscriptionOrders(): Promise<SubscriptionOrder[]> {
+    try {
+      const snapshot = await get(ref(database, 'subscriptionOrders'));
+      const orders = snapshot.val() || {};
+      
+      return Object.entries(orders)
+        .map(([id, order]: [string, any]) => ({ id, ...order }))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } catch (error) {
+      console.error('Error fetching all subscription orders:', error);
+      throw error;
+    }
+  }
 }
 
 export const firebaseRealtimeStorage = new FirebaseRealtimeStorage();

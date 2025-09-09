@@ -32,7 +32,7 @@ import {
   Database
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import type { Inquiry, PcBuild, Order } from "@shared/schema";
+import type { Inquiry, PcBuild, Order, Subscription } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
 import BusinessSettingsManager from "@/components/admin/business-settings-manager";
 
@@ -100,6 +100,12 @@ function AdminContent() {
 
   const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery<any[]>({
     queryKey: ["/api/users"],
+    enabled: adminSessionReady,
+  });
+
+  // Admin subscription queries
+  const { data: allSubscriptions = [], isLoading: subscriptionsLoading, error: subscriptionsError } = useQuery<Subscription[]>({
+    queryKey: ["/api/subscription/admin/all"],
     enabled: adminSessionReady,
   });
 
@@ -458,6 +464,8 @@ Email: [Your Business Email]`);
       return orderDate === today;
     }).length,
     totalUsers: users.length,
+    activeSubscriptions: allSubscriptions.filter(s => s.status === 'active').length,
+    totalSubscriptionRevenue: allSubscriptions.filter(s => s.status === 'active').reduce((sum, sub) => sum + sub.basePrice, 0),
     newUsersToday: users.filter(user => {
       const today = new Date().toDateString();
       const userDate = new Date(user.createdAt).toDateString();
@@ -485,7 +493,7 @@ Email: [Your Business Email]`);
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
@@ -505,6 +513,10 @@ Email: [Your Business Email]`);
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Subscriptions
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
@@ -1523,6 +1535,147 @@ Email: [Your Business Email]`);
             </Card>
           </TabsContent>
 
+          {/* Subscriptions Tab */}
+          <TabsContent value="subscriptions" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-600 text-sm font-medium">Active Subscriptions</p>
+                      <p className="text-2xl font-bold text-green-900">{analytics.activeSubscriptions}</p>
+                    </div>
+                    <Calendar className="h-8 w-8 text-green-600" />
+                  </div>
+                  <p className="text-xs text-green-600 mt-2">Recurring customers</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-600 text-sm font-medium">Monthly Recurring Revenue</p>
+                      <p className="text-2xl font-bold text-blue-900">₹{analytics.totalSubscriptionRevenue.toLocaleString('en-IN')}</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <p className="text-xs text-blue-600 mt-2">From active subscriptions</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-600 text-sm font-medium">Total Subscriptions</p>
+                      <p className="text-2xl font-bold text-purple-900">{allSubscriptions.length}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <p className="text-xs text-purple-600 mt-2">All time created</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="px-6 py-5 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900">Customer Subscriptions</h2>
+              </div>
+              
+              <div className="overflow-x-auto">
+                {subscriptionsLoading ? (
+                  <div className="p-8 text-center">Loading subscriptions...</div>
+                ) : subscriptionsError ? (
+                  <div className="p-8 text-center text-red-600">Failed to load subscriptions</div>
+                ) : allSubscriptions.length === 0 ? (
+                  <div className="p-8 text-center text-gray-600">No subscriptions found</div>
+                ) : (
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CUSTOMER</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PLAN</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NEXT BILLING</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">REVENUE</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {allSubscriptions.map((subscription) => (
+                        <tr key={subscription.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">{subscription.userId}</div>
+                              <div className="text-sm text-gray-500">ID: {subscription.id}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900">{subscription.planName}</div>
+                            <div className="text-sm text-gray-500">{subscription.billingCycle}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge 
+                              className={
+                                subscription.status === 'active' ? 'bg-green-100 text-green-800' :
+                                subscription.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                                subscription.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }
+                            >
+                              {subscription.status}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {subscription.nextBillingDate ? new Date(subscription.nextBillingDate).toLocaleDateString() : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            ₹{subscription.basePrice.toLocaleString('en-IN')}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            <div className="flex space-x-2">
+                              {subscription.status === 'active' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    // Handle pause subscription
+                                  }}
+                                >
+                                  Pause
+                                </Button>
+                              )}
+                              {subscription.status === 'paused' && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    // Handle resume subscription
+                                  }}
+                                >
+                                  Resume
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  // Handle view subscription details
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </TabsContent>
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">

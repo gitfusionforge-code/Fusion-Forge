@@ -259,4 +259,68 @@ router.post('/process-due', async (req, res) => {
   }
 });
 
+// Admin routes for subscription management
+router.get('/admin/all', async (req, res) => {
+  try {
+    // Get all subscriptions for admin view
+    const subscriptions = await storage.getAllSubscriptions();
+    res.json(subscriptions);
+  } catch (error: any) {
+    console.error('Error fetching all subscriptions:', error);
+    res.status(500).json({ error: 'Failed to fetch subscriptions' });
+  }
+});
+
+// Admin route to get subscription by ID
+router.get('/admin/:id', async (req, res) => {
+  try {
+    const subscriptionId = req.params.id;
+    const subscription = await storage.getSubscriptionById(subscriptionId);
+    
+    if (!subscription) {
+      return res.status(404).json({ error: 'Subscription not found' });
+    }
+    
+    res.json(subscription);
+  } catch (error: any) {
+    console.error('Error fetching subscription:', error);
+    res.status(500).json({ error: 'Failed to fetch subscription' });
+  }
+});
+
+// Admin route to update subscription status
+router.post('/admin/:id/:action', async (req, res) => {
+  try {
+    const subscriptionId = req.params.id;
+    const action = req.params.action; // 'pause', 'resume', 'cancel'
+    const { reason } = req.body;
+    
+    const subscription = await storage.getSubscriptionById(subscriptionId);
+    if (!subscription) {
+      return res.status(404).json({ error: 'Subscription not found' });
+    }
+    
+    let updatedSubscription;
+    
+    switch (action) {
+      case 'pause':
+        updatedSubscription = await subscriptionService.pauseSubscription(subscriptionId);
+        break;
+      case 'resume':
+        updatedSubscription = await subscriptionService.resumeSubscription(subscriptionId);
+        break;
+      case 'cancel':
+        updatedSubscription = await subscriptionService.cancelSubscription(subscriptionId, reason);
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid action' });
+    }
+    
+    res.json(updatedSubscription);
+  } catch (error: any) {
+    console.error(`Error ${req.params.action} subscription:`, error);
+    res.status(500).json({ error: `Failed to ${req.params.action} subscription` });
+  }
+});
+
 export { router as subscriptionRoutes };
