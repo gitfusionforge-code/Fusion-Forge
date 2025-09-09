@@ -121,6 +121,121 @@ class RazorpayService {
       throw new Error('Failed to process refund');
     }
   }
+
+  // Subscription methods for recurring payments
+  async createSubscription(subscriptionData: {
+    planId: string;
+    customerId?: string;
+    totalCount?: number;
+    startAt?: number;
+    notes?: Record<string, string>;
+  }): Promise<any> {
+    if (!this.razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.');
+    }
+
+    try {
+      const subscription = await this.razorpay.subscriptions.create({
+        plan_id: subscriptionData.planId,
+        customer_id: subscriptionData.customerId,
+        total_count: subscriptionData.totalCount,
+        start_at: subscriptionData.startAt || Math.floor(Date.now() / 1000),
+        notes: subscriptionData.notes || {},
+      });
+
+      return subscription;
+    } catch (error) {
+      console.error('Razorpay subscription creation failed:', error);
+      throw new Error('Failed to create subscription');
+    }
+  }
+
+  async createPlan(planData: {
+    period: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    interval: number;
+    amount: number;
+    currency: string;
+    notes?: Record<string, string>;
+  }): Promise<any> {
+    if (!this.razorpay) {
+      throw new Error('Razorpay not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables.');
+    }
+
+    try {
+      const plan = await this.razorpay.plans.create({
+        period: planData.period,
+        interval: planData.interval,
+        item: {
+          name: `Subscription Plan - ${planData.period}`,
+          amount: planData.amount * 100, // Amount in paisa
+          currency: planData.currency,
+          description: `Recurring ${planData.period} subscription plan`,
+        },
+        notes: planData.notes || {},
+      });
+
+      return plan;
+    } catch (error) {
+      console.error('Razorpay plan creation failed:', error);
+      throw new Error('Failed to create subscription plan');
+    }
+  }
+
+  async getSubscription(subscriptionId: string): Promise<any> {
+    if (!this.razorpay) {
+      throw new Error('Razorpay not configured');
+    }
+
+    try {
+      return await this.razorpay.subscriptions.fetch(subscriptionId);
+    } catch (error) {
+      console.error('Failed to fetch subscription:', error);
+      throw new Error('Failed to fetch subscription details');
+    }
+  }
+
+  async cancelSubscription(subscriptionId: string, cancelAtCycleEnd: boolean = false): Promise<any> {
+    if (!this.razorpay) {
+      throw new Error('Razorpay not configured');
+    }
+
+    try {
+      return await this.razorpay.subscriptions.cancel(subscriptionId, cancelAtCycleEnd);
+    } catch (error) {
+      console.error('Failed to cancel subscription:', error);
+      throw new Error('Failed to cancel subscription');
+    }
+  }
+
+  async pauseSubscription(subscriptionId: string): Promise<any> {
+    if (!this.razorpay) {
+      throw new Error('Razorpay not configured');
+    }
+
+    try {
+      return await this.razorpay.subscriptions.pause(subscriptionId, {
+        pause_at: 'now',
+      });
+    } catch (error) {
+      console.error('Failed to pause subscription:', error);
+      throw new Error('Failed to pause subscription');
+    }
+  }
+
+  async resumeSubscription(subscriptionId: string): Promise<any> {
+    if (!this.razorpay) {
+      throw new Error('Razorpay not configured');
+    }
+
+    try {
+      return await this.razorpay.subscriptions.resume(subscriptionId, {
+        resume_at: 'now',
+      });
+    } catch (error) {
+      console.error('Failed to resume subscription:', error);
+      throw new Error('Failed to resume subscription');
+    }
+  }
 }
 
 export const razorpayService = new RazorpayService();

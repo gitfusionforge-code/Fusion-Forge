@@ -41,6 +41,31 @@ export async function handleRazorpayWebhook(req: Request, res: Response) {
         await handleOrderPaid(event.payload.order.entity, event.payload.payment.entity);
         break;
         
+      // Subscription webhook events
+      case 'subscription.activated':
+        await handleSubscriptionActivated(event.payload.subscription.entity);
+        break;
+        
+      case 'subscription.charged':
+        await handleSubscriptionCharged(event.payload.subscription.entity, event.payload.payment?.entity);
+        break;
+        
+      case 'subscription.cancelled':
+        await handleSubscriptionCancelled(event.payload.subscription.entity);
+        break;
+        
+      case 'subscription.paused':
+        await handleSubscriptionPaused(event.payload.subscription.entity);
+        break;
+        
+      case 'subscription.resumed':
+        await handleSubscriptionResumed(event.payload.subscription.entity);
+        break;
+        
+      case 'subscription.completed':
+        await handleSubscriptionCompleted(event.payload.subscription.entity);
+        break;
+        
       default:
         break;
     }
@@ -179,5 +204,165 @@ async function generateAndSendReceipt(payment: any, order: any) {
   } catch (error) {
     console.error('Critical receipt generation failure:', error);
     return false;
+  }
+}
+
+// Subscription webhook handlers
+async function handleSubscriptionActivated(subscription: any) {
+  try {
+    console.log('Subscription activated:', subscription.id);
+    
+    // Update subscription status in our database
+    await storage.updateSubscription(subscription.id, {
+      status: 'active',
+      razorpaySubscriptionId: subscription.id,
+      activatedAt: new Date(subscription.start_at * 1000),
+      updatedAt: new Date()
+    });
+    
+  } catch (error) {
+    console.error('Error handling subscription activation:', error);
+  }
+}
+
+async function handleSubscriptionCharged(subscription: any, payment?: any) {
+  try {
+    console.log('Subscription charged:', subscription.id);
+    
+    if (payment) {
+      // Create subscription order record
+      const subscriptionOrder = {
+        subscriptionId: subscription.id,
+        userId: '', // Will be updated from subscription record
+        paymentId: payment.id,
+        amount: payment.amount / 100,
+        status: 'delivered' as const,
+        billingDate: new Date(payment.created_at * 1000),
+        nextBillingDate: new Date(subscription.charge_at * 1000),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      // Get subscription details to get userId
+      const subscriptionRecord = await storage.getSubscriptionById(subscription.id);
+      if (subscriptionRecord) {
+        subscriptionOrder.userId = subscriptionRecord.userId;
+        await storage.createSubscriptionOrder(subscriptionOrder);
+        
+        // Generate and send receipt for subscription payment
+        await generateSubscriptionReceipt(payment, subscription, subscriptionRecord);
+      }
+    }
+    
+  } catch (error) {
+    console.error('Error handling subscription charge:', error);
+  }
+}
+
+async function handleSubscriptionCancelled(subscription: any) {
+  try {
+    console.log('Subscription cancelled:', subscription.id);
+    
+    await storage.updateSubscription(subscription.id, {
+      status: 'cancelled',
+      cancelledAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+  } catch (error) {
+    console.error('Error handling subscription cancellation:', error);
+  }
+}
+
+async function handleSubscriptionPaused(subscription: any) {
+  try {
+    console.log('Subscription paused:', subscription.id);
+    
+    await storage.updateSubscription(subscription.id, {
+      status: 'paused',
+      pausedAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+  } catch (error) {
+    console.error('Error handling subscription pause:', error);
+  }
+}
+
+async function handleSubscriptionResumed(subscription: any) {
+  try {
+    console.log('Subscription resumed:', subscription.id);
+    
+    await storage.updateSubscription(subscription.id, {
+      status: 'active',
+      resumedAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+  } catch (error) {
+    console.error('Error handling subscription resume:', error);
+  }
+}
+
+async function handleSubscriptionCompleted(subscription: any) {
+  try {
+    console.log('Subscription completed:', subscription.id);
+    
+    await storage.updateSubscription(subscription.id, {
+      status: 'completed',
+      completedAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+  } catch (error) {
+    console.error('Error handling subscription completion:', error);
+  }
+}
+
+async function generateSubscriptionReceipt(payment: any, subscription: any, subscriptionRecord: any) {
+  try {
+    const receiptData: ReceiptData = {
+      orderNumber: `SUB${subscription.id.slice(-8)}`,
+      paymentId: payment.id,
+      orderId: subscription.id,
+      customerName: subscriptionRecord.userId,
+      customerEmail: 'subscription@fusionforge.com', // Will be updated with user data
+      customerPhone: 'N/A',
+      amount: payment.amount / 100,
+      paymentMethod: 'subscription_payment',
+      paymentStatus: 'completed',
+      items: [{
+        build: {
+          id: 0,
+          name: subscriptionRecord.planName,
+          category: 'subscription',
+          price: (payment.amount / 100).toString(),
+          components: []
+        },
+        quantity: 1
+      }],
+      shippingAddress: 'Subscription Service',
+      transactionDate: new Date(payment.created_at * 1000).toLocaleString('en-IN', {
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Kolkata'
+      }),
+      companyDetails: {
+        name: 'Fusion Forge PCs',
+        address: process.env.BUSINESS_ADDRESS || '58,Post Office Street , Palladam , TamilNadu , India',
+        phone: process.env.BUSINESS_PHONE || '+91 9363599577',
+        email: process.env.BUSINESS_EMAIL || 'fusionforgepcs@gmail.com',
+        website: 'www.fusionforge.com',
+        gst: process.env.BUSINESS_GST || 'GST-NUMBER'
+      }
+    };
+    
+    await sendAutomatedReceipt(receiptData);
+    
+  } catch (error) {
+    console.error('Error generating subscription receipt:', error);
   }
 }
