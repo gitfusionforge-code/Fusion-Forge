@@ -215,8 +215,7 @@ async function handleSubscriptionActivated(subscription: any) {
     // Update subscription status in our database
     await storage.updateSubscription(subscription.id, {
       status: 'active',
-      razorpaySubscriptionId: subscription.id,
-      updatedAt: new Date()
+      razorpaySubscriptionId: subscription.id
     });
     
   } catch (error) {
@@ -264,8 +263,7 @@ async function handleSubscriptionCancelled(subscription: any) {
     console.log('Subscription cancelled:', subscription.id);
     
     await storage.updateSubscription(subscription.id, {
-      status: 'cancelled',
-      updatedAt: new Date()
+      status: 'cancelled'
     });
     
   } catch (error) {
@@ -278,8 +276,7 @@ async function handleSubscriptionPaused(subscription: any) {
     console.log('Subscription paused:', subscription.id);
     
     await storage.updateSubscription(subscription.id, {
-      status: 'paused',
-      updatedAt: new Date()
+      status: 'paused'
     });
     
   } catch (error) {
@@ -292,8 +289,7 @@ async function handleSubscriptionResumed(subscription: any) {
     console.log('Subscription resumed:', subscription.id);
     
     await storage.updateSubscription(subscription.id, {
-      status: 'active',
-      updatedAt: new Date()
+      status: 'active'
     });
     
   } catch (error) {
@@ -306,8 +302,7 @@ async function handleSubscriptionCompleted(subscription: any) {
     console.log('Subscription completed:', subscription.id);
     
     await storage.updateSubscription(subscription.id, {
-      status: 'expired',
-      updatedAt: new Date()
+      status: 'expired'
     });
     
   } catch (error) {

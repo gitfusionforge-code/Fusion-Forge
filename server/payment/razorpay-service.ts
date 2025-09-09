@@ -135,13 +135,24 @@ class RazorpayService {
     }
 
     try {
-      const subscription = await this.razorpay.subscriptions.create({
+      const createData: any = {
         plan_id: subscriptionData.planId,
-        customer_id: subscriptionData.customerId,
-        total_count: subscriptionData.totalCount,
-        start_at: subscriptionData.startAt,
         notes: subscriptionData.notes || {},
-      });
+      };
+      
+      if (subscriptionData.customerId) {
+        createData.customer_id = subscriptionData.customerId;
+      }
+      
+      if (subscriptionData.totalCount) {
+        createData.total_count = subscriptionData.totalCount;
+      }
+      
+      if (subscriptionData.startAt) {
+        createData.start_at = subscriptionData.startAt;
+      }
+
+      const subscription = await this.razorpay.subscriptions.create(createData);
 
       return subscription;
     } catch (error) {
