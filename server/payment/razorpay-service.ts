@@ -139,7 +139,7 @@ class RazorpayService {
         plan_id: subscriptionData.planId,
         customer_id: subscriptionData.customerId,
         total_count: subscriptionData.totalCount,
-        start_at: subscriptionData.startAt || Math.floor(Date.now() / 1000),
+        start_at: subscriptionData.startAt,
         notes: subscriptionData.notes || {},
       });
 

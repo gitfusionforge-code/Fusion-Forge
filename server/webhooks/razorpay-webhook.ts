@@ -216,7 +216,6 @@ async function handleSubscriptionActivated(subscription: any) {
     await storage.updateSubscription(subscription.id, {
       status: 'active',
       razorpaySubscriptionId: subscription.id,
-      activatedAt: new Date(subscription.start_at * 1000),
       updatedAt: new Date()
     });
     
@@ -232,13 +231,14 @@ async function handleSubscriptionCharged(subscription: any, payment?: any) {
     if (payment) {
       // Create subscription order record
       const subscriptionOrder = {
-        subscriptionId: subscription.id,
         userId: '', // Will be updated from subscription record
-        paymentId: payment.id,
-        amount: payment.amount / 100,
         status: 'delivered' as const,
-        billingDate: new Date(payment.created_at * 1000),
-        nextBillingDate: new Date(subscription.charge_at * 1000),
+        items: JSON.stringify([{ subscriptionId: subscription.id, planName: 'Subscription Plan' }]),
+        subscriptionId: subscription.id,
+        orderNumber: `SUB${subscription.id.slice(-8)}`,
+        amount: payment.amount / 100,
+        billingPeriod: 'monthly',
+        paymentId: payment.id,
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -265,7 +265,6 @@ async function handleSubscriptionCancelled(subscription: any) {
     
     await storage.updateSubscription(subscription.id, {
       status: 'cancelled',
-      cancelledAt: new Date(),
       updatedAt: new Date()
     });
     
@@ -280,7 +279,6 @@ async function handleSubscriptionPaused(subscription: any) {
     
     await storage.updateSubscription(subscription.id, {
       status: 'paused',
-      pausedAt: new Date(),
       updatedAt: new Date()
     });
     
@@ -295,7 +293,6 @@ async function handleSubscriptionResumed(subscription: any) {
     
     await storage.updateSubscription(subscription.id, {
       status: 'active',
-      resumedAt: new Date(),
       updatedAt: new Date()
     });
     
@@ -309,8 +306,7 @@ async function handleSubscriptionCompleted(subscription: any) {
     console.log('Subscription completed:', subscription.id);
     
     await storage.updateSubscription(subscription.id, {
-      status: 'completed',
-      completedAt: new Date(),
+      status: 'expired',
       updatedAt: new Date()
     });
     
