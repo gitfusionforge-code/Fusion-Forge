@@ -56,6 +56,8 @@ export default function ComprehensiveInventoryDashboard() {
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [isAddingSupplier, setIsAddingSupplier] = useState(false);
+  const [isEditingBuild, setIsEditingBuild] = useState(false);
+  const [selectedBuild, setSelectedBuild] = useState<any>(null);
   const [stockAdjustment, setStockAdjustment] = useState<{quantity: number, reason: string, notes: string}>({
     quantity: 0,
     reason: '',
@@ -69,6 +71,22 @@ export default function ComprehensiveInventoryDashboard() {
     leadTimeDays: 5,
     minimumOrderQuantity: 10,
     paymentTerms: '30 days',
+    isActive: true
+  });
+  const [editBuildForm, setEditBuildForm] = useState<any>({
+    name: '',
+    description: '',
+    basePrice: 0,
+    budgetRange: '',
+    category: '',
+    processor: '',
+    motherboard: '',
+    ram: '',
+    storage: '',
+    gpu: '',
+    casePsu: '',
+    stockQuantity: 0,
+    lowStockThreshold: 5,
     isActive: true
   });
 
@@ -250,11 +268,59 @@ export default function ComprehensiveInventoryDashboard() {
 
   // Handle editing PC build
   const handleEditBuild = (build: any) => {
-    // In a real implementation, this would open an edit dialog
-    toast({
-      title: "Edit PC Build",
-      description: `Opening edit dialog for ${build.name}. This functionality will be fully implemented in the next update.`,
+    setSelectedBuild(build);
+    setEditBuildForm({
+      name: build.name || '',
+      description: build.description || '',
+      basePrice: build.basePrice || 0,
+      budgetRange: build.budgetRange || '',
+      category: build.category || '',
+      processor: build.processor || '',
+      motherboard: build.motherboard || '',
+      ram: build.ram || '',
+      storage: build.storage || '',
+      gpu: build.gpu || '',
+      casePsu: build.casePsu || '',
+      stockQuantity: build.stockQuantity || 0,
+      lowStockThreshold: build.lowStockThreshold || 5,
+      isActive: build.isActive !== false
     });
+    setIsEditingBuild(true);
+  };
+
+  // Handle saving edited build
+  const handleSaveBuild = () => {
+    // In a real implementation, this would send data to API
+    toast({
+      title: "PC Build Updated",
+      description: `${editBuildForm.name} has been updated successfully. In a real implementation, this would update the database.`,
+    });
+    
+    // Reset form and close dialog
+    setIsEditingBuild(false);
+    setSelectedBuild(null);
+    setEditBuildForm({
+      name: '',
+      description: '',
+      basePrice: 0,
+      budgetRange: '',
+      category: '',
+      processor: '',
+      motherboard: '',
+      ram: '',
+      storage: '',
+      gpu: '',
+      casePsu: '',
+      stockQuantity: 0,
+      lowStockThreshold: 5,
+      isActive: true
+    });
+  };
+
+  // Handle canceling edit
+  const handleCancelEdit = () => {
+    setIsEditingBuild(false);
+    setSelectedBuild(null);
   };
 
   // Handle adding new supplier
