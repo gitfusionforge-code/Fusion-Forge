@@ -248,6 +248,15 @@ export default function ComprehensiveInventoryDashboard() {
     });
   };
 
+  // Handle editing PC build
+  const handleEditBuild = (build: any) => {
+    // In a real implementation, this would open an edit dialog
+    toast({
+      title: "Edit PC Build",
+      description: `Opening edit dialog for ${build.name}. This functionality will be fully implemented in the next update.`,
+    });
+  };
+
   // Handle adding new supplier
   const handleAddSupplier = () => {
     // In a real implementation, this would send data to an API
@@ -633,7 +642,12 @@ export default function ComprehensiveInventoryDashboard() {
                                 </div>
                               </DialogContent>
                             </Dialog>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleEditBuild(build)}
+                              data-testid={`button-edit-build-${build.id}`}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                           </div>
