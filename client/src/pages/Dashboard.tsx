@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Package, Settings, ShoppingCart, Star, Clock, CheckCircle } from "lucide-react";
+import { User, Package, Settings, ShoppingCart, Star, Clock, CheckCircle, Calendar } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
 export default function Dashboard() {
@@ -128,7 +128,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -136,6 +136,10 @@ export default function Dashboard() {
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Orders
+            </TabsTrigger>
+            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Subscriptions
             </TabsTrigger>
             <TabsTrigger value="saved" className="flex items-center gap-2">
               <Star className="h-4 w-4" />
@@ -248,6 +252,85 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </TabsContent>
+
+          {/* Subscriptions Tab */}
+          <TabsContent value="subscriptions">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Active Subscriptions</h3>
+                <Button 
+                  onClick={() => setLocation("/subscription-plans")}
+                  className="fusion-gradient text-white hover:opacity-90"
+                >
+                  Browse Plans
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Mock subscription data - replace with real data from API */}
+                <Card className="border-l-4 border-l-green-500">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold">Monthly Premium</h4>
+                      <Badge className="bg-green-100 text-green-800">Active</Badge>
+                    </div>
+                    <p className="text-2xl font-bold text-orange-600 mb-2">₹42,749/month</p>
+                    <p className="text-sm text-gray-600 mb-3">5% discount • Gaming Beast RTX 4070 (x1)</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>Next billing: Jan 28, 2025</span>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setLocation("/subscriptions")}
+                      >
+                        Manage
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Empty state when no subscriptions */}
+                <Card className="border-dashed border-2 border-gray-200">
+                  <CardContent className="p-6 text-center">
+                    <Calendar className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <h4 className="font-semibold text-gray-600 mb-1">No Subscriptions Yet</h4>
+                    <p className="text-sm text-gray-500 mb-3">
+                      Get regular PC deliveries with exclusive discounts
+                    </p>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setLocation("/subscription-plans")}
+                      className="w-full"
+                    >
+                      View Plans
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Subscription Benefits</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span>Exclusive member discounts</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span>Priority customer support</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span>Flexible delivery schedule</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
