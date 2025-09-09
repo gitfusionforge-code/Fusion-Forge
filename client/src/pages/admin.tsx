@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import EnhancedSEOHead from "@/components/enhanced-seo-head";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -1136,409 +1137,328 @@ Email: [Your Business Email]`);
             </div>
           </TabsContent>
 
-          {/* PC Builds Inventory Tab */}
-          <TabsContent value="inventory" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Builds</p>
-                      <p className="text-3xl font-bold text-deep-blue">{analytics.totalBuilds}</p>
-                    </div>
-                    <Package className="h-8 w-8 text-tech-orange" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Low Stock Alerts</p>
-                      <p className="text-3xl font-bold text-red-600">{analytics.lowStockBuilds}</p>
-                    </div>
-                    <AlertTriangle className="h-8 w-8 text-red-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Average Price</p>
-                      <p className="text-3xl font-bold text-deep-blue">₹{analytics.averagePrice.toLocaleString('en-IN')}</p>
-                    </div>
-                    <DollarSign className="h-8 w-8 text-tech-orange" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Inventory Value</p>
-                      <p className="text-3xl font-bold text-deep-blue">₹{analytics.totalInventoryValue.toLocaleString('en-IN')}</p>
-                    </div>
-                    <ShoppingCart className="h-8 w-8 text-tech-orange" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
-            <div className="bg-white rounded-lg border border-gray-200">
-              <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">PC Builds Inventory</h2>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="flex items-center gap-2 bg-gradient-to-r from-deep-blue to-tech-orange text-white">
-                      <Plus className="h-4 w-4" />
-                      Add New Build
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Add New PC Build</DialogTitle>
-                      <DialogDescription>
-                        Create a new PC build configuration for your inventory
-                      </DialogDescription>
-                    </DialogHeader>
-                    <AddPcBuildForm />
-                  </DialogContent>
-                </Dialog>
-              </div>
-              
-              <div className="overflow-x-auto">
-                {buildsLoading ? (
-                  <div className="p-8 text-center">Loading PC builds...</div>
-                ) : buildsError ? (
-                  <div className="p-8 text-center text-red-600">Failed to load PC builds</div>
-                ) : pcBuilds.length === 0 ? (
-                  <div className="p-8 text-center text-gray-600">No PC builds found</div>
-                ) : (
-                  <table className="min-w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BUILD NAME</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CATEGORY</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PRICE</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STOCK</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {pcBuilds.map((build) => (
-                        <tr key={build.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{build.name}</div>
-                              <div className="text-sm text-gray-500">{build.description}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Badge variant="outline" className="capitalize">
-                              {build.category}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              ₹{build.basePrice.toLocaleString('en-IN')}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-sm font-medium ${build.stockQuantity < 5 ? 'text-red-600' : 'text-gray-900'}`}>
-                                {build.stockQuantity}
-                              </span>
-                              {build.stockQuantity < 5 && (
-                                <AlertTriangle className="h-4 w-4 text-red-500" />
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="flex items-center gap-2 text-sm"
-                              onClick={() => {
-                                setEditingBuild(build);
-                                setBuildEditForm({
-                                  name: build.name,
-                                  basePrice: build.basePrice,
-                                  budgetRange: build.budgetRange,
-                                  stockQuantity: build.stockQuantity,
-                                  description: build.description || '',
-                                  // PC Components
-                                  processor: build.processor || '',
-                                  motherboard: build.motherboard || '',
-                                  ram: build.ram || '',
-                                  storage: build.storage || '',
-                                  gpu: build.gpu || '',
-                                  casePsu: build.casePsu || '',
-                                  // Peripherals
-                                  monitor: build.monitor || '',
-                                  keyboardMouse: build.keyboardMouse || '',
-                                  mousePad: build.mousePad || ''
-                                });
-                              }}
-                              data-testid={`button-edit-build-${build.id}`}
-                            >
-                              <Edit className="h-4 w-4" />
-                              Edit Build
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          </TabsContent>
+          {/* Customers Tab - Combined Users & Inquiries */}
+          <TabsContent value="customers" className="space-y-6">
+            <Tabs defaultValue="users" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="users">Registered Users</TabsTrigger>
+                <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
+              </TabsList>
 
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Inquiries</p>
-                      <p className="text-3xl font-bold text-deep-blue">{analytics.totalInquiries}</p>
-                    </div>
-                    <Users className="h-8 w-8 text-tech-orange" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                      <p className="text-3xl font-bold text-deep-blue">{analytics.totalOrders}</p>
-                    </div>
-                    <ShoppingCart className="h-8 w-8 text-tech-orange" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                      <p className="text-3xl font-bold text-green-600">₹{analytics.totalRevenue.toLocaleString('en-IN')}</p>
-                    </div>
-                    <DollarSign className="h-8 w-8 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Conversion Rate</p>
-                      <p className="text-3xl font-bold text-purple-600">{analytics.conversionRate}%</p>
-                    </div>
-                    <TrendingUp className="h-8 w-8 text-purple-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Inquiry Status Distribution</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Completed</span>
-                      <span className="text-sm font-medium">{analytics.completedInquiries}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-green-600 h-2 rounded-full" 
-                        style={{ width: `${analytics.conversionRate}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Pending</span>
-                      <span className="text-sm font-medium">{analytics.totalInquiries - analytics.completedInquiries}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-orange-600 h-2 rounded-full" 
-                        style={{ width: `${100 - analytics.conversionRate}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Inventory Health</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">In Stock</span>
-                      <span className="text-sm font-medium">{analytics.totalBuilds - analytics.lowStockBuilds}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Low Stock</span>
-                      <span className="text-sm font-medium text-red-600">{analytics.lowStockBuilds}</span>
-                    </div>
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-2">Total Inventory Value</p>
-                      <p className="text-2xl font-bold text-deep-blue">₹{analytics.totalInventoryValue.toLocaleString('en-IN')}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Users Management Tab */}
-          <TabsContent value="users" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  User Management
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              {/* Users Sub-tab */}
+              <TabsContent value="users">
+                <div className="space-y-6">
                   {/* Users Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <Users className="h-8 w-8 text-blue-600" />
-                        <div>
-                          <p className="text-sm text-blue-600 font-medium">Total Users</p>
-                          <p className="text-2xl font-bold text-blue-900">{users.length}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-8 w-8 text-blue-600" />
+                          <div>
+                            <p className="text-sm text-blue-600 font-medium">Total Users</p>
+                            <p className="text-2xl font-bold text-blue-900">{users.length}</p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="h-8 w-8 text-green-600" />
-                        <div>
-                          <p className="text-sm text-green-600 font-medium">New Users Today</p>
-                          <p className="text-2xl font-bold text-green-900">
-                            {users.filter(user => {
-                              const today = new Date().toDateString();
-                              const userDate = new Date(user.createdAt).toDateString();
-                              return userDate === today;
-                            }).length}
-                          </p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Calendar className="h-8 w-8 text-green-600" />
+                          <div>
+                            <p className="text-sm text-green-600 font-medium">New Users Today</p>
+                            <p className="text-2xl font-bold text-green-900">
+                              {users.filter(user => {
+                                const today = new Date().toDateString();
+                                const userDate = new Date(user.createdAt).toDateString();
+                                return userDate === today;
+                              }).length}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <ShoppingCart className="h-8 w-8 text-orange-600" />
-                        <div>
-                          <p className="text-sm text-orange-600 font-medium">Users with Orders</p>
-                          <p className="text-2xl font-bold text-orange-900">
-                            {Array.from(new Set(orders.map(order => order.customerEmail))).length}
-                          </p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <ShoppingCart className="h-8 w-8 text-orange-600" />
+                          <div>
+                            <p className="text-sm text-orange-600 font-medium">Users with Orders</p>
+                            <p className="text-2xl font-bold text-orange-900">
+                              {Array.from(new Set(orders.map(order => order.customerEmail))).length}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   </div>
 
                   {/* Users Table */}
-                  <div className="bg-white rounded-lg border border-gray-200">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                      <h3 className="text-lg font-semibold">Registered Users</h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                      {usersLoading ? (
-                        <div className="p-8 text-center">Loading users...</div>
-                      ) : usersError ? (
-                        <div className="p-8 text-center text-red-600">Failed to load users</div>
-                      ) : users.length === 0 ? (
-                        <div className="p-8 text-center text-gray-600">No users found</div>
-                      ) : (
-                        <table className="min-w-full">
-                          <thead>
-                            <tr className="border-b border-gray-200">
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USER</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CONTACT</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ORDERS</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">REGISTERED</th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200">
-                            {users.map((user, index) => {
-                              const userOrders = orders.filter(order => 
-                                order.customerEmail === user.email || order.userId === user.uid
-                              );
-                              const totalSpent = userOrders
-                                .filter(o => o.status === 'completed')
-                                .reduce((sum, order) => {
-                                  const total = typeof order.total === 'string' ? order.total : String(order.total || 0);
-                                  return sum + parseFloat(total.replace(/[^\d.]/g, '') || '0');
-                                }, 0);
-                              
-                              return (
-                                <tr key={user.uid || index} className="hover:bg-gray-50">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Registered Users
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        {usersLoading ? (
+                          <div className="p-8 text-center">Loading users...</div>
+                        ) : usersError ? (
+                          <div className="p-8 text-center text-red-600">Failed to load users</div>
+                        ) : users.length === 0 ? (
+                          <div className="p-8 text-center text-gray-600">No users found</div>
+                        ) : (
+                          <table className="min-w-full">
+                            <thead>
+                              <tr className="border-b border-gray-200">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USER</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CONTACT</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ORDERS</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">REGISTERED</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {users.map((user, index) => {
+                                const userOrders = orders.filter(order => 
+                                  order.customerEmail === user.email || order.userId === user.uid
+                                );
+                                const totalSpent = userOrders
+                                  .filter(o => o.status === 'completed')
+                                  .reduce((sum, order) => {
+                                    const total = typeof order.total === 'string' ? order.total : String(order.total || 0);
+                                    return sum + parseFloat(total.replace(/[^\d.]/g, '') || '0');
+                                  }, 0);
+                                
+                                return (
+                                  <tr key={user.uid || index} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4">
+                                      <div>
+                                        <div className="text-sm font-medium text-gray-900">
+                                          {user.displayName || 'No Name'}
+                                        </div>
+                                        <div className="text-sm text-gray-500">{user.email}</div>
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="text-sm text-gray-900">
+                                        {user.phone || 'No phone'}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        {user.city ? `${user.city}${user.zipCode ? `, ${user.zipCode}` : ''}` : 'No location'}
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="text-sm text-gray-900">{userOrders.length} orders</div>
+                                      <div className="text-sm text-gray-500">
+                                        {totalSpent > 0 ? `₹${totalSpent.toLocaleString('en-IN')} spent` : 'No purchases'}
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <div className="text-sm text-gray-500">
+                                        {formatDate(user.createdAt)}
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                      <Badge className={`text-xs ${
+                                        userOrders.length > 0 
+                                          ? 'bg-green-100 text-green-800' 
+                                          : 'bg-gray-100 text-gray-800'
+                                      }`}>
+                                        {userOrders.length > 0 ? 'Customer' : 'Registered'}
+                                      </Badge>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Inquiries Sub-tab */}
+              <TabsContent value="inquiries">
+                <div className="space-y-6">
+                  {/* Filters */}
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className={`${isMobile ? 'space-y-4' : 'flex flex-wrap gap-4 items-center'}`}>
+                        <div className="flex items-center gap-2">
+                          <Search className="h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder="Search inquiries..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={`${isMobile ? 'flex-1' : 'w-64'}`}
+                          />
+                        </div>
+
+                        <div className={`${isMobile ? 'grid grid-cols-2 gap-3' : 'flex gap-4 items-center'}`}>
+                          <Select value={budgetFilter} onValueChange={setBudgetFilter}>
+                            <SelectTrigger className={`${isMobile ? 'w-full' : 'w-40'}`}>
+                              <Filter className="h-4 w-4 mr-2" />
+                              <SelectValue placeholder="Budget" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Budgets</SelectItem>
+                              <SelectItem value="₹30,000 - ₹50,000">₹30K - ₹50K</SelectItem>
+                              <SelectItem value="₹50,000 - ₹75,000">₹50K - ₹75K</SelectItem>
+                              <SelectItem value="₹75,000 - ₹1,00,000">₹75K - ₹100K</SelectItem>
+                            </SelectContent>
+                          </Select>
+
+                          <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className={`${isMobile ? 'w-full' : 'w-40'}`}>
+                              <Filter className="h-4 w-4 mr-2" />
+                              <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Status</SelectItem>
+                              <SelectItem value="uncompleted">Uncompleted</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className={`text-sm text-gray-600 ${isMobile ? 'text-center' : 'flex items-center'}`}>
+                          Showing {filteredInquiries.length} of {analytics.totalInquiries} inquiries
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Customer Inquiries Table */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Customer Inquiries</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        {inquiriesLoading ? (
+                          <div className="p-8 text-center">Loading inquiries...</div>
+                        ) : inquiriesError ? (
+                          <div className="p-8 text-center text-red-600">Failed to load inquiries</div>
+                        ) : filteredInquiries.length === 0 ? (
+                          <div className="p-8 text-center text-gray-600">No inquiries found</div>
+                        ) : (
+                          <table className="min-w-full">
+                            <thead>
+                              <tr className="border-b border-gray-200">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CUSTOMER</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USE CASE</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DATE</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {filteredInquiries.map((inquiry) => (
+                                <tr key={inquiry.id} className="hover:bg-gray-50">
                                   <td className="px-6 py-4">
                                     <div>
-                                      <div className="text-sm font-medium text-gray-900">
-                                        {user.displayName || 'No Name'}
-                                      </div>
-                                      <div className="text-sm text-gray-500">{user.email}</div>
+                                      <div className="text-sm font-medium text-gray-900">{inquiry.name}</div>
+                                      <div className="text-sm text-gray-500">{inquiry.email}</div>
                                     </div>
                                   </td>
                                   <td className="px-6 py-4">
                                     <div className="text-sm text-gray-900">
-                                      {user.phone || 'No phone'}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                      {user.city ? `${user.city}${user.zipCode ? `, ${user.zipCode}` : ''}` : 'No location'}
-                                    </div>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    <div className="text-sm text-gray-900">{userOrders.length} orders</div>
-                                    <div className="text-sm text-gray-500">
-                                      {totalSpent > 0 ? `₹${totalSpent.toLocaleString('en-IN')} spent` : 'No purchases'}
+                                      {inquiry.useCase === "gaming" && "Gaming and streaming"}
+                                      {inquiry.useCase === "professional" && "Professional video editing and 3D work"}
+                                      {inquiry.useCase === "creative" && "Content creation and gaming"}
+                                      {inquiry.useCase === "office" && "Student productivity and light gaming"}
+                                      {inquiry.useCase && !["gaming", "professional", "creative", "office"].includes(inquiry.useCase) && inquiry.useCase}
                                     </div>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <div className="text-sm text-gray-500">
-                                      {formatDate(user.createdAt)}
-                                    </div>
-                                  </td>
-                                  <td className="px-6 py-4">
-                                    <Badge className={`text-xs ${
-                                      userOrders.length > 0 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-gray-100 text-gray-800'
+                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                                      inquiry.status === "completed" 
+                                        ? "bg-green-100 text-green-800" 
+                                        : "bg-orange-100 text-orange-800"
                                     }`}>
-                                      {userOrders.length > 0 ? 'Customer' : 'Registered'}
-                                    </Badge>
+                                      {inquiry.status === "completed" ? "Completed" : "Uncompleted"}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <div className="flex items-center text-sm text-gray-500">
+                                      <Clock className="h-4 w-4 mr-2" />
+                                      {formatDate(inquiry.createdAt)}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm"
+                                          className="flex items-center gap-2 text-sm"
+                                          onClick={() => setSelectedInquiry(inquiry)}
+                                        >
+                                          <Eye className="h-4 w-4" />
+                                          View
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="max-w-2xl">
+                                        <DialogHeader>
+                                          <DialogTitle>Inquiry Details</DialogTitle>
+                                          <DialogDescription>
+                                            Customer inquiry from {inquiry.name}
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4">
+                                          <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                              <Label>Customer Name</Label>
+                                              <p className="text-sm">{inquiry.name}</p>
+                                            </div>
+                                            <div>
+                                              <Label>Email</Label>
+                                              <p className="text-sm">{inquiry.email}</p>
+                                            </div>
+                                            <div>
+                                              <Label>Phone</Label>
+                                              <p className="text-sm">{inquiry.phone || 'Not provided'}</p>
+                                            </div>
+                                            <div>
+                                              <Label>Budget</Label>
+                                              <p className="text-sm">{inquiry.budget}</p>
+                                            </div>
+                                            <div>
+                                              <Label>Use Case</Label>
+                                              <p className="text-sm">{inquiry.useCase}</p>
+                                            </div>
+                                            <div>
+                                              <Label>Status</Label>
+                                              <p className="text-sm">{inquiry.status}</p>
+                                            </div>
+                                          </div>
+                                          {inquiry.message && (
+                                            <div>
+                                              <Label>Message</Label>
+                                              <p className="text-sm mt-1">{inquiry.message}</p>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
                                   </td>
                                 </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                  </div>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           {/* Subscriptions Tab */}
