@@ -11,6 +11,7 @@ import Footer from "@/components/footer";
 import AnalyticsTracker from "@/components/analytics-tracker";
 import CartSidebar from "@/components/cart-sidebar";
 import PerformanceMonitor from "@/components/performance-monitor";
+import LiveChatWidget from "@/components/live-chat-widget";
 import { Suspense, lazy } from "react";
 import LoadingSpinner from "@/components/loading-spinner";
 
@@ -164,6 +165,7 @@ function App() {
                 <Footer />
               </div>
               <CartSidebar />
+              <LiveChatWidget />
               <Toaster />
               <AnalyticsTracker />
               <PerformanceMonitor />
