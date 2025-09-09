@@ -860,7 +860,7 @@ export default function EnhancedBuildConfigurator() {
 
     const buildTemplate = getBuildTemplate(budget, useCase);
 
-    const newConfig: BuildConfig = {
+    const config: BuildConfig = {
       cpu: null,
       gpu: null,
       ram: null,
@@ -879,21 +879,21 @@ export default function EnhancedBuildConfigurator() {
       .filter(gpu => gpu.price >= buildTemplate.gpu.minPrice && gpu.price <= gpuBudget)
       .sort((a, b) => b.performance - a.performance);
     
-    newConfig.gpu = bestGPUs[0] || components.gpu.find(gpu => gpu.price <= gpuBudget);
-    console.log('🎮 Selected GPU:', newConfig.gpu?.name, newConfig.gpu?.price);
+    config.gpu = bestGPUs[0] || components.gpu.find(gpu => gpu.price <= gpuBudget);
+    console.log('🎮 Selected GPU:', config.gpu?.name, config.gpu?.price);
 
     // STEP 2: Select best CPU that won't bottleneck GPU
     const cpuBudget = Math.min(budget * 0.30, 50000);
-    const targetCPUPerformance = newConfig.gpu ? newConfig.gpu.performance * 0.8 : 80; // CPU should be 80% of GPU performance
+    const targetCPUPerformance = config.gpu ? config.gpu.performance * 0.8 : 80; // CPU should be 80% of GPU performance
     
     const bestCPUs = components.cpu
       .filter(cpu => cpu.performance >= targetCPUPerformance && cpu.price <= cpuBudget)
       .sort((a, b) => (b.performance / b.price) - (a.performance / a.price));
     
-    newConfig.cpu = bestCPUs[0] || components.cpu
+    config.cpu = bestCPUs[0] || components.cpu
       .filter(cpu => cpu.price <= cpuBudget)
       .sort((a, b) => b.performance - a.performance)[0];
-    console.log('🖥️ Selected CPU:', newConfig.cpu?.name, newConfig.cpu?.price);
+    console.log('🖥️ Selected CPU:', config.cpu?.name, config.cpu?.price);
     
     // STAGE 1: Essential Components First (motherboard, psu, case, cooler)
     // Use aggressive budget allocation to utilize full budget
@@ -908,50 +908,50 @@ export default function EnhancedBuildConfigurator() {
     
     // STEP 3: Select COMPATIBLE motherboard for the chosen CPU 
     const motherboardBudget = Math.min(budget * 0.10, 20000);
-    if (newConfig.cpu) {
-      const compatibleMBs = components.motherboard.filter(mb => mb.socket === newConfig.cpu?.socket);
+    if (config.cpu) {
+      const compatibleMBs = components.motherboard.filter(mb => mb.socket === config.cpu?.socket);
       if (compatibleMBs.length > 0) {
         // Get the best compatible motherboard within budget
-        newConfig.motherboard = compatibleMBs
+        config.motherboard = compatibleMBs
           .filter(mb => mb.price <= motherboardBudget)
           .sort((a, b) => b.performance - a.performance)[0] ||
           compatibleMBs.sort((a, b) => a.price - b.price)[0]; // Fallback to cheapest compatible
-        console.log('🔌 Selected Compatible Motherboard:', newConfig.motherboard?.name, newConfig.motherboard?.socket);
+        console.log('🔌 Selected Compatible Motherboard:', config.motherboard?.name, config.motherboard?.socket);
       }
     }
     
     // STEP 4: Select COMPATIBLE RAM for the motherboard
     const ramBudget = Math.min(budget * 0.12, 20000);
-    if (newConfig.motherboard) {
+    if (config.motherboard) {
       const compatibleRAM = components.ram.filter(ram => 
-        ram.memoryType === newConfig.motherboard?.memoryType && 
+        ram.memoryType === config.motherboard?.memoryType && 
         (ram as any).capacity >= buildTemplate.ram.minCapacity
       );
       if (compatibleRAM.length > 0) {
-        newConfig.ram = compatibleRAM
+        config.ram = compatibleRAM
           .filter(ram => ram.price <= ramBudget)
           .sort((a, b) => b.performance - a.performance)[0] ||
           compatibleRAM.sort((a, b) => a.price - b.price)[0];
-        console.log('💾 Selected Compatible RAM:', newConfig.ram?.name, newConfig.ram?.memoryType);
+        console.log('💾 Selected Compatible RAM:', config.ram?.name, config.ram?.memoryType);
       }
     }
     
     // STEP 5: Storage - get best performance within budget
     const storageBudget = Math.min(budget * 0.08, 15000);
-    newConfig.storage = components.storage
+    config.storage = components.storage
       .filter(storage => (storage as any).capacity >= buildTemplate.storage.minCapacity && storage.price <= storageBudget)
       .sort((a, b) => b.performance - a.performance)[0] ||
       components.storage.filter(storage => storage.price <= storageBudget)
       .sort((a, b) => b.performance - a.performance)[0];
-    console.log('💽 Selected Storage:', newConfig.storage?.name);
+    console.log('💽 Selected Storage:', config.storage?.name);
     
     // STEP 6: Calculate total power and select adequate PSU
-    const totalPower = Object.values(newConfig).reduce((sum, component) => 
+    const totalPower = Object.values(config).reduce((sum, component) => 
       sum + (component?.powerConsumption || 0), 0
     );
     const requiredWattage = Math.max(totalPower * 1.5, 550); // 50% headroom minimum 550W
     
-    newConfig.psu = components.psu
+    config.psu = components.psu
       .filter(psu => (psu.wattage || 0) >= requiredWattage)
       .sort((a, b) => {
         // Prefer Gold efficiency and adequate wattage
@@ -959,29 +959,29 @@ export default function EnhancedBuildConfigurator() {
         const bEfficiency = (b as any).efficiency?.includes('Gold') ? 2 : (b as any).efficiency?.includes('Bronze') ? 1 : 0;
         return (b.performance + bEfficiency) - (a.performance + aEfficiency);
       })[0];
-    console.log('⚡ Selected PSU:', newConfig.psu?.name, (newConfig.psu as any)?.wattage + 'W');
+    console.log('⚡ Selected PSU:', config.psu?.name, (config.psu as any)?.wattage + 'W');
     
     // STEP 7: Case selection
-    newConfig.case = components.case
+    config.case = components.case
       .filter(caseComp => caseComp.price <= 8000) // Max 8k for case
       .sort((a, b) => b.performance - a.performance)[0] ||
       components.case.sort((a, b) => a.price - b.price)[0]; // Fallback to cheapest
     
     // STEP 8: Cooler based on CPU requirements 
-    if (newConfig.cpu && newConfig.cpu.powerConsumption > 100) {
+    if (config.cpu && config.cpu.powerConsumption > 100) {
       // High power CPU needs AIO or high-end air cooler
       const powerfulCoolers = components.cooler.filter(cooler => 
-        (cooler as any).maxTDP >= newConfig.cpu!.powerConsumption * 1.2
+        (cooler as any).maxTDP >= config.cpu!.powerConsumption * 1.2
       );
-      newConfig.cooler = powerfulCoolers
+      config.cooler = powerfulCoolers
         .filter(cooler => cooler.price <= 10000)
         .sort((a, b) => b.performance - a.performance)[0] ||
         components.cooler[0]; // Fallback to stock cooler
     } else {
-      newConfig.cooler = components.cooler[0]; // Stock cooler for low power CPUs
+      config.cooler = components.cooler[0]; // Stock cooler for low power CPUs
     }
     // STEP 9: Final optimization - use any remaining budget for upgrades
-    const currentTotal = Object.values(newConfig).reduce((total, component) => 
+    const currentTotal = Object.values(config).reduce((total, component) => 
       total + (component?.price || 0), 0
     );
     
@@ -991,53 +991,53 @@ export default function EnhancedBuildConfigurator() {
     // If significant budget remains, upgrade key components
     if (remainingBudget > budget * 0.15) {
       // Prioritize GPU upgrade for gaming
-      if (useCase === 'gaming' && newConfig.gpu) {
+      if (useCase === 'gaming' && config.gpu) {
         const betterGPU = components.gpu
-          .filter(gpu => gpu.price > newConfig.gpu!.price && gpu.price <= newConfig.gpu!.price + remainingBudget * 0.6)
+          .filter(gpu => gpu.price > config.gpu!.price && gpu.price <= config.gpu!.price + remainingBudget * 0.6)
           .sort((a, b) => b.performance - a.performance)[0];
         if (betterGPU) {
-          console.log('🚀 Upgrading GPU from', newConfig.gpu.name, 'to', betterGPU.name);
-          newConfig.gpu = betterGPU;
+          console.log('🚀 Upgrading GPU from', config.gpu.name, 'to', betterGPU.name);
+          config.gpu = betterGPU;
         }
       }
       
       // Upgrade CPU if budget allows
-      const currentTotal2 = Object.values(newConfig).reduce((total, component) => 
+      const currentTotal2 = Object.values(config).reduce((total, component) => 
         total + (component?.price || 0), 0
       );
       const remainingBudget2 = budget - currentTotal2;
       
-      if (remainingBudget2 > budget * 0.10 && newConfig.cpu) {
+      if (remainingBudget2 > budget * 0.10 && config.cpu) {
         const betterCPU = components.cpu
           .filter(cpu => 
-            cpu.socket === newConfig.motherboard?.socket &&
-            cpu.price > newConfig.cpu!.price && 
-            cpu.price <= newConfig.cpu!.price + remainingBudget2 * 0.8
+            cpu.socket === config.motherboard?.socket &&
+            cpu.price > config.cpu!.price && 
+            cpu.price <= config.cpu!.price + remainingBudget2 * 0.8
           )
           .sort((a, b) => b.performance - a.performance)[0];
         if (betterCPU) {
-          console.log('🚀 Upgrading CPU from', newConfig.cpu.name, 'to', betterCPU.name);
-          newConfig.cpu = betterCPU;
+          console.log('🚀 Upgrading CPU from', config.cpu.name, 'to', betterCPU.name);
+          config.cpu = betterCPU;
         }
       }
     }
     
     // STEP 10: Show final budget analysis and update config
-    const finalTotalPrice = Object.values(newConfig).reduce((total, component) => 
+    const finalTotalPrice = Object.values(config).reduce((total, component) => 
       total + (component?.price || 0), 0
     );
     
     console.log('💰 Final Build Cost:', finalTotalPrice, 'Budget Utilization:', Math.round(finalTotalPrice/budget*100) + '%');
     console.log('🔧 Final Config:', {
-      cpu: newConfig.cpu?.name,
-      gpu: newConfig.gpu?.name,
-      ram: newConfig.ram?.name,
-      motherboard: newConfig.motherboard?.name,
-      psu: newConfig.psu?.name
+      cpu: config.cpu?.name,
+      gpu: config.gpu?.name,
+      ram: config.ram?.name,
+      motherboard: config.motherboard?.name,
+      psu: config.psu?.name
     });
     
     // Update configuration
-    setConfig(newConfig);
+    setConfig(config);
   };
   
   // Legacy upgrade logic (keeping for compatibility)
@@ -1057,11 +1057,11 @@ export default function EnhancedBuildConfigurator() {
         ['cpu', 'gpu', 'ram', 'storage', 'motherboard', 'psu'];
       
       for (const componentType of upgradePriority) {
-        const currentComponent = newConfig[componentType as keyof BuildConfig];
+        const currentComponent = config[componentType as keyof BuildConfig];
         if (!currentComponent) continue;
         
         const componentList = components[componentType as keyof typeof components];
-        const currentTotalPrice = Object.values(newConfig).reduce((total, component) => 
+        const currentTotalPrice = Object.values(config).reduce((total, component) => 
           total + (component?.price || 0), 0
         );
         
@@ -1077,13 +1077,13 @@ export default function EnhancedBuildConfigurator() {
           }, null as any);
         
         if (upgradeOption && upgradeOption.performance > currentComponent.performance) {
-          newConfig[componentType as keyof BuildConfig] = upgradeOption;
+          config[componentType as keyof BuildConfig] = upgradeOption;
         }
       }
     }
     
     // If over budget, downgrade least important components
-    const overBudgetAmount = Object.values(newConfig).reduce((total, component) => 
+    const overBudgetAmount = Object.values(config).reduce((total, component) => 
       total + (component?.price || 0), 0
     ) - budget;
     
@@ -1091,13 +1091,13 @@ export default function EnhancedBuildConfigurator() {
       const downgradePriority = ['cooler', 'case', 'storage', 'ram', 'cpu', 'gpu', 'motherboard', 'psu'];
       
       for (const componentType of downgradePriority) {
-        const currentTotalPrice = Object.values(newConfig).reduce((total, component) => 
+        const currentTotalPrice = Object.values(config).reduce((total, component) => 
           total + (component?.price || 0), 0
         );
         
         if (currentTotalPrice <= budget) break;
         
-        const currentComponent = newConfig[componentType as keyof BuildConfig];
+        const currentComponent = config[componentType as keyof BuildConfig];
         if (!currentComponent) continue;
         
         const componentList = components[componentType as keyof typeof components];
@@ -1111,13 +1111,13 @@ export default function EnhancedBuildConfigurator() {
           }, null as any);
         
         if (cheaperOption) {
-          newConfig[componentType as keyof BuildConfig] = cheaperOption;
+          config[componentType as keyof BuildConfig] = cheaperOption;
         }
       }
     }
     
     // Update configuration
-    setConfig(newConfig);
+    setConfig(config);
   };
 
   // Export functionality

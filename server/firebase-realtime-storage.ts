@@ -951,13 +951,6 @@ export class FirebaseRealtimeStorage implements IStorage {
     return userSubscriptions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async getAllSubscriptions(): Promise<Subscription[]> {
-    const snapshot = await get(ref(database, 'subscriptions'));
-    if (!snapshot.exists()) return [];
-    
-    const data = snapshot.val();
-    return Object.values(data).filter(Boolean) as Subscription[];
-  }
 
   async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
     const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
