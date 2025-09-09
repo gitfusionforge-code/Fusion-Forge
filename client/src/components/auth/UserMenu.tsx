@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, LogOut, Settings, Package, ShoppingBag } from "lucide-react";
+import { User, LogOut, Settings, Package, ShoppingBag, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import LoginSignupModal from "./LoginSignupModal";
@@ -120,6 +120,13 @@ export default function UserMenu() {
           <DropdownMenuItem className="cursor-pointer">
             <ShoppingBag className="mr-2 h-4 w-4" />
             <span>Order History</span>
+          </DropdownMenuItem>
+        </Link>
+        
+        <Link href="/subscriptions">
+          <DropdownMenuItem className="cursor-pointer">
+            <Calendar className="mr-2 h-4 w-4" />
+            <span>My Subscriptions</span>
           </DropdownMenuItem>
         </Link>
         
