@@ -22,6 +22,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/builds", label: "PC Builds" },
     { href: "/configurator", label: "Configurator" },
+    { href: "/subscription-plans", label: "Subscriptions" },
     { href: "/services", label: "Services" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
