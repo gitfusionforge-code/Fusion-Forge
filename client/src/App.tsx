@@ -33,6 +33,8 @@ const ProfileBuilds = lazy(() => import("@/pages/profile-builds"));
 const ProfileOrders = lazy(() => import("@/pages/profile-orders"));
 const ProfileSettings = lazy(() => import("@/pages/profile-settings"));
 const OrderSuccess = lazy(() => import("@/pages/order-success"));
+const SubscriptionPlans = lazy(() => import("@/pages/subscription-plans"));
+const Subscriptions = lazy(() => import("@/pages/subscriptions"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Router() {
@@ -116,6 +118,16 @@ function Router() {
       <Route path="/profile/settings">
         <Suspense fallback={<LoadingSpinner />}>
           <ProfileSettings />
+        </Suspense>
+      </Route>
+      <Route path="/subscription-plans">
+        <Suspense fallback={<LoadingSpinner />}>
+          <SubscriptionPlans />
+        </Suspense>
+      </Route>
+      <Route path="/subscriptions">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Subscriptions />
         </Suspense>
       </Route>
       <Route path="/admin/login">

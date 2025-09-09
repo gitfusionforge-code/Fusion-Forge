@@ -19,6 +19,7 @@ import {
   generateSessionId, 
   isValidAdminSession 
 } from "./middleware/admin-auth";
+import { subscriptionRoutes } from "./routes/subscription-routes";
 import { webhookRateLimit } from "./middleware/webhook-auth";
 import { loadBusinessSettings, saveBusinessSettings, initializeBusinessSettings } from "./business-settings-storage";
 
@@ -37,6 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       uptime: process.uptime()
     });
   });
+
+  // Subscription routes
+  app.use("/api/subscription", subscriptionRoutes);
 
   // Placeholder image endpoint
   app.get("/api/placeholder/:width/:height", (req, res) => {
