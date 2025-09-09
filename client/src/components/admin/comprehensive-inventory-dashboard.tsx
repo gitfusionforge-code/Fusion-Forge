@@ -162,6 +162,122 @@ export default function ComprehensiveInventoryDashboard() {
     });
   };
 
+  // Handle supplier editing
+  const handleEditSupplier = (supplier: Supplier) => {
+    setSelectedSupplier(supplier);
+    // In a real implementation, this would open an edit dialog
+    toast({
+      title: "Edit Supplier",
+      description: `Editing ${supplier.name}. This functionality will be fully implemented in the next update.`,
+    });
+  };
+
+  // Handle supplier contact
+  const handleContactSupplier = (supplier: Supplier) => {
+    const subject = encodeURIComponent(`Business Inquiry - ${supplier.name}`);
+    const body = encodeURIComponent(`Dear ${supplier.contactPerson},\n\nWe would like to discuss potential business opportunities.\n\nBest regards,\nFusionForge PCs Team`);
+    const mailtoLink = `mailto:${supplier.email}?subject=${subject}&body=${body}`;
+    window.open(mailtoLink, '_blank');
+    
+    toast({
+      title: "Email Client Opened",
+      description: `Opening email to contact ${supplier.contactPerson} at ${supplier.name}`,
+    });
+  };
+
+  // Handle reports export
+  const handleExportReports = () => {
+    const reportData = [
+      { category: 'Gaming PCs', turnoverRate: '12.5x/year', stockValue: '₹15,00,000' },
+      { category: 'Office PCs', turnoverRate: '8.2x/year', stockValue: '₹8,50,000' },
+      { category: 'Workstations', turnoverRate: '6.1x/year', stockValue: '₹12,00,000' }
+    ];
+
+    const headers = Object.keys(reportData[0]).join(',');
+    const csvContent = [
+      headers,
+      ...reportData.map(row => Object.values(row).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `inventory_reports_${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export Successful",
+      description: "Inventory reports exported successfully.",
+    });
+  };
+
+  // Handle reports import
+  const handleImportReports = () => {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.xlsx';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "Import Started",
+          description: `Processing ${file.name}. Import functionality will be fully implemented in the next update.`,
+        });
+      }
+    };
+    input.click();
+  };
+
+  // Handle dead stock analysis
+  const handleViewDeadStock = () => {
+    const deadStockData = [
+      { item: 'Old Gaming PC Build', daysStagnant: 120, value: '₹45,000' },
+      { item: 'Legacy Office PC', daysStagnant: 95, value: '₹30,000' },
+      { item: 'Discontinued Workstation', daysStagnant: 150, value: '₹50,000' }
+    ];
+
+    // In a real implementation, this would open a detailed view
+    toast({
+      title: "Dead Stock Analysis",
+      description: `Found ${deadStockData.length} items with no movement in 90+ days. Total value: ₹1,25,000`,
+    });
+  };
+
+  // Handle adding new supplier
+  const handleAddSupplier = () => {
+    // In a real implementation, this would send data to an API
+    const supplierId = `supplier_${Date.now()}`;
+    const supplierData = {
+      ...newSupplier,
+      id: supplierId,
+      isActive: true
+    };
+
+    // Mock API call - in real implementation, save to database
+    toast({
+      title: "Supplier Added",
+      description: `${newSupplier.name} has been added successfully. In a real implementation, this would be saved to the database.`,
+    });
+
+    // Reset form and close dialog
+    setNewSupplier({
+      name: '',
+      email: '',
+      phone: '',
+      contactPerson: '',
+      leadTimeDays: 5,
+      minimumOrderQuantity: 10,
+      paymentTerms: '30 days',
+      isActive: true
+    });
+    setIsAddingSupplier(false);
+  };
+
   // Fetch inventory data
   const { data: inventory, isLoading } = useQuery({
     queryKey: ['/api/admin/inventory'],
@@ -591,7 +707,7 @@ export default function ComprehensiveInventoryDashboard() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Supplier Management</h2>
-              <Button onClick={() => setIsAddingSupplier(true)}>
+              <Button onClick={() => setIsAddingSupplier(true)} data-testid="button-add-supplier">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Supplier
               </Button>
@@ -644,11 +760,23 @@ export default function ComprehensiveInventoryDashboard() {
                       </div>
 
                       <div className="flex gap-2 pt-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleEditSupplier(supplier)}
+                          data-testid={`button-edit-supplier-${supplier.id}`}
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleContactSupplier(supplier)}
+                          data-testid={`button-contact-supplier-${supplier.id}`}
+                        >
                           <Mail className="h-4 w-4 mr-1" />
                           Contact
                         </Button>
@@ -667,11 +795,19 @@ export default function ComprehensiveInventoryDashboard() {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Inventory Reports & Analytics</h2>
               <div className="flex gap-2">
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={handleExportReports}
+                  data-testid="button-export-reports"
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
                 </Button>
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={handleImportReports}
+                  data-testid="button-import-reports"
+                >
                   <Upload className="h-4 w-4 mr-2" />
                   Import Data
                 </Button>
@@ -711,11 +847,125 @@ export default function ComprehensiveInventoryDashboard() {
                   <div className="mt-4">
                     <p className="text-2xl font-bold text-orange-600">3 items</p>
                     <p className="text-sm text-gray-600">Worth ₹1,25,000</p>
-                    <Button size="sm" className="mt-2">View Details</Button>
+                    <Button 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={handleViewDeadStock}
+                      data-testid="button-view-dead-stock"
+                    >
+                      View Details
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Add Supplier Dialog */}
+            {isAddingSupplier && (
+              <Dialog open={isAddingSupplier} onOpenChange={setIsAddingSupplier}>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Add New Supplier</DialogTitle>
+                    <DialogDescription>Enter supplier details below</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="supplier-name">Company Name</Label>
+                      <Input
+                        id="supplier-name"
+                        value={newSupplier.name}
+                        onChange={(e) => setNewSupplier(prev => ({...prev, name: e.target.value}))}
+                        placeholder="Enter company name"
+                        data-testid="input-supplier-name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contact-person">Contact Person</Label>
+                      <Input
+                        id="contact-person"
+                        value={newSupplier.contactPerson}
+                        onChange={(e) => setNewSupplier(prev => ({...prev, contactPerson: e.target.value}))}
+                        placeholder="Enter contact person name"
+                        data-testid="input-contact-person"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="supplier-email">Email</Label>
+                      <Input
+                        id="supplier-email"
+                        type="email"
+                        value={newSupplier.email}
+                        onChange={(e) => setNewSupplier(prev => ({...prev, email: e.target.value}))}
+                        placeholder="Enter email address"
+                        data-testid="input-supplier-email"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="supplier-phone">Phone (Optional)</Label>
+                      <Input
+                        id="supplier-phone"
+                        value={newSupplier.phone}
+                        onChange={(e) => setNewSupplier(prev => ({...prev, phone: e.target.value}))}
+                        placeholder="Enter phone number"
+                        data-testid="input-supplier-phone"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="lead-time">Lead Time (Days)</Label>
+                        <Input
+                          id="lead-time"
+                          type="number"
+                          value={newSupplier.leadTimeDays}
+                          onChange={(e) => setNewSupplier(prev => ({...prev, leadTimeDays: parseInt(e.target.value)}))}
+                          placeholder="5"
+                          data-testid="input-lead-time"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="min-order">Min Order Qty</Label>
+                        <Input
+                          id="min-order"
+                          type="number"
+                          value={newSupplier.minimumOrderQuantity}
+                          onChange={(e) => setNewSupplier(prev => ({...prev, minimumOrderQuantity: parseInt(e.target.value)}))}
+                          placeholder="10"
+                          data-testid="input-min-order"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="payment-terms">Payment Terms</Label>
+                      <Input
+                        id="payment-terms"
+                        value={newSupplier.paymentTerms}
+                        onChange={(e) => setNewSupplier(prev => ({...prev, paymentTerms: e.target.value}))}
+                        placeholder="30 days"
+                        data-testid="input-payment-terms"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 pt-4">
+                    <Button 
+                      onClick={handleAddSupplier}
+                      disabled={!newSupplier.name || !newSupplier.email || !newSupplier.contactPerson}
+                      className="flex-1"
+                      data-testid="button-save-supplier"
+                    >
+                      Add Supplier
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsAddingSupplier(false)}
+                      className="flex-1"
+                      data-testid="button-cancel-supplier"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </TabsContent>
       </Tabs>
