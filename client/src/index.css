@@ -10,6 +10,11 @@
   box-sizing: border-box;
 }
 
+/* Smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Reduce layout shifts with stable font loading and image sizing */
 img {
   max-width: 100%;
