@@ -29,12 +29,20 @@ import {
   AlertTriangle,
   DollarSign,
   ShoppingCart,
-  Database
+  Database,
+  LineChart,
+  Warehouse,
+  Headphones,
+  Tag
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import type { Inquiry, PcBuild, Order, Subscription } from "@shared/schema";
 import AddPcBuildForm from "@/components/admin/add-pc-build-form";
 import BusinessSettingsManager from "@/components/admin/business-settings-manager";
+import AnalyticsDashboard from "@/components/admin/analytics-dashboard";
+import AdvancedInventoryDashboard from "@/components/admin/advanced-inventory-dashboard";
+import SupportManagementDashboard from "@/components/admin/support-management-dashboard";
+import DiscountManagementDashboard from "@/components/admin/discount-management-dashboard";
 
 function AdminContent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -493,36 +501,60 @@ Email: [Your Business Email]`);
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="inquiries" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              Inquiries
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4" />
-              Orders
-            </TabsTrigger>
-            <TabsTrigger value="inventory" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Inventory
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="subscriptions" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Subscriptions
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
+          <div className="space-y-4">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <LineChart className="h-4 w-4" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger value="inquiries" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Inquiries
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                Orders
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="inventory" className="flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                Inventory
+              </TabsTrigger>
+              <TabsTrigger value="advanced-inventory" className="flex items-center gap-2">
+                <Warehouse className="h-4 w-4" />
+                Advanced Inventory
+              </TabsTrigger>
+              <TabsTrigger value="support" className="flex items-center gap-2">
+                <Headphones className="h-4 w-4" />
+                Support
+              </TabsTrigger>
+              <TabsTrigger value="discounts" className="flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Discounts
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="users" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Users
+              </TabsTrigger>
+              <TabsTrigger value="subscriptions" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Subscriptions
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Dashboard Overview Tab */}
           <TabsContent value="dashboard" className="space-y-6">
@@ -1872,6 +1904,26 @@ Email: [Your Business Email]`);
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Analytics Dashboard Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <AnalyticsDashboard />
+          </TabsContent>
+
+          {/* Advanced Inventory Management Tab */}
+          <TabsContent value="advanced-inventory" className="space-y-6">
+            <AdvancedInventoryDashboard />
+          </TabsContent>
+
+          {/* Support Management Tab */}
+          <TabsContent value="support" className="space-y-6">
+            <SupportManagementDashboard />
+          </TabsContent>
+
+          {/* Discount Management Tab */}
+          <TabsContent value="discounts" className="space-y-6">
+            <DiscountManagementDashboard />
           </TabsContent>
         </Tabs>
       </div>
