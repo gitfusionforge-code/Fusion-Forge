@@ -328,6 +328,11 @@ class LiveChatService {
 
             await this.persistSession(session);
             this.broadcastMessage(sessionId, botMessage);
+            
+            // Notify widget of new message
+            window.dispatchEvent(new CustomEvent('newChatMessage', {
+              detail: { sessionId, message: botMessage }
+            }));
           }
         } catch (error) {
           console.error('AI response failed:', error);
@@ -344,6 +349,11 @@ class LiveChatService {
           session.messages.push(fallbackMessage);
           await this.persistSession(session);
           this.broadcastMessage(sessionId, fallbackMessage);
+          
+          // Notify widget of new message
+          window.dispatchEvent(new CustomEvent('newChatMessage', {
+            detail: { sessionId, message: fallbackMessage }
+          }));
         }
       }, 2000); // 2 second delay for AI processing
     }

@@ -62,6 +62,30 @@ export default function LiveChatWidget({ initiallyVisible = false }: ChatWidgetP
     return () => window.removeEventListener('agentTyping', handleAgentTyping as EventListener);
   }, [sessionId]);
 
+  // Listen for new chat messages (including AI responses)
+  useEffect(() => {
+    if (!sessionId) return;
+    
+    const handleNewMessage = (event: CustomEvent) => {
+      if (event.detail.sessionId === sessionId) {
+        // Reload messages from session to get the latest AI response
+        const session = liveChatService.getChatSession(sessionId);
+        if (session) {
+          setMessages([...session.messages]);
+          setForceUpdate(prev => prev + 1);
+          
+          // Show notification if chat is minimized
+          if (isMinimized && event.detail.message.senderType !== 'user') {
+            setHasUnreadMessages(true);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('newChatMessage', handleNewMessage as EventListener);
+    return () => window.removeEventListener('newChatMessage', handleNewMessage as EventListener);
+  }, [sessionId, isMinimized]);
+
   const initializeChatSession = async () => {
     if (!user) return;
 
