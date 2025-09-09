@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import fusionForgeLogo from "@assets/Fusion Forge Logo bgremoved_1750750872227.png";
 
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "fusionforgepc@gmail.com";
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
 
 export default function Navbar() {
   const [location] = useLocation();

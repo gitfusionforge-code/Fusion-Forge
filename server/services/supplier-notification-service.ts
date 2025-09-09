@@ -242,7 +242,7 @@ class SupplierNotificationService {
           <div style="text-align: center; margin: 30px 0;">
             <p style="font-size: 14px; color: #666; margin: 0;">
               Please confirm receipt of this order and provide an estimated delivery date.<br>
-              For urgent inquiries, contact us immediately at <strong>fusionforgepc@gmail.com</strong>
+              For urgent inquiries, contact us immediately via our support system
             </p>
           </div>
         </div>
@@ -259,7 +259,7 @@ class SupplierNotificationService {
     try {
       await sendEmail({
         to: supplier.email,
-        from: 'fusionforgepc@gmail.com',
+        from: process.env.BUSINESS_EMAIL || 'noreply@company.com',
         subject: emailSubject,
         html: emailHtml
       });

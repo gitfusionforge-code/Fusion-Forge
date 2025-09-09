@@ -13,15 +13,15 @@ interface BusinessSettings {
 
 const SETTINGS_FILE = path.join(process.cwd(), 'data', 'business-settings.json');
 
-// Default business settings
+// Default business settings - Use environment variables or configure in production
 const DEFAULT_SETTINGS: BusinessSettings = {
-  businessEmail: 'fusionforgepc@gmail.com',
-  businessPhone: '+91 9363599577',
-  businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
-  businessGst: 'GST-NUMBER',
-  businessHours: '9AM - 10PM Daily',
-  companyName: 'FusionForge PCs',
-  companyWebsite: 'www.fusionforge.com',
+  businessEmail: process.env.BUSINESS_EMAIL || 'contact@company.com',
+  businessPhone: process.env.BUSINESS_PHONE || '+1-XXX-XXX-XXXX',
+  businessAddress: process.env.BUSINESS_ADDRESS || 'Business Address Not Configured',
+  businessGst: process.env.BUSINESS_GST || 'GST-NOT-SET',
+  businessHours: process.env.BUSINESS_HOURS || '9AM - 6PM',
+  companyName: process.env.COMPANY_NAME || 'Your Company Name',
+  companyWebsite: process.env.COMPANY_WEBSITE || 'www.yourcompany.com',
 };
 
 // Ensure data directory exists

@@ -18,15 +18,15 @@ export function useBusinessSettings() {
     retry: 2,
   });
 
-  // Provide fallback values while loading or on error
+  // Provide generic fallback values while loading or on error
   const businessSettings: BusinessSettings = settings || {
-    businessEmail: 'fusionforgepcs@gmail.com',
-    businessPhone: '+91 9363599577',
-    businessAddress: '58,Post Office Street , Palladam , TamilNadu , India',
-    businessGst: 'GST-NUMBER',
-    businessHours: '9AM - 10PM Daily',
-    companyName: 'FusionForge PCs',
-    companyWebsite: 'www.fusionforge.com',
+    businessEmail: 'contact@company.com',
+    businessPhone: '+1-XXX-XXX-XXXX',
+    businessAddress: 'Please configure business address',
+    businessGst: 'GST-NOT-SET',
+    businessHours: '9AM - 6PM',
+    companyName: 'Your Company Name',
+    companyWebsite: 'www.yourcompany.com',
   };
 
   return {

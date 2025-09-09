@@ -142,7 +142,7 @@ class FAQSearchService {
       },
       {
         question: "Can I cancel or modify my order after placing it?",
-        answer: "Orders can be cancelled within 2 hours of placement for full refund. Modifications possible before assembly begins. Contact us immediately at fusionforgepc@gmail.com or call our support line. Partial refunds available for cancelled components.",
+        answer: "Orders can be cancelled within 2 hours of placement for full refund. Modifications possible before assembly begins. Contact us immediately via our support system or call our support line. Partial refunds available for cancelled components.",
         category: "Payment",
         tags: ["cancel", "modify", "refund", "order changes"],
         helpful: 25,

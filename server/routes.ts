@@ -362,8 +362,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Send notification to business
         const businessEmail = createQuoteRequestEmail(inquiry);
         const businessEmailSent = await sendEmail({
-          to: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com", // Admin notification email
-          from: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com", // Business email
+          to: process.env.BUSINESS_EMAIL || "noreply@company.com", // Admin notification email
+          from: process.env.BUSINESS_EMAIL || "noreply@company.com", // Business email
           subject: businessEmail.subject,
           html: businessEmail.html,
           text: businessEmail.text
@@ -375,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customerEmail = createCustomerConfirmationEmail(inquiry);
         const customerEmailSent = await sendEmail({
           to: inquiry.email,
-          from: process.env.BUSINESS_EMAIL || "fusionforgepcs@gmail.com", // Business email
+          from: process.env.BUSINESS_EMAIL || "noreply@company.com", // Business email
           subject: customerEmail.subject,
           html: customerEmail.html
         });
