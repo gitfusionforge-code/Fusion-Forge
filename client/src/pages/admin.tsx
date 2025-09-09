@@ -1214,7 +1214,19 @@ Email: [Your Business Email]`);
                   {/* Customer Inquiries Table */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Customer Inquiries</CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle>Customer Inquiries</CardTitle>
+                        <Button
+                          onClick={() => exportToCSV(filteredInquiries, 'customer-inquiries')}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          data-testid="button-export-inquiries"
+                        >
+                          <Download className="h-4 w-4" />
+                          Export CSV
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="overflow-x-auto">
@@ -1269,18 +1281,20 @@ Email: [Your Business Email]`);
                                     </div>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <Dialog>
-                                      <DialogTrigger asChild>
-                                        <Button 
-                                          variant="outline" 
-                                          size="sm"
-                                          className="flex items-center gap-2 text-sm"
-                                          onClick={() => setSelectedInquiry(inquiry)}
-                                        >
-                                          <Eye className="h-4 w-4" />
-                                          View
-                                        </Button>
-                                      </DialogTrigger>
+                                    <div className="flex items-center gap-2">
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            className="flex items-center gap-2 text-sm"
+                                            onClick={() => setSelectedInquiry(inquiry)}
+                                            data-testid={`button-view-inquiry-${inquiry.id}`}
+                                          >
+                                            <Eye className="h-4 w-4" />
+                                            View
+                                          </Button>
+                                        </DialogTrigger>
                                       <DialogContent className="max-w-2xl">
                                         <DialogHeader>
                                           <DialogTitle>Inquiry Details</DialogTitle>
@@ -1323,7 +1337,27 @@ Email: [Your Business Email]`);
                                           )}
                                         </div>
                                       </DialogContent>
-                                    </Dialog>
+                                      </Dialog>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        className="flex items-center gap-2 text-sm bg-blue-50 hover:bg-blue-100"
+                                        onClick={() => handleSendEmail(inquiry)}
+                                        data-testid={`button-email-inquiry-${inquiry.id}`}
+                                      >
+                                        <Mail className="h-4 w-4" />
+                                        Email
+                                      </Button>
+                                      <Select onValueChange={(value) => handleStatusChange(inquiry.id, value)}>
+                                        <SelectTrigger className="w-32">
+                                          <SelectValue placeholder="Update Status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="uncompleted">Pending</SelectItem>
+                                          <SelectItem value="completed">Completed</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
                                   </td>
                                 </tr>
                               ))}

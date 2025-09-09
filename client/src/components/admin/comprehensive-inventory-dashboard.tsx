@@ -107,6 +107,61 @@ export default function ComprehensiveInventoryDashboard() {
     });
   };
 
+  // Handle bulk import
+  const handleBulkImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // In a real implementation, this would parse the CSV and update the database
+    toast({
+      title: "Import Started",
+      description: `Processing ${file.name}. This feature will be fully implemented in the next update.`,
+    });
+  };
+
+  // Handle bulk export
+  const handleBulkExport = () => {
+    const exportData = pcBuilds.map(build => ({
+      id: build.id,
+      name: build.name,
+      basePrice: build.basePrice,
+      stockQuantity: build.stockQuantity,
+      budgetRange: build.budgetRange,
+      category: build.category,
+      isActive: build.isActive
+    }));
+
+    if (exportData.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No inventory data available to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = Object.keys(exportData[0]).join(',');
+    const csvContent = [
+      headers,
+      ...exportData.map(row => Object.values(row).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `inventory_export_${Date.now()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export Successful",
+      description: "Inventory data exported successfully.",
+    });
+  };
+
   // Fetch inventory data
   const { data: inventory, isLoading } = useQuery({
     queryKey: ['/api/admin/inventory'],
@@ -362,10 +417,37 @@ export default function ComprehensiveInventoryDashboard() {
                     <AddPcBuildForm />
                   </DialogContent>
                 </Dialog>
-                <Button variant="outline" onClick={() => queryClient.invalidateQueries()}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </Button>
+                <div className="flex gap-2">
+                  <input
+                    type="file"
+                    accept=".csv,.xlsx"
+                    onChange={handleBulkImport}
+                    className="hidden"
+                    id="bulk-import-input"
+                    data-testid="input-bulk-import"
+                  />
+                  <label htmlFor="bulk-import-input">
+                    <Button variant="outline" className="flex items-center gap-2" asChild>
+                      <span>
+                        <Upload className="h-4 w-4" />
+                        Import CSV
+                      </span>
+                    </Button>
+                  </label>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleBulkExport}
+                    className="flex items-center gap-2"
+                    data-testid="button-bulk-export"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                  </Button>
+                  <Button variant="outline" onClick={() => queryClient.invalidateQueries()}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
               </div>
             </div>
 
