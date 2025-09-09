@@ -943,6 +943,208 @@ export default function ComprehensiveInventoryDashboard() {
         </TabsContent>
       </Tabs>
 
+      {/* Edit PC Build Dialog */}
+      {isEditingBuild && selectedBuild && (
+        <Dialog open={isEditingBuild} onOpenChange={setIsEditingBuild}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit PC Build - {selectedBuild.name}</DialogTitle>
+              <DialogDescription>Update the PC build configuration and details</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="build-name">Build Name</Label>
+                  <Input
+                    id="build-name"
+                    value={editBuildForm.name}
+                    onChange={(e) => setEditBuildForm((prev: any) => ({...prev, name: e.target.value}))}
+                    placeholder="Enter build name"
+                    data-testid="input-build-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="build-category">Category</Label>
+                  <Select
+                    value={editBuildForm.category}
+                    onValueChange={(value) => setEditBuildForm((prev: any) => ({...prev, category: value}))}
+                  >
+                    <SelectTrigger data-testid="select-build-category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gaming">Gaming</SelectItem>
+                      <SelectItem value="office">Office</SelectItem>
+                      <SelectItem value="workstation">Workstation</SelectItem>
+                      <SelectItem value="budget">Budget</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="build-description">Description</Label>
+                <Input
+                  id="build-description"
+                  value={editBuildForm.description}
+                  onChange={(e) => setEditBuildForm((prev: any) => ({...prev, description: e.target.value}))}
+                  placeholder="Enter build description"
+                  data-testid="input-build-description"
+                />
+              </div>
+
+              {/* Pricing & Stock */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="build-price">Base Price (₹)</Label>
+                  <Input
+                    id="build-price"
+                    type="number"
+                    value={editBuildForm.basePrice}
+                    onChange={(e) => setEditBuildForm((prev: any) => ({...prev, basePrice: parseInt(e.target.value) || 0}))}
+                    placeholder="Enter price"
+                    data-testid="input-build-price"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="build-budget-range">Budget Range</Label>
+                  <Input
+                    id="build-budget-range"
+                    value={editBuildForm.budgetRange}
+                    onChange={(e) => setEditBuildForm((prev: any) => ({...prev, budgetRange: e.target.value}))}
+                    placeholder="e.g., ₹20,000 - ₹30,000"
+                    data-testid="input-budget-range"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stock-quantity">Stock Quantity</Label>
+                  <Input
+                    id="stock-quantity"
+                    type="number"
+                    value={editBuildForm.stockQuantity}
+                    onChange={(e) => setEditBuildForm((prev: any) => ({...prev, stockQuantity: parseInt(e.target.value) || 0}))}
+                    placeholder="Enter stock quantity"
+                    data-testid="input-stock-quantity"
+                  />
+                </div>
+              </div>
+
+              {/* Components */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Components</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="processor">Processor</Label>
+                    <Input
+                      id="processor"
+                      value={editBuildForm.processor}
+                      onChange={(e) => setEditBuildForm((prev: any) => ({...prev, processor: e.target.value}))}
+                      placeholder="Enter processor details"
+                      data-testid="input-processor"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="motherboard">Motherboard</Label>
+                    <Input
+                      id="motherboard"
+                      value={editBuildForm.motherboard}
+                      onChange={(e) => setEditBuildForm((prev: any) => ({...prev, motherboard: e.target.value}))}
+                      placeholder="Enter motherboard details"
+                      data-testid="input-motherboard"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ram">RAM</Label>
+                    <Input
+                      id="ram"
+                      value={editBuildForm.ram}
+                      onChange={(e) => setEditBuildForm((prev: any) => ({...prev, ram: e.target.value}))}
+                      placeholder="Enter RAM specifications"
+                      data-testid="input-ram"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="storage">Storage</Label>
+                    <Input
+                      id="storage"
+                      value={editBuildForm.storage}
+                      onChange={(e) => setEditBuildForm((prev: any) => ({...prev, storage: e.target.value}))}
+                      placeholder="Enter storage details"
+                      data-testid="input-storage"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="gpu">Graphics Card (Optional)</Label>
+                    <Input
+                      id="gpu"
+                      value={editBuildForm.gpu}
+                      onChange={(e) => setEditBuildForm((prev: any) => ({...prev, gpu: e.target.value}))}
+                      placeholder="Enter GPU details"
+                      data-testid="input-gpu"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="case-psu">Case & PSU</Label>
+                    <Input
+                      id="case-psu"
+                      value={editBuildForm.casePsu}
+                      onChange={(e) => setEditBuildForm((prev: any) => ({...prev, casePsu: e.target.value}))}
+                      placeholder="Enter case and PSU details"
+                      data-testid="input-case-psu"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="low-stock-threshold">Low Stock Threshold</Label>
+                  <Input
+                    id="low-stock-threshold"
+                    type="number"
+                    value={editBuildForm.lowStockThreshold}
+                    onChange={(e) => setEditBuildForm((prev: any) => ({...prev, lowStockThreshold: parseInt(e.target.value) || 5}))}
+                    placeholder="Enter threshold"
+                    data-testid="input-low-stock-threshold"
+                  />
+                </div>
+                <div className="flex items-center space-x-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="is-active"
+                    checked={editBuildForm.isActive}
+                    onChange={(e) => setEditBuildForm((prev: any) => ({...prev, isActive: e.target.checked}))}
+                    data-testid="checkbox-is-active"
+                  />
+                  <Label htmlFor="is-active">Active (Available for purchase)</Label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-2 pt-6">
+              <Button 
+                onClick={handleSaveBuild}
+                disabled={!editBuildForm.name || !editBuildForm.basePrice || !editBuildForm.category}
+                className="flex-1"
+                data-testid="button-save-build"
+              >
+                Save Changes
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleCancelEdit}
+                className="flex-1"
+                data-testid="button-cancel-edit"
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {/* Add Supplier Dialog - moved outside of tabs to prevent interference */}
       {isAddingSupplier && (
         <Dialog open={isAddingSupplier} onOpenChange={setIsAddingSupplier}>
