@@ -75,6 +75,38 @@ export default function ComprehensiveInventoryDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Handle purchase order creation
+  const handleCreatePurchaseOrder = (item: ForecastResult) => {
+    // Create purchase order data
+    const poData = {
+      itemId: item.itemId,
+      itemName: item.itemName,
+      itemType: item.itemType,
+      quantity: item.suggestedOrderQuantity,
+      urgency: item.urgency,
+      estimatedCost: item.suggestedOrderQuantity * 1000, // Mock pricing
+      daysUntilStockout: item.daysUntilStockout
+    };
+
+    // In a real implementation, this would send data to an API
+    // For now, we'll show a success toast and prepare download
+    const poDocument = `PURCHASE ORDER\n\nItem: ${poData.itemName}\nQuantity: ${poData.quantity} units\nUrgency: ${poData.urgency}\nEstimated Cost: ₹${poData.estimatedCost.toLocaleString('en-IN')}\nDays Until Stockout: ${poData.daysUntilStockout}\n\nGenerated on: ${new Date().toLocaleString('en-IN')}`;
+    
+    // Create and download PO file
+    const blob = new Blob([poDocument], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `PO_${item.itemName.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Purchase Order Created",
+      description: `PO created for ${item.itemName} (${item.suggestedOrderQuantity} units)`,
+    });
+  };
+
   // Fetch inventory data
   const { data: inventory, isLoading } = useQuery({
     queryKey: ['/api/admin/inventory'],
@@ -455,7 +487,14 @@ export default function ComprehensiveInventoryDashboard() {
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Suggested Order</p>
                         <p className="text-lg font-semibold">{item.suggestedOrderQuantity} units</p>
-                        <Button size="sm" className="mt-2">Create PO</Button>
+                        <Button 
+                          size="sm" 
+                          className="mt-2"
+                          onClick={() => handleCreatePurchaseOrder(item)}
+                          data-testid={`button-create-po-${item.itemId}`}
+                        >
+                          Create PO
+                        </Button>
                       </div>
                     </div>
                   </div>

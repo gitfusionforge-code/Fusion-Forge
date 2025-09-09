@@ -436,6 +436,43 @@ Email: [Your Business Email]`);
     updateOrderStatusMutation.mutate({ id: orderId, status: newStatus });
   };
 
+  // Subscription management mutations
+  const updateSubscriptionStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const response = await fetch(`/api/subscription/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update subscription status');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/subscription/admin/all'] });
+      toast({
+        title: "Subscription Updated",
+        description: "Subscription status has been updated successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update subscription status.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSubscriptionAction = (subscriptionId: string, action: string) => {
+    updateSubscriptionStatusMutation.mutate({ id: subscriptionId, status: action });
+  };
+
   // Queue-structured order sorting: prioritize pending/processing orders first
   const queuedOrders = [...orders].sort((a, b) => {
     const statusPriority = { 'pending': 1, 'processing': 2, 'paid': 3, 'completed': 4, 'cancelled': 5 };
@@ -445,6 +482,41 @@ Email: [Your Business Email]`);
     if (priorityA !== priorityB) return priorityA - priorityB;
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+
+  // Export data function
+  const exportToCSV = (data: any[], filename: string) => {
+    if (!data || data.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No data available to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = Object.keys(data[0]).join(',');
+    const csvContent = [
+      headers,
+      ...data.map(row => Object.values(row).map(value => 
+        typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+      ).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export Successful",
+      description: `Data exported to ${filename}.csv successfully.`,
+    });
+  };
 
   // Analytics calculations
   const analytics = {
@@ -503,7 +575,7 @@ Email: [Your Business Email]`);
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="space-y-4">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
                 Overview
@@ -523,6 +595,10 @@ Email: [Your Business Email]`);
               <TabsTrigger value="support" className="flex items-center gap-2">
                 <Headphones className="h-4 w-4" />
                 Support
+              </TabsTrigger>
+              <TabsTrigger value="discounts" className="flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Discounts
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -599,7 +675,7 @@ Email: [Your Business Email]`);
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button 
-                    onClick={() => setActiveTab('inquiries')}
+                    onClick={() => setActiveTab('customers')}
                     className="h-auto p-4 bg-blue-600 hover:bg-blue-700"
                     data-testid="button-view-inquiries"
                   >
@@ -1307,7 +1383,19 @@ Email: [Your Business Email]`);
 
             <div className="bg-white rounded-lg border border-gray-200">
               <div className="px-6 py-5 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Customer Subscriptions</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-900">Customer Subscriptions</h2>
+                  <Button
+                    onClick={() => exportToCSV(allSubscriptions, 'customer-subscriptions')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    data-testid="button-export-subscriptions"
+                  >
+                    <Download className="h-4 w-4" />
+                    Export CSV
+                  </Button>
+                </div>
               </div>
               
               <div className="overflow-x-auto">
@@ -1366,9 +1454,8 @@ Email: [Your Business Email]`);
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => {
-                                    // Handle pause subscription
-                                  }}
+                                  onClick={() => handleSubscriptionAction(subscription.id, 'paused')}
+                                  data-testid={`button-pause-subscription-${subscription.id}`}
                                 >
                                   Pause
                                 </Button>
@@ -1377,13 +1464,20 @@ Email: [Your Business Email]`);
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => {
-                                    // Handle resume subscription
-                                  }}
+                                  onClick={() => handleSubscriptionAction(subscription.id, 'active')}
+                                  data-testid={`button-resume-subscription-${subscription.id}`}
                                 >
                                   Resume
                                 </Button>
                               )}
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleSubscriptionAction(subscription.id, 'cancelled')}
+                                data-testid={`button-cancel-subscription-${subscription.id}`}
+                              >
+                                Cancel
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -1614,6 +1708,11 @@ Email: [Your Business Email]`);
           {/* Support Management Tab */}
           <TabsContent value="support" className="space-y-6">
             <SupportManagementDashboard />
+          </TabsContent>
+
+          {/* Discounts Tab */}
+          <TabsContent value="discounts" className="space-y-6">
+            <DiscountManagementDashboard />
           </TabsContent>
 
           {/* Discount Management Tab */}

@@ -50,9 +50,11 @@ export interface Inquiry {
   id: number;
   name: string;
   email: string;
+  phone?: string;
   budget: string;
   useCase: string;
   details: string;
+  message?: string;
   status: string;
   createdAt: Date;
   updatedAt: Date;
@@ -208,9 +210,11 @@ export const insertComponentSchema = z.object({
 export const insertInquirySchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
+  phone: z.string().optional(),
   budget: z.string().min(1),
   useCase: z.string().min(1),
   details: z.string().min(1),
+  message: z.string().optional(),
   status: z.string().default("uncompleted"),
 });
 
