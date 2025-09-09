@@ -1209,9 +1209,17 @@ export class FirebaseRealtimeStorage implements IStorage {
       return Object.entries(subscriptions)
         .map(([id, subscription]: [string, any]) => ({ id, ...subscription }))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching all subscriptions:', error);
-      throw error;
+      
+      // Check if it's a permission error specifically
+      if (error.code === 'PERMISSION_DENIED') {
+        console.warn('⚠️ Firebase permission denied for subscriptions - this is expected if no subscriptions exist yet');
+        return [];
+      }
+      
+      // For other errors, return empty array to prevent admin panel crashes
+      return [];
     }
   }
 

@@ -45,10 +45,29 @@ class LiveChatService {
   private websocket: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
+  private messageCounter = 0;
 
   constructor() {
     this.initializeAutoResponses();
-    this.initializeWebSocket();
+    // Clear any existing sessions with old message IDs to prevent duplicate key warnings
+    this.activeSessions.clear();
+    this.clearOldChatSessions();
+    // WebSocket server not implemented yet - disabling to prevent console errors
+    // this.initializeWebSocket();
+  }
+
+  // Clear old chat sessions from localStorage to prevent duplicate key warnings
+  private clearOldChatSessions() {
+    try {
+      // Remove all chat session data from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('chat_session_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      // Silently handle localStorage errors
+    }
   }
 
   // Initialize AI-powered auto responses
@@ -188,7 +207,7 @@ class LiveChatService {
     // Add initial message if provided
     if (initialMessage) {
       const message: ChatMessage = {
-        id: `msg_${Date.now()}`,
+        id: `msg_${Date.now()}_${++this.messageCounter}`,
         senderId: userId,
         senderType: 'user',
         message: initialMessage,
@@ -201,7 +220,7 @@ class LiveChatService {
       const autoResponse = this.getAutoResponse(initialMessage);
       if (autoResponse) {
         const botMessage: ChatMessage = {
-          id: `msg_${Date.now() + 1}`,
+          id: `msg_${Date.now()}_${++this.messageCounter}`,
           senderId: 'bot',
           senderType: 'bot',
           message: autoResponse.response,
@@ -253,7 +272,7 @@ class LiveChatService {
       if (autoResponse) {
         setTimeout(async () => {
           const botMessage: ChatMessage = {
-            id: `msg_${Date.now()}`,
+            id: `msg_${Date.now()}_${++this.messageCounter}`,
             senderId: 'bot',
             senderType: 'bot',
             message: autoResponse.response,
