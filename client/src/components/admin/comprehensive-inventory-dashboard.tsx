@@ -859,116 +859,116 @@ export default function ComprehensiveInventoryDashboard() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Add Supplier Dialog */}
-            {isAddingSupplier && (
-              <Dialog open={isAddingSupplier} onOpenChange={setIsAddingSupplier}>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Add New Supplier</DialogTitle>
-                    <DialogDescription>Enter supplier details below</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="supplier-name">Company Name</Label>
-                      <Input
-                        id="supplier-name"
-                        value={newSupplier.name}
-                        onChange={(e) => setNewSupplier(prev => ({...prev, name: e.target.value}))}
-                        placeholder="Enter company name"
-                        data-testid="input-supplier-name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="contact-person">Contact Person</Label>
-                      <Input
-                        id="contact-person"
-                        value={newSupplier.contactPerson}
-                        onChange={(e) => setNewSupplier(prev => ({...prev, contactPerson: e.target.value}))}
-                        placeholder="Enter contact person name"
-                        data-testid="input-contact-person"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="supplier-email">Email</Label>
-                      <Input
-                        id="supplier-email"
-                        type="email"
-                        value={newSupplier.email}
-                        onChange={(e) => setNewSupplier(prev => ({...prev, email: e.target.value}))}
-                        placeholder="Enter email address"
-                        data-testid="input-supplier-email"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="supplier-phone">Phone (Optional)</Label>
-                      <Input
-                        id="supplier-phone"
-                        value={newSupplier.phone}
-                        onChange={(e) => setNewSupplier(prev => ({...prev, phone: e.target.value}))}
-                        placeholder="Enter phone number"
-                        data-testid="input-supplier-phone"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="lead-time">Lead Time (Days)</Label>
-                        <Input
-                          id="lead-time"
-                          type="number"
-                          value={newSupplier.leadTimeDays}
-                          onChange={(e) => setNewSupplier(prev => ({...prev, leadTimeDays: parseInt(e.target.value)}))}
-                          placeholder="5"
-                          data-testid="input-lead-time"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="min-order">Min Order Qty</Label>
-                        <Input
-                          id="min-order"
-                          type="number"
-                          value={newSupplier.minimumOrderQuantity}
-                          onChange={(e) => setNewSupplier(prev => ({...prev, minimumOrderQuantity: parseInt(e.target.value)}))}
-                          placeholder="10"
-                          data-testid="input-min-order"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="payment-terms">Payment Terms</Label>
-                      <Input
-                        id="payment-terms"
-                        value={newSupplier.paymentTerms}
-                        onChange={(e) => setNewSupplier(prev => ({...prev, paymentTerms: e.target.value}))}
-                        placeholder="30 days"
-                        data-testid="input-payment-terms"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex space-x-2 pt-4">
-                    <Button 
-                      onClick={handleAddSupplier}
-                      disabled={!newSupplier.name || !newSupplier.email || !newSupplier.contactPerson}
-                      className="flex-1"
-                      data-testid="button-save-supplier"
-                    >
-                      Add Supplier
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsAddingSupplier(false)}
-                      className="flex-1"
-                      data-testid="button-cancel-supplier"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            )}
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Add Supplier Dialog - moved outside of tabs to prevent interference */}
+      {isAddingSupplier && (
+        <Dialog open={isAddingSupplier} onOpenChange={setIsAddingSupplier}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add New Supplier</DialogTitle>
+              <DialogDescription>Enter supplier details below</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="supplier-name">Company Name</Label>
+                <Input
+                  id="supplier-name"
+                  value={newSupplier.name}
+                  onChange={(e) => setNewSupplier(prev => ({...prev, name: e.target.value}))}
+                  placeholder="Enter company name"
+                  data-testid="input-supplier-name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-person">Contact Person</Label>
+                <Input
+                  id="contact-person"
+                  value={newSupplier.contactPerson}
+                  onChange={(e) => setNewSupplier(prev => ({...prev, contactPerson: e.target.value}))}
+                  placeholder="Enter contact person name"
+                  data-testid="input-contact-person"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="supplier-email">Email</Label>
+                <Input
+                  id="supplier-email"
+                  type="email"
+                  value={newSupplier.email}
+                  onChange={(e) => setNewSupplier(prev => ({...prev, email: e.target.value}))}
+                  placeholder="Enter email address"
+                  data-testid="input-supplier-email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="supplier-phone">Phone (Optional)</Label>
+                <Input
+                  id="supplier-phone"
+                  value={newSupplier.phone}
+                  onChange={(e) => setNewSupplier(prev => ({...prev, phone: e.target.value}))}
+                  placeholder="Enter phone number"
+                  data-testid="input-supplier-phone"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="lead-time">Lead Time (Days)</Label>
+                  <Input
+                    id="lead-time"
+                    type="number"
+                    value={newSupplier.leadTimeDays}
+                    onChange={(e) => setNewSupplier(prev => ({...prev, leadTimeDays: parseInt(e.target.value)}))}
+                    placeholder="5"
+                    data-testid="input-lead-time"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="min-order">Min Order Qty</Label>
+                  <Input
+                    id="min-order"
+                    type="number"
+                    value={newSupplier.minimumOrderQuantity}
+                    onChange={(e) => setNewSupplier(prev => ({...prev, minimumOrderQuantity: parseInt(e.target.value)}))}
+                    placeholder="10"
+                    data-testid="input-min-order"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="payment-terms">Payment Terms</Label>
+                <Input
+                  id="payment-terms"
+                  value={newSupplier.paymentTerms}
+                  onChange={(e) => setNewSupplier(prev => ({...prev, paymentTerms: e.target.value}))}
+                  placeholder="30 days"
+                  data-testid="input-payment-terms"
+                />
+              </div>
+            </div>
+            <div className="flex space-x-2 pt-4">
+              <Button 
+                onClick={handleAddSupplier}
+                disabled={!newSupplier.name || !newSupplier.email || !newSupplier.contactPerson}
+                className="flex-1"
+                data-testid="button-save-supplier"
+              >
+                Add Supplier
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddingSupplier(false)}
+                className="flex-1"
+                data-testid="button-cancel-supplier"
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
