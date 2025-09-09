@@ -42,11 +42,16 @@ export class GeminiAIService {
       // Get conversation history for context
       const history = this.conversationHistory.get(sessionId) || [];
       
-      // Get PC builds data for context
-      const pcBuilds = await firebaseRealtimeStorage.getPcBuilds();
+      // Get comprehensive business context
+      const [pcBuilds, businessSettings, components, lowStockData] = await Promise.all([
+        firebaseRealtimeStorage.getPcBuilds(),
+        this.getBusinessSettings(),
+        this.getComponentsData(),
+        firebaseRealtimeStorage.getLowStockItems()
+      ]);
       
-      // Create context-aware prompt
-      const systemPrompt = this.createSystemPrompt(pcBuilds);
+      // Create comprehensive context-aware prompt
+      const systemPrompt = this.createComprehensiveSystemPrompt(pcBuilds, businessSettings, components, lowStockData);
       
       // Build conversation history
       const messages: ChatMessage[] = [
@@ -83,7 +88,107 @@ export class GeminiAIService {
     }
   }
 
-  // Create comprehensive system prompt with PC building knowledge
+  // Get business settings for context
+  private async getBusinessSettings(): Promise<any> {
+    try {
+      const response = await fetch('http://localhost:5000/api/business-settings');
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.warn('Could not fetch business settings for AI context:', error);
+    }
+    return {
+      businessEmail: 'contact@fusionforgepc.com',
+      businessPhone: '+91-XXXX-XXXX',
+      businessHours: '9 AM - 6 PM',
+      companyName: 'FusionForge PCs'
+    };
+  }
+
+  // Get components data for detailed specifications
+  private async getComponentsData(): Promise<any[]> {
+    try {
+      const allBuilds = await firebaseRealtimeStorage.getPcBuilds();
+      const allComponents = [];
+      
+      for (const build of allBuilds) {
+        const components = await firebaseRealtimeStorage.getComponentsByBuildId(build.id);
+        allComponents.push(...components);
+      }
+      
+      return allComponents;
+    } catch (error) {
+      console.warn('Could not fetch components data for AI context:', error);
+      return [];
+    }
+  }
+
+  // Create comprehensive system prompt with full business knowledge
+  private createComprehensiveSystemPrompt(pcBuilds: any[], businessSettings: any, components: any[], lowStockData: any): string {
+    const buildsContext = pcBuilds.map(build => 
+      `${build.name}: ₹${build.basePrice?.toLocaleString() || 'N/A'} - ${build.description || 'Custom PC build'} (Stock: ${build.stockQuantity || 0})`
+    ).join('\n');
+
+    const componentsContext = components.slice(0, 20).map(comp => 
+      `${comp.name}: ${comp.specification} - ₹${comp.price} (${comp.type})`
+    ).join('\n');
+
+    const lowStockWarnings = lowStockData.builds.length > 0 || lowStockData.components.length > 0 
+      ? `\nLOW STOCK ALERTS:\n${lowStockData.builds.map(b => `- ${b.name}: Only ${b.stockQuantity} left`).join('\n')}\n${lowStockData.components.map(c => `- ${c.name}: Only ${c.stockQuantity} left`).join('\n')}`
+      : '';
+
+    return `You are FusionForge AI Assistant, an expert in custom PC building and computer hardware. You work for FusionForge PCs, a premium PC building company in India.
+
+COMPANY CONTACT INFO:
+- Email: ${businessSettings.businessEmail || 'contact@fusionforgepc.com'}
+- Phone: ${businessSettings.businessPhone || '+91-XXXX-XXXX'}
+- Business Hours: ${businessSettings.businessHours || '9 AM - 6 PM'}
+- Company: ${businessSettings.companyName || 'FusionForge PCs'}
+
+BUSINESS SERVICES:
+- Custom PC building and assembly
+- Component selection and compatibility checking
+- Performance optimization consulting
+- Warranty and after-sales support
+- Delivery and installation services
+
+AVAILABLE PC BUILDS (₹15,000 - ₹1,50,000):
+${buildsContext}
+
+KEY COMPONENTS & SPECIFICATIONS:
+${componentsContext}${lowStockWarnings}
+
+PAYMENT & DELIVERY:
+- Payment: UPI, Net Banking, Credit/Debit Cards, EMI via Razorpay
+- EMI available for orders above ₹10,000
+- Delivery: 3-5 business days (standard), 5-7 days (custom builds)
+- Free delivery for orders above ₹25,000
+- Assembly warranty: 1 year + component warranties (1-3 years)
+
+RESPONSE GUIDELINES:
+1. Be helpful, knowledgeable, and professional
+2. Provide specific recommendations based on user needs and budget
+3. Include accurate pricing in Indian Rupees (₹)
+4. Mention stock availability when relevant
+5. Suggest compatible components and upgrades
+6. Explain technical concepts in simple terms
+7. Keep responses concise but informative (2-3 sentences max)
+8. Always offer customization options
+
+ESCALATION TRIGGERS:
+- Order modifications, cancellations, or tracking
+- Payment issues, refunds, or EMI problems
+- Hardware defects, warranty claims, or returns
+- Complex technical troubleshooting (hardware failures)
+- Specific delivery dates or installation requests
+- Complaints, dissatisfaction, or manager requests
+- Requests exceeding your technical knowledge
+
+Remember: You represent FusionForge PCs. Be confident about our products and services while being honest about limitations. Focus on solving customer needs with our available builds and components.`;
+  }
+
+  // Legacy method for backward compatibility
   private createSystemPrompt(pcBuilds: any[]): string {
     const buildsContext = pcBuilds.map(build => 
       `${build.name}: ₹${build.basePrice?.toLocaleString() || 'N/A'} - ${build.description || 'Custom PC build'}`
