@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -8,15 +8,34 @@ import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import fusionForgeLogo from "@assets/Fusion Forge Logo bgremoved_1750750872227.png";
 
+// Hook to get admin email from server (fallback to env var)
+function useAdminEmail() {
+  const [adminEmail, setAdminEmail] = useState(import.meta.env.VITE_ADMIN_EMAIL || "");
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
+  useEffect(() => {
+    // If no env var set, fetch from server
+    if (!adminEmail) {
+      fetch('/api/admin/config')
+        .then(res => res.json())
+        .then(data => setAdminEmail(data.adminEmail || ""))
+        .catch(() => {
+          // Fallback to hardcoded value if API fails
+          setAdminEmail("fusionforgepc@gmail.com");
+        });
+    }
+  }, [adminEmail]);
+
+  return adminEmail;
+}
 
 export default function Navbar() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
+  const adminEmail = useAdminEmail();
 
-  const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+  const isAdmin = user?.email?.toLowerCase() === adminEmail.toLowerCase();
 
   const navItems = [
     { href: "/", label: "Home" },

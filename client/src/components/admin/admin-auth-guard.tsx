@@ -6,7 +6,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Shield, AlertTriangle, Loader2 } from "lucide-react";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "";
+// Hook to get admin email from server (same as navbar)
+function useAdminEmail() {
+  const [adminEmail, setAdminEmail] = useState(import.meta.env.VITE_ADMIN_EMAIL || "");
+
+  useEffect(() => {
+    if (!adminEmail) {
+      fetch('/api/admin/config')
+        .then(res => res.json())
+        .then(data => setAdminEmail(data.adminEmail || ""))
+        .catch(() => setAdminEmail("fusionforgepc@gmail.com"));
+    }
+  }, [adminEmail]);
+
+  return adminEmail;
+}
 
 interface AdminSessionContextType {
   adminSessionReady: boolean;
@@ -31,6 +45,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   const [, setLocation] = useLocation();
   const [adminSessionLoading, setAdminSessionLoading] = useState(false);
   const [adminSessionCreated, setAdminSessionCreated] = useState(false);
+  const ADMIN_EMAIL = useAdminEmail();
 
   useEffect(() => {
     if (!loading && !user) {

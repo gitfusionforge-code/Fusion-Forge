@@ -40,6 +40,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Admin configuration endpoint - provides admin email to frontend
+  app.get("/api/admin/config", (_req, res) => {
+    res.json({ 
+      adminEmail: process.env.ADMIN_EMAIL || ""
+    });
+  });
+
   // Prevent excessive HEAD requests to /api base path
   app.all("/api", (req, res) => {
     if (req.method === 'HEAD') {
