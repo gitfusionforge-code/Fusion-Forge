@@ -1,5 +1,11 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getDatabase, ref, get, set, push, update, remove, child, query, orderByChild, equalTo } from "firebase/database";
+import { 
+  createUserProfileLocal, 
+  getUserProfileLocal, 
+  updateUserProfileLocal, 
+  getAllUserProfilesLocal 
+} from './user-profiles-storage';
 import type { 
   PcBuild, 
   InsertPcBuild, 
@@ -379,26 +385,14 @@ export class FirebaseRealtimeStorage implements IStorage {
 
   // User Management
   async getUserProfile(uid: string): Promise<UserProfile | undefined> {
-    const snapshot = await get(ref(database, `userProfiles/${uid}`));
-    return snapshot.exists() ? snapshot.val() : undefined;
+    // Use local storage directly since Firebase admin credentials aren't available
+    return await getUserProfileLocal(uid);
   }
 
   async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
-    const newProfile: UserProfile = {
-      ...profile,
-      id: Date.now(),
-      displayName: profile.displayName || undefined,
-      phone: profile.phone || undefined,
-      address: profile.address || undefined,
-      city: profile.city || undefined,
-      zipCode: profile.zipCode || undefined,
-      preferences: profile.preferences || undefined,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    await set(ref(database, `userProfiles/${profile.uid}`), newProfile);
-    return newProfile;
+    console.log('📝 Using local storage for user profiles (Firebase admin not configured)');
+    // Use local storage directly since Firebase admin credentials aren't available
+    return await createUserProfileLocal(profile);
   }
 
   async getAllUserProfiles(): Promise<UserProfile[]> {

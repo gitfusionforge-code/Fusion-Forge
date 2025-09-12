@@ -635,9 +635,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { uid } = req.params;
       const profileData = { ...req.body, uid };
       
+      console.log('🔍 Profile creation request:', {
+        uid,
+        body: req.body,
+        profileData
+      });
+      
       const profile = await storage.createUserProfile(profileData);
       res.status(201).json(profile);
     } catch (error) {
+      console.error('❌ Profile creation error in route:', error);
+      console.error('Error details:', {
+        message: (error as any)?.message,
+        stack: (error as any)?.stack
+      });
       res.status(500).json({ error: "Failed to create profile" });
     }
   });
