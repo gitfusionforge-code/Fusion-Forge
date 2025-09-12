@@ -1,0 +1,240 @@
+// Prisma schema for FusionForge PCs
+// This schema matches the existing Firebase Realtime Database structure
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PcBuild {
+  id                   Int         @id // Manual ID assignment to preserve Firebase IDs
+  name                 String
+  category             String
+  buildType            String
+  budgetRange          String
+  basePrice            Int
+  profitMargin         Int
+  totalPrice           Int
+  description          String?
+  imageUrl             String?
+  
+  // Core Components
+  processor            String
+  motherboard          String
+  ram                  String
+  storage              String
+  gpu                  String?
+  casePsu              String
+  
+  // Peripherals (for Full Set builds)
+  monitor              String?
+  keyboardMouse        String?
+  mousePad             String?
+  
+  // Meta fields
+  stockQuantity        Int
+  lowStockThreshold    Int
+  isActive             Boolean
+  createdAt            DateTime
+  updatedAt            DateTime
+  
+  // Relations
+  components           Component[]
+  savedBuilds          SavedBuild[]
+  
+  @@map("pc_builds")
+}
+
+model Component {
+  id                   Int      @id // Manual ID assignment
+  buildId              Int
+  name                 String
+  specification        String
+  price                String
+  type                 String
+  stockQuantity        Int
+  lowStockThreshold    Int
+  isActive             Boolean
+  sku                  String?
+  createdAt            DateTime
+  updatedAt            DateTime
+  
+  // Relations
+  build                PcBuild  @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  
+  @@map("components")
+}
+
+model Inquiry {
+  id                   Int      @id // Manual ID assignment
+  name                 String
+  email                String
+  phone                String?
+  budget               String
+  useCase              String
+  details              String
+  message              String?
+  status               String
+  createdAt            DateTime
+  updatedAt            DateTime
+  
+  @@map("inquiries")
+}
+
+model UserProfile {
+  id                   Int      @id // Manual ID assignment
+  uid                  String   @unique
+  email                String   @unique
+  displayName          String?
+  phone                String?
+  address              String?
+  city                 String?
+  zipCode              String?
+  preferences          String?
+  createdAt            DateTime
+  updatedAt            DateTime
+  
+  // Relations
+  orders               Order[]
+  savedBuilds          SavedBuild[]
+  addresses            UserAddress[]
+  subscriptions        Subscription[]
+  subscriptionOrders   SubscriptionOrder[]
+  
+  @@map("user_profiles")
+}
+
+model Order {
+  id                   Int      @id // Manual ID assignment
+  userId               String
+  orderNumber          String   @unique
+  status               String
+  total                Int
+  items                String   // JSON string to preserve existing format
+  customerName         String?
+  customerEmail        String?
+  shippingAddress      String?
+  billingAddress       String?
+  paymentMethod        String?
+  trackingNumber       String?
+  createdAt            DateTime
+  updatedAt            DateTime
+  
+  // Relations
+  user                 UserProfile @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([customerEmail])
+  @@map("orders")
+}
+
+model SavedBuild {
+  id                   Int      @id // Manual ID assignment
+  userId               String
+  buildId              Int
+  savedAt              DateTime
+  
+  // Relations
+  user                 UserProfile @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  build                PcBuild     @relation(fields: [buildId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, buildId]) // Prevent duplicate saves
+  @@map("saved_builds")
+}
+
+model UserAddress {
+  id                   String   @id // Keep as String to preserve existing IDs
+  userId               String
+  fullName             String
+  phone                String
+  address              String
+  city                 String
+  zipCode              String
+  isDefault            Boolean
+  createdAt            DateTime
+  
+  // Relations
+  user                 UserProfile @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  
+  @@index([userId])
+  @@map("user_addresses")
+}
+
+model AdminSetting {
+  id                   Int      @id // Manual ID assignment
+  key                  String   @unique
+  value                String
+  updatedAt            DateTime
+  
+  @@map("admin_settings")
+}
+
+model Subscription {
+  id                   String   @id // Keep as String (UUIDs)
+  userId               String
+  planId               String
+  planName             String
+  status               String   // 'active' | 'paused' | 'cancelled' | 'expired' | 'pending'
+  billingCycle         String   // 'monthly' | 'quarterly' | 'yearly'
+  basePrice            Int
+  discountPercentage   Int
+  finalPrice           Int
+  items                Json     // Array of subscription items
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  nextBillingDate      DateTime
+  lastPaymentDate      DateTime?
+  lastPaymentId        String?
+  customerEmail        String
+  customerName         String
+  shippingAddress      String
+  paymentMethod        String
+  razorpaySubscriptionId String?
+  totalDelivered       Int      @default(0)
+  successfulPayments   Int      @default(0)
+  failedPayments       Int      @default(0)
+  createdAt            DateTime
+  updatedAt            DateTime
+  cancelledAt          DateTime?
+  cancellationReason   String?
+  
+  // Relations
+  user                 UserProfile         @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  orders               SubscriptionOrder[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([nextBillingDate])
+  @@map("subscriptions")
+}
+
+model SubscriptionOrder {
+  id                   String   @id // Keep as String (UUIDs)
+  subscriptionId       String
+  userId               String
+  orderNumber          String   @unique
+  status               String   // 'pending' | 'processing' | 'shipped' | 'delivered' | 'failed'
+  amount               Int
+  items                String   // JSON string to preserve existing format
+  paymentId            String?
+  billingPeriod        String
+  deliveryDate         DateTime?
+  trackingNumber       String?
+  notes                String?
+  createdAt            DateTime
+  updatedAt            DateTime
+  
+  // Relations
+  subscription         Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  user                 UserProfile  @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  
+  @@index([subscriptionId])
+  @@index([userId])
+  @@index([status])
+  @@map("subscription_orders")
+}

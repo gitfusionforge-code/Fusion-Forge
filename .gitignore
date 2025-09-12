@@ -106,3 +106,4 @@ Thumbs.db
 # Cache and temporary files
 .cache/
 .parcel-cache/
+/generated/prisma

@@ -21,6 +21,7 @@ import {
 } from "./middleware/admin-auth";
 import { subscriptionRoutes } from "./routes/subscription-routes";
 import { chatRoutes } from "./routes/chat-routes";
+import { testRoutes } from "./routes/test-routes";
 import { webhookRateLimit } from "./middleware/webhook-auth";
 import { loadBusinessSettings, saveBusinessSettings, initializeBusinessSettings } from "./business-settings-storage";
 
@@ -65,6 +66,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Chat AI routes
   app.use("/api/chat", chatRoutes);
+
+  // Test routes for Prisma integration
+  app.use("/api", testRoutes);
 
   // Placeholder image endpoint
   app.get("/api/placeholder/:width/:height", (req, res) => {
