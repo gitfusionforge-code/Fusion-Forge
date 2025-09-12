@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
 
 // Firebase configuration using environment variables
 const firebaseConfig = {
@@ -28,8 +28,8 @@ if (import.meta.env.DEV) {
 
 // Initialize Firebase only if properly configured
 let app = null;
-let auth = null;
-let db = null;
+let auth: Auth | null = null;
+let db: Firestore | null = null;
 
 if (isFirebaseConfigured) {
   try {
