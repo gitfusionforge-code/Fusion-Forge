@@ -40,6 +40,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Prevent excessive HEAD requests to /api base path
+  app.all("/api", (req, res) => {
+    if (req.method === 'HEAD') {
+      // Respond quickly to HEAD requests without processing
+      res.status(200).end();
+    } else {
+      res.status(404).json({ 
+        error: "API endpoint not found", 
+        message: "Please use specific API endpoints like /api/health or /api/builds" 
+      });
+    }
+  });
+
   // Subscription routes
   app.use("/api/subscription", subscriptionRoutes);
 
