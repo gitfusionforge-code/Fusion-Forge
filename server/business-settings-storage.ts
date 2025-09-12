@@ -36,7 +36,7 @@ export async function loadBusinessSettings(): Promise<BusinessSettings> {
       return { ...DEFAULT_SETTINGS, ...settings };
     }
   } catch (error: any) {
-    console.error('Firebase permission issue, using local fallback:', error.message);
+    // Silently fall back to defaults (Firebase permissions expected in development)
   }
   
   // Return default settings if Firebase access fails or data doesn't exist

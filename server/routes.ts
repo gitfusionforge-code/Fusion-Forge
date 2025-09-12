@@ -152,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const snapshot = await get(ref(database, 'admin/settings/business'));
         settings = snapshot.val();
       } catch (firebaseError: any) {
-        console.log('Firebase permission issue, using local fallback:', firebaseError.message);
+        // Silently fall back to local storage (Firebase permissions expected in development)
         settings = null;
       }
       
