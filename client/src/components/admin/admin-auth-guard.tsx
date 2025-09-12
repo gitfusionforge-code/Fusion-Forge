@@ -56,7 +56,8 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   // Auto-create admin session when user is authenticated
   useEffect(() => {
     const createAdminSession = async () => {
-      if (user && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && !adminSessionCreated) {
+      // Only proceed if we have both user and admin email loaded
+      if (user && ADMIN_EMAIL && user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase() && !adminSessionCreated) {
         setAdminSessionLoading(true);
         try {
           const response = await fetch('/api/admin/login', {
@@ -71,23 +72,25 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
           if (response.ok) {
             // Add a small delay to ensure session cookie is set
             await new Promise(resolve => setTimeout(resolve, 100));
+            setAdminSessionLoading(false); // Reset loading state
             setAdminSessionCreated(true);
           } else {
             const errorData = await response.text();
             console.error('Failed to create admin session:', errorData);
+            setAdminSessionLoading(false); // Stop loading on error
           }
         } catch (error) {
           console.error('Error creating admin session:', error);
-        } finally {
-          setAdminSessionLoading(false);
+          setAdminSessionLoading(false); // Stop loading on error
         }
       }
     };
 
     createAdminSession();
-  }, [user, adminSessionCreated]);
+  }, [user, ADMIN_EMAIL, adminSessionCreated]); // Add ADMIN_EMAIL to dependencies
 
-  if (loading || adminSessionLoading || !adminSessionCreated) {
+  // Show loading while auth is loading, admin email is loading, or admin session is being created
+  if (loading || !ADMIN_EMAIL || adminSessionLoading || (!adminSessionCreated && user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase())) {
     return (
       <div className="min-h-screen bg-light-grey flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -95,7 +98,9 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
             <div className="text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600">
-                {loading ? "Verifying admin access..." : "Setting up admin session..."}
+                {loading ? "Verifying admin access..." : 
+                 !ADMIN_EMAIL ? "Loading configuration..." :
+                 "Setting up admin session..."}
               </p>
             </div>
           </CardContent>
