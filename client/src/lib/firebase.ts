@@ -13,10 +13,8 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Validate required Firebase configuration
-if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
-  throw new Error('Missing required Firebase environment variables. Please set VITE_FIREBASE_API_KEY, VITE_FIREBASE_PROJECT_ID, and VITE_FIREBASE_APP_ID.');
-}
+// Check if Firebase is properly configured
+const isFirebaseConfigured = !!(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId);
 
 // Only log in development
 if (import.meta.env.DEV) {
@@ -28,22 +26,37 @@ if (import.meta.env.DEV) {
   });
 }
 
-// Initialize Firebase
-let app;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
+// Initialize Firebase only if properly configured
+let app = null;
+let auth = null;
+let db = null;
+
+if (isFirebaseConfigured) {
+  try {
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+
+    // Initialize Firebase Authentication and get a reference to the service
+    auth = getAuth(app);
+
+    // Initialize Cloud Firestore and get a reference to the service
+    db = getFirestore(app);
+
+    if (import.meta.env.DEV) {
+      console.log('Firebase initialized successfully');
+    }
+  } catch (error) {
+    console.error('Failed to initialize Firebase:', error);
+    // Continue without Firebase - app will still render
+  }
 } else {
-  app = getApps()[0];
+  console.warn('Firebase not configured - app will run without authentication and database features');
 }
 
-// Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
-
-// Initialize Cloud Firestore and get a reference to the service
-export const db = getFirestore(app);
-
-if (import.meta.env.DEV) {
-  console.log('Firebase initialized successfully');
-}
+// Export Firebase services (may be null if not configured)
+export { auth, db };
 
 export default app;
